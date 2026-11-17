@@ -1,0 +1,30 @@
+{
+  "name": "tag-skills",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Validator and Skills CLI smoke tests for TAG's installable Agent Skills.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=26.13.0"
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "node --test tests/",
+    "validate": "node scripts/validate-skills.js",
+    "test:smoke": "node scripts/validate-skills.js && node scripts/validate-skills.js --fixtures tests/fixtures/skills && node scripts/smoke-skills-cli.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.6.6",
+    "eslint": "10.15.0",
+    "globals": "17.14.0",
+    "prettier": "3.9.10",
+    "skills": "1.7.6",
+    "typescript": "6.0.3",
+    "yaml": "2.9.1"
+  }
+}

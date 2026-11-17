@@ -1,0 +1,21 @@
+# Code owners for theapotheosisgroup/tag-skills.
+#
+# CODEOWNERS is not inherited from theapotheosisgroup/.github; each repository keeps its own.
+# Owners are individual accounts until the organization creates teams. When it does, replace the
+# entries below with a team that has write access here. A team or user without write access is
+# reported as an error by GitHub, which the codeowners CI job checks.
+
+*                     @inocult
+
+# Published skills: anything here is installed into agent clients.
+/skills/              @inocult
+
+# CI, the validator and the pinned Skills CLI decide what counts as a valid skill.
+/.github/             @inocult
+/scripts/             @inocult
+/package.json         @inocult
+/package-lock.json    @inocult
+
+# Security policy and ownership.
+/SECURITY.md          @inocult
+/CODEOWNERS           @inocult

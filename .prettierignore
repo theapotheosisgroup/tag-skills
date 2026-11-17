@@ -1,0 +1,4 @@
+# Markdown is linted by markdownlint (.markdownlint-cli2.jsonc), not reformatted.
+*.md
+package-lock.json
+node_modules/

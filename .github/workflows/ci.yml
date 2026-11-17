@@ -1,0 +1,106 @@
+# Blocking CI for tag-skills. Standards: https://github.com/theapotheosisgroup/.github/blob/main/standards/CI-CD.md
+#
+# Shared workflows are pinned to the merged commit of theapotheosisgroup/.github main, because .github
+# has no release tag yet; move the pins to a release SHA when one exists. Every job blocks: none uses
+# continue-on-error.
+#
+# What runs, and why only this: tag-skills holds documentation, a skill validator and Skills CLI smoke
+# tests (README "Continuous integration"). Further checks (script tests per skill, private-repository
+# installation) are added with the first published skills in R05.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # Lockfile install, format, lint, type check, validator unit tests, and test:smoke (validate skills/
+  # and the fixture, then Skills CLI discovery and installation). No build: nothing is built.
+  node:
+    name: node
+    permissions:
+      contents: read
+    uses: theapotheosisgroup/.github/.github/workflows/reusable-node-ci.yml@605428cef3906d16913b49a697df33d61722f7d3 # main (no release yet)
+    with:
+      node-version-file: .nvmrc
+      contract-test-script: test:smoke
+      build-script: ""
+
+  markdown:
+    name: markdown
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Lint Markdown
+        uses: DavidAnson/markdownlint-cli2-action@696eb3f2509270d7b882d2aa68347bc676e7af34 # v25.0.0
+        with:
+          globs: |
+            **/*.md
+            #**/node_modules
+
+  links:
+    name: links
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Offline: every relative link and in-repo anchor must resolve. External URLs are not checked
+      # here, so a third-party outage cannot block a merge.
+      - name: Check relative links and anchors
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          args: --offline --include-fragments --no-progress --exclude-path node_modules './**/*.md'
+          fail: true
+          format: markdown
+          jobSummary: true
+
+  codeowners:
+    name: codeowners
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Ask GitHub to validate CODEOWNERS at this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          errors="$(gh api "repos/$REPO/codeowners/errors?ref=$REF" --jq '.errors')"
+          echo "$errors"
+          if [[ "$errors" != "[]" ]]; then
+            echo "::error::CODEOWNERS has errors (see above)."
+            exit 1
+          fi
+
+  # gitleaks over the full history; OSV-Scanner vulnerabilities and license policy over package-lock.json.
+  # dependency-review stays off: private repository on the Team plan, without GitHub Code Security.
+  security:
+    name: security
+    permissions:
+      contents: read
+    uses: theapotheosisgroup/.github/.github/workflows/reusable-security.yml@605428cef3906d16913b49a697df33d61722f7d3 # main (no release yet)
+    with:
+      dependency-review: false
