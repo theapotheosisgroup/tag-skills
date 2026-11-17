@@ -86,6 +86,8 @@ try {
   }
   if (published.length > 0 && root.code !== 0)
     fail(`discovery from the repository root failed (exit ${root.code}):\n${root.output}`);
+  if (published.length === 0 && (root.code !== 1 || !/No (valid )?skills found/i.test(root.output)))
+    fail(`discovery from the repository root did not report "No skills found" (exit ${root.code}):\n${root.output}`);
   console.log(`ok - repository root lists ${published.length} published skill(s) and hides the fixture`);
 
   // 2. Fixture discovery.

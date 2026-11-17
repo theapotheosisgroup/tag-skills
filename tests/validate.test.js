@@ -117,6 +117,14 @@ describe("relativeLinks", () => {
     ].join("\n");
     assert.deepEqual(relativeLinks(body), ["references/a.md", "assets/b.png", "scripts/h.sh"]);
   });
+  test("collects links with double-quoted, single-quoted and parenthesised titles", () => {
+    const body = `[a](references/a.md "A") [b](references/b.md 'B') [c](references/c.md (C))`;
+    assert.deepEqual(relativeLinks(body), ["references/a.md", "references/b.md", "references/c.md"]);
+  });
+  test("decodes percent-escapes and keeps targets that are not valid URI encoding", () => {
+    const body = "[a](references/my%20guide.md) [b](reports/100%.md) [c](a%zz.md)";
+    assert.deepEqual(relativeLinks(body), ["references/my guide.md", "reports/100%.md", "a%zz.md"]);
+  });
 });
 
 describe("validateSkill", () => {
@@ -150,6 +158,14 @@ describe("validateSkill", () => {
     const text = messages(await validateSkill(dir));
     assert.match(text, /"references\/none.md" does not resolve/);
     assert.match(text, /"..\/other\/SKILL.md" points outside/);
+  });
+  test("reports broken links with single-quoted titles or invalid percent-escapes", async () => {
+    const { dir } = await makeSkill("demo-skill", {
+      "SKILL.md": valid() + "\n[guide](references/missing.md 'Guide') [report](reports/100%.md)\n",
+    });
+    const text = messages(await validateSkill(dir));
+    assert.match(text, /"references\/missing.md" does not resolve/);
+    assert.match(text, /"reports\/100%.md" does not resolve/);
   });
   test("reports unexpected entries, credentials, symlinks and non-executable scripts", async () => {
     const { dir } = await makeSkill("demo-skill", {

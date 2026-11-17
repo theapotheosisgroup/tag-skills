@@ -127,6 +127,18 @@ export function checkFrontmatter(data, dirName, options = {}) {
 }
 
 /**
+ * Percent-decodes a link target, keeping it as written when it is not valid URI encoding.
+ * @param {string} target
+ */
+function decodeTarget(target) {
+  try {
+    return decodeURI(target);
+  } catch {
+    return target;
+  }
+}
+
+/**
  * Returns the relative link targets in a Markdown body (inline links and images, and reference
  * definitions), without fragments. External URLs, mailto: and pure fragments are excluded.
  * @param {string} body
@@ -136,14 +148,14 @@ export function relativeLinks(body) {
   const withoutCode = body.replace(/```[\s\S]*?```/g, "").replace(/`[^`\n]*`/g, "");
   /** @type {string[]} */
   const targets = [];
-  const inline = /!?\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)/g;
+  const inline = /!?\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+(?:"[^"]*"|'[^']*'|\([^)]*\)))?\s*\)/g;
   const reference = /^\s{0,3}\[[^\]]+\]:\s*<?(\S+?)>?(?:\s+.*)?$/gm;
   for (const re of [inline, reference]) {
     for (const match of withoutCode.matchAll(re)) targets.push(match[1]);
   }
   return targets
     .filter((t) => !/^[a-z][a-z0-9+.-]*:/i.test(t) && !t.startsWith("#") && !t.startsWith("//"))
-    .map((t) => decodeURI(t.split("#")[0]))
+    .map((t) => decodeTarget(t.split("#")[0]))
     .filter((t) => t.length > 0);
 }
 
