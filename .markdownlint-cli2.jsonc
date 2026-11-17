@@ -1,0 +1,11 @@
+{
+  "config": {
+    "default": true,
+    // Long lines are fine in prose and tables.
+    "MD013": false,
+    // Repeated headings are fine in different sections.
+    "MD024": { "siblings_only": true },
+  },
+  // CLAUDE.md is the two-line @AGENTS.md import pointer, which has no heading by design.
+  "ignores": ["**/node_modules/**", "CLAUDE.md"],
+}

@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # The shared .github workflows and the actions in ci.yml, pinned by SHA.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]
+  # The validator tooling and the pinned Skills CLI (ADR 0002).
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
