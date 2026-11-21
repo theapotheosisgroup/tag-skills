@@ -48,3 +48,5 @@ Recorded so the R05 author starts from the inventoried commit. They are not move
 | Planned destination | Source repository | Source path | Branch | SHA (R00, 2026-11-17) |
 | --- | --- | --- | --- | --- |
 | `skills/finance/finance-supplier-invoice/` | tag-backoffice | `agents/supplier-invoice/agent.md` | develop | `5997a22978f83480741e3360b88833ecc29587e3` |
+
+An intake skill is blocked: its source exists only on unmerged tag-backoffice branches (`ore/fm-port-backoffice`, `ore/fm-intake-agent-*`).
