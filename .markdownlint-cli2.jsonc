@@ -5,6 +5,9 @@
     "MD013": false,
     // Repeated headings are fine in different sections.
     "MD024": { "siblings_only": true },
+    // Table pipe spacing is cosmetic. Imported upstream guides keep their source tables, and
+    // the statement script's generated examples are compared byte-for-byte with its output.
+    "MD060": false,
   },
   // CLAUDE.md is the two-line @AGENTS.md import pointer, which has no heading by design.
   "ignores": ["**/node_modules/**", "CLAUDE.md"],
