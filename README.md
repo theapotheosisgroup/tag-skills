@@ -135,11 +135,11 @@ Start with [CONTRIBUTING.md](CONTRIBUTING.md) (forking and updating skills, nami
 ## Release and rollback
 
 - **Release.** A skill change is released when its pull request merges into `main`. Repository releases are `vMAJOR.MINOR.PATCH` tags with a [CHANGELOG.md](CHANGELOG.md) entry, per [RELEASES](https://github.com/theapotheosisgroup/.github/blob/main/standards/RELEASES.md); the first (`v0.1.0`) is **Proposed but not implemented**. Runtime bundles pin a tag or full SHA.
-- **Rollback.** Revert the pull request on `main` or pin consumers to the previous tag; consumers reinstall. A skill deploys nothing and holds no state.
+- **Rollback.** Revert the pull request on `develop` or pin consumers to the previous tag; consumers reinstall. A skill deploys nothing and holds no state.
 
 ## Continuous integration
 
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on every pull request and push to `main`. Every job blocks.
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on every pull request and push to `develop`. Every job blocks.
 
 | Check | What it runs |
 | --- | --- |
