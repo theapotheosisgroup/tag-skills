@@ -24,6 +24,7 @@ Turns **verified** figures into a single HTML dashboard. The dashboard displays 
 | --- | --- | --- |
 | `tag.policy.reporting.read` | proposed | Approved metric definitions, thresholds and presentation language |
 | `tag.data.query` | proposed | Read-only queries that follow [references/read-only-query-rules.md](references/read-only-query-rules.md), and only for figures that then pass finance-validate-data |
+| `tag.data.schema.read` | proposed | Approved tables and columns that queries may reference |
 | `tag.evidence.attach` | proposed | Record the dashboard file, its hash and the input identities |
 | `tag.review.request` | proposed | Route the dashboard to a reviewer before it is shared |
 

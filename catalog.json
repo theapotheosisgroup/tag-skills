@@ -48,6 +48,7 @@
       "capabilities": [
         "tag.policy.reporting.read",
         "tag.data.query",
+        "tag.data.schema.read",
         "tag.evidence.attach",
         "tag.review.request"
       ],
@@ -57,7 +58,7 @@
       "provenance": [
         "anthropics/knowledge-work-plugins:data/skills/build-dashboard"
       ],
-      "contentHash": "sha256:4a39cade9dccdeb1a4e07fade43d64d6c01391df8b7202d274a1c61cbb032184"
+      "contentHash": "sha256:351fdfc16f3c9978c1aad93d023f56c77ecb5efb454c0f772bf64e76ed8b417e"
     },
     {
       "name": "finance-close-management",

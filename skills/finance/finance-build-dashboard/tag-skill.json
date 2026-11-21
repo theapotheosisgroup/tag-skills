@@ -17,6 +17,11 @@
       "use": "Read-only queries only, for figures that then pass finance-validate-data."
     },
     {
+      "name": "tag.data.schema.read",
+      "required": false,
+      "use": "Approved tables and columns that queries may reference."
+    },
+    {
       "name": "tag.evidence.attach",
       "required": false,
       "use": "Record the dashboard file, its hash and the input identities."
