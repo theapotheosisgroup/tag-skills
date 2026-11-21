@@ -23,7 +23,7 @@ Turns **verified** figures into a single HTML dashboard. The dashboard displays 
 | Capability | Status | Use |
 | --- | --- | --- |
 | `tag.policy.reporting.read` | proposed | Approved metric definitions, thresholds and presentation language |
-| `tag.data.query` | proposed | Read-only queries only, and only for figures that then pass finance-validate-data |
+| `tag.data.query` | proposed | Read-only queries that follow [references/read-only-query-rules.md](references/read-only-query-rules.md), and only for figures that then pass finance-validate-data |
 | `tag.evidence.attach` | proposed | Record the dashboard file, its hash and the input identities |
 | `tag.review.request` | proposed | Route the dashboard to a reviewer before it is shared |
 
@@ -56,4 +56,5 @@ Requires finance-validate-data for any figures that do not come from a finance-f
 ## References
 
 - [references/metric-definitions.md](references/metric-definitions.md): how to declare metrics and sources.
+- [references/read-only-query-rules.md](references/read-only-query-rules.md): rules every `tag.data.query` call follows.
 - [references/upstream-guide.md](references/upstream-guide.md): upstream layout guidance, Chart.js template, filters and styling (adapted).

@@ -33,7 +33,7 @@ Produces a **data profile**: what a data set contains, how complete and consiste
 ## Procedure
 
 1. **Identify the data set:** source, extraction time, row count, grain (one row per what) and the expected scope. Completion: all stated, or the gap noted.
-2. **Profile structure:** columns, types, null and blank rates, distinct counts, min and max for dates and amounts. Use read-only aggregate queries through `tag.data.query` rather than pulling detail rows. Completion: a column table.
+2. **Profile structure:** columns, types, null and blank rates, distinct counts, min and max for dates and amounts. Use read-only aggregate queries through `tag.data.query`, following [references/read-only-query-rules.md](references/read-only-query-rules.md), rather than pulling detail rows. Completion: a column table.
 3. **Run the accounting checks** in [references/accounting-checks.md](references/accounting-checks.md): required fields, duplicates (exact and near), debit/credit balance and sign conventions, out-of-period and future dates, unposted or draft rows, accounts missing from the chart, currency mix, entity and intercompany coding. Completion: each check has a result and a count.
 4. **Measure coverage:** rows and amounts by period, entity and account against the expected scope; months with no activity; totals against control figures. Completion: a coverage matrix and each difference with its amount.
 5. **Classify findings:** blocking (the data cannot support the intended use until fixed), needs confirmation, or informational. Completion: every finding has a class and a suggested owner.
@@ -59,9 +59,10 @@ A profile following [references/upstream-guide.md](references/upstream-guide.md#
 
 ## Dependencies
 
-None. Queries go through `tag.data.query` against approved, organization-scoped data sets and are read-only `SELECT` statements; this skill never runs statements that change data.
+None. Queries go through `tag.data.query` against approved, organization-scoped data sets and are read-only `SELECT` statements that follow [references/read-only-query-rules.md](references/read-only-query-rules.md) (bound parameters only, identifiers from the approved schema, organization scope never widened); this skill never runs statements that change data.
 
 ## References
 
 - [references/accounting-checks.md](references/accounting-checks.md): the accounting-specific checks.
+- [references/read-only-query-rules.md](references/read-only-query-rules.md): rules every `tag.data.query` call follows.
 - [references/upstream-guide.md](references/upstream-guide.md): general profiling workflow, quality framework and output format (upstream, adapted).

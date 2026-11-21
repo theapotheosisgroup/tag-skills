@@ -23,7 +23,7 @@ Produces a **validation report**: which objective checks passed or failed (with 
 
 | Capability | Status | Use |
 | --- | --- | --- |
-| `tag.data.query` | proposed | Recompute totals from the approved source, with a read-only query |
+| `tag.data.query` | proposed | Recompute totals from the approved source, with a read-only query that follows [references/read-only-query-rules.md](references/read-only-query-rules.md) |
 | `tag.data.schema.read` | proposed | Metric definitions to check calculations against |
 | `tag.ledger.trial_balance.read` | proposed | Control totals for completeness |
 | `tag.policy.reporting.read` | proposed | Approved thresholds and definitions, when the analysis is financial reporting |
@@ -59,4 +59,5 @@ A validation report (template in [references/upstream-guide.md](references/upstr
 ## References
 
 - [references/objective-checks.md](references/objective-checks.md): objective checks and the judgement rubric.
+- [references/read-only-query-rules.md](references/read-only-query-rules.md): rules every `tag.data.query` call follows.
 - [references/upstream-guide.md](references/upstream-guide.md): upstream QA checklist, pitfalls and report template (adapted).

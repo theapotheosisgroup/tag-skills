@@ -57,7 +57,7 @@
       "provenance": [
         "anthropics/knowledge-work-plugins:data/skills/build-dashboard"
       ],
-      "contentHash": "sha256:054115897ec2cfd134d89b762ee3e2e02e81d52800db0e5d3bbec7f4a3d1baa9"
+      "contentHash": "sha256:4a39cade9dccdeb1a4e07fade43d64d6c01391df8b7202d274a1c61cbb032184"
     },
     {
       "name": "finance-close-management",
@@ -117,7 +117,7 @@
       "provenance": [
         "anthropics/knowledge-work-plugins:data/skills/explore-data"
       ],
-      "contentHash": "sha256:f7db71f7e355bd60d89ddf48c2e742137718559610c61982b3042df04272bc86"
+      "contentHash": "sha256:bdab24d5e859ace58dc5693fa99580477cc6db17d82a3d2df006861e73485da2"
     },
     {
       "name": "finance-financial-statements",
@@ -231,7 +231,7 @@
       "provenance": [
         "anthropics/knowledge-work-plugins:data/skills/validate-data"
       ],
-      "contentHash": "sha256:7f8284b6fe43a79e1f6d4155338a14fe22a853a71e95e4cb234abfc84db91f9d"
+      "contentHash": "sha256:f09b2e1d019b2c7db75660e1a0d4dc4ac5c2ff05e78e1bb3cf48010dce902009"
     },
     {
       "name": "finance-variance-analysis",
