@@ -2,6 +2,8 @@
 
 Organization-wide rules for branches, pull requests, commits, reviews and testing are in [theapotheosisgroup/.github](https://github.com/theapotheosisgroup/.github/tree/main/standards), starting with [REPOSITORIES](https://github.com/theapotheosisgroup/.github/blob/main/standards/REPOSITORIES.md#branches-and-pull-requests) and [AGENTS-AND-SKILLS](https://github.com/theapotheosisgroup/.github/blob/main/standards/AGENTS-AND-SKILLS.md#skills). This file adds only what is specific to `tag-skills`.
 
+Branch from `develop` and open pull requests against `develop` (the default branch); `main` is frozen.
+
 ## Before you open a pull request
 
 ```bash
