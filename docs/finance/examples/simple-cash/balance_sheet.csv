@@ -1,0 +1,4 @@
+section,code,label,amount,presented,comparative,accounts
+current_assets,cash,Cash and cash equivalents,1300.00,1300.00,1000.00,1000
+equity,share_capital,Share capital,1000.00,1000.00,1000.00,3000
+equity,retained_earnings,Retained earnings,300.00,300.00,0.00,

@@ -1,0 +1,11 @@
+account,account_name,balance,line,statement,adjustments
+1000,Cash - CAD,4500.00,cash,balance_sheet,
+1010,Cash - USD (CAD equivalent),1500.00,cash,balance_sheet,
+1150,Due from Synthetic Sister Co.,800.00,intercompany_receivable,balance_sheet,
+1600,Investments at FVOCI,2200.00,investments,balance_sheet,
+3000,Share capital,-5000.00,share_capital,balance_sheet,
+3100,Retained earnings,-1900.00,retained_earnings,balance_sheet,
+4000,Service revenue,-4300.00,revenue,income_statement,
+5000,Operating expenses,2500.00,operating_expenses,income_statement,
+5300,Foreign exchange gain,-100.00,fx_gain_loss,income_statement,
+6000,OCI - fair value gain on investments,-200.00,oci,income_statement,

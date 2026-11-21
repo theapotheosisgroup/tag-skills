@@ -1,0 +1,32 @@
+{
+  "description": "The simple case with operating expenses recorded as 190 instead of 200: debits 1,490, credits 1,500.",
+  "derivation": [
+    "Debits - credits = 1,490 - 1,500 = -10",
+    "Profit = 500 - 190 = 310; equity = 1,000 + 310 = 1,310; assets = 1,300; difference = -10",
+    "Cash flow: 1,000 + 310 = 1,310 expected vs 1,300 actual = -10",
+    "No balancing amount is added: all three differences are reported"
+  ],
+  "status": "blocked",
+  "figures": {
+    "net_income": "310",
+    "total_assets": "1300",
+    "total_equity": "1310"
+  },
+  "statements": {
+    "cash_flow_statement": "incomplete"
+  },
+  "exceptions": [
+    {
+      "code": "TB_UNBALANCED",
+      "amount": "-10"
+    },
+    {
+      "code": "BS_IMBALANCE",
+      "amount": "-10"
+    },
+    {
+      "code": "CASH_FLOW_UNRECONCILED",
+      "amount": "-10"
+    }
+  ]
+}

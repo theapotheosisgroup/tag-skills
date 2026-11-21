@@ -1,0 +1,42 @@
+{
+  "name": "tag-handoff",
+  "version": "0.1.0",
+  "domain": "productivity",
+  "priority": "authoring",
+  "audiences": ["engineering"],
+  "invocation": "user",
+  "capabilities": [],
+  "inputs": [
+    {
+      "name": "session history and artifacts",
+      "required": true,
+      "source": "the current session"
+    },
+    {
+      "name": "permission context (organization, acting principal, mandate, correlation id)",
+      "required": false,
+      "source": "TAG harness run context or the user"
+    },
+    {
+      "name": "focus of the next session",
+      "required": false,
+      "source": "user"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "handoff document",
+      "format": "markdown file in the OS temporary directory"
+    }
+  ],
+  "dependencies": {
+    "skills": [],
+    "runtime": []
+  },
+  "sideEffects": "none",
+  "review": {
+    "required": false,
+    "conditions": ["The user checks the handoff for anything sensitive before sharing it."]
+  },
+  "provenance": ["mattpocock/skills:skills/productivity/handoff"]
+}

@@ -1,0 +1,59 @@
+{
+  "name": "tag-explore-data",
+  "version": "0.1.0",
+  "domain": "data",
+  "priority": "P1",
+  "audiences": ["tag-operations", "client-finance"],
+  "invocation": "model",
+  "capabilities": [
+    { "name": "tag.context.overview", "required": false, "use": "Confirm the nexus and the caller's role." },
+    { "name": "tag.data.schema.read", "required": false, "use": "Approved columns, types and definitions." },
+    { "name": "tag.data.query", "required": false, "use": "Aggregate profiling queries, through tag-sql-queries." },
+    {
+      "name": "tag.ledger.chart_of_accounts.read",
+      "required": false,
+      "use": "Valid and active accounts, to find unmapped or inactive accounts."
+    },
+    { "name": "tag.ledger.trial_balance.read", "required": false, "use": "Control totals for completeness checks." },
+    { "name": "tag.evidence.attach", "required": false, "use": "Record the profile, queries and data set identity." }
+  ],
+  "inputs": [
+    {
+      "name": "organization, entity, nexus, correlation id",
+      "required": true,
+      "source": "TAG harness run context; tag.context.overview"
+    },
+    {
+      "name": "data set or export with source and extraction time",
+      "required": true,
+      "source": "approved data set via tag-sql-queries, or a file the user supplies"
+    },
+    {
+      "name": "expected scope: entities, periods, accounts, currency",
+      "required": true,
+      "source": "the user's request or tag.policy.reporting.read"
+    },
+    {
+      "name": "sign convention and chart of accounts",
+      "required": false,
+      "source": "approved schema definitions or tag.ledger.chart_of_accounts.read"
+    },
+    { "name": "control totals", "required": false, "source": "tag.ledger.trial_balance.read or the user" }
+  ],
+  "outputs": [
+    {
+      "name": "data profile",
+      "format": "markdown",
+      "description": "Structure, accounting checks, coverage matrix, control-total differences, classified findings."
+    }
+  ],
+  "dependencies": { "skills": ["tag-sql-queries"], "runtime": [] },
+  "sideEffects": "draft",
+  "review": {
+    "required": false,
+    "conditions": [
+      "Blocking findings in data intended for financial reporting go to the person responsible for the ledger before anything is built on it."
+    ]
+  },
+  "provenance": ["anthropics/knowledge-work-plugins:data/skills/explore-data"]
+}

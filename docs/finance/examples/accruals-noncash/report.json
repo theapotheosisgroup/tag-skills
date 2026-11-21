@@ -1,0 +1,669 @@
+{
+  "schema": "tag.financial-statements.report/v1",
+  "generator": {
+    "skill": "tag-financial-statements",
+    "version": "0.1.0",
+    "script": "scripts/build_statements.py"
+  },
+  "status": "ready_for_review",
+  "label": "Projet de la direction : non audité, non examiné et non compilé. Préparé pour revue par une personne qualifiée.",
+  "organization": {
+    "id": "org-synthetic-001",
+    "name": "Synthetic Organization Inc."
+  },
+  "entity": {
+    "id": "ent-synthetic-001",
+    "name": "Synthetic Services Ltd."
+  },
+  "period": {
+    "start": "2026-01-01",
+    "end": "2026-12-31",
+    "label": "FY2026"
+  },
+  "framework": "ASPE",
+  "framework_name": "Normes comptables canadiennes pour les entreprises à capital fermé (NCECF)",
+  "language": "fr",
+  "reporting_currency": "CAD",
+  "presentation": {
+    "rounding_unit": "1.00",
+    "note": "Presented values are rounded line by line; totals are computed from exact amounts."
+  },
+  "report": {
+    "revision": 1,
+    "input_sha256": "9defdf7ce54c5132b5ead1278a37b99ecd10cead99d21326a3dde7393f1bbc4c",
+    "snapshot": {
+      "id": "snap-accruals-noncash",
+      "source": "synthetic fixture",
+      "extracted_at": "2027-01-15T09:00:00Z",
+      "complete": true
+    },
+    "policy": {
+      "id": "pol-synthetic-reporting",
+      "version": "2026.1"
+    },
+    "mapping": {
+      "id": "map-synthetic",
+      "version": "1"
+    },
+    "reviewer_status": "not_reviewed"
+  },
+  "statements": {
+    "income_statement": {
+      "title": "État des résultats",
+      "status": "prepared",
+      "lines": [
+        {
+          "code": "revenue",
+          "label": "Produits",
+          "amount": "30000.00",
+          "presented": "30000.00",
+          "accounts": [
+            "4000"
+          ],
+          "adjustments": []
+        },
+        {
+          "code": "operating_expenses",
+          "label": "Charges d'exploitation",
+          "amount": "-18000.00",
+          "presented": "-18000.00",
+          "accounts": [
+            "5000"
+          ],
+          "adjustments": [
+            "AJE-2026-01"
+          ]
+        },
+        {
+          "code": "depreciation_amortization",
+          "label": "Amortissements",
+          "amount": "-1000.00",
+          "presented": "-1000.00",
+          "accounts": [
+            "5100"
+          ],
+          "adjustments": [
+            "AJE-2026-02"
+          ]
+        },
+        {
+          "code": "interest_expense",
+          "label": "Charges d'intérêts",
+          "amount": "-300.00",
+          "presented": "-300.00",
+          "accounts": [
+            "5200"
+          ],
+          "adjustments": []
+        },
+        {
+          "code": "income_tax_expense",
+          "label": "Impôts sur le résultat",
+          "amount": "-2000.00",
+          "presented": "-2000.00",
+          "accounts": [
+            "5400"
+          ],
+          "adjustments": [
+            "AJE-2026-03"
+          ]
+        }
+      ],
+      "totals": {
+        "total_revenue": "30000.00",
+        "total_expenses": "-19300.00",
+        "income_before_tax": "10700.00",
+        "net_income": "8700.00",
+        "net_income_presented": "8700.00"
+      }
+    },
+    "balance_sheet": {
+      "title": "Bilan",
+      "status": "prepared",
+      "sections": {
+        "current_assets": [
+          {
+            "code": "cash",
+            "label": "Trésorerie et équivalents de trésorerie",
+            "amount": "10100.00",
+            "presented": "10100.00",
+            "accounts": [
+              "1000"
+            ],
+            "adjustments": [],
+            "comparative": "5000.00",
+            "comparative_presented": "5000.00"
+          },
+          {
+            "code": "receivables",
+            "label": "Débiteurs",
+            "amount": "5000.00",
+            "presented": "5000.00",
+            "accounts": [
+              "1100"
+            ],
+            "adjustments": [],
+            "comparative": "2000.00",
+            "comparative_presented": "2000.00"
+          },
+          {
+            "code": "prepaid_expenses",
+            "label": "Frais payés d'avance",
+            "amount": "600.00",
+            "presented": "600.00",
+            "accounts": [
+              "1200"
+            ],
+            "adjustments": [],
+            "comparative": "0.00",
+            "comparative_presented": "0.00"
+          }
+        ],
+        "noncurrent_assets": [
+          {
+            "code": "property_plant_equipment",
+            "label": "Immobilisations corporelles, au coût",
+            "amount": "16500.00",
+            "presented": "16500.00",
+            "accounts": [
+              "1500"
+            ],
+            "adjustments": [],
+            "comparative": "10000.00",
+            "comparative_presented": "10000.00"
+          },
+          {
+            "code": "accumulated_depreciation",
+            "label": "Amortissement cumulé",
+            "amount": "-3000.00",
+            "presented": "-3000.00",
+            "accounts": [
+              "1510"
+            ],
+            "adjustments": [
+              "AJE-2026-02"
+            ],
+            "comparative": "-2000.00",
+            "comparative_presented": "-2000.00"
+          }
+        ],
+        "current_liabilities": [
+          {
+            "code": "payables",
+            "label": "Créditeurs",
+            "amount": "2800.00",
+            "presented": "2800.00",
+            "accounts": [
+              "2000"
+            ],
+            "adjustments": [],
+            "comparative": "1500.00",
+            "comparative_presented": "1500.00"
+          },
+          {
+            "code": "accrued_liabilities",
+            "label": "Charges à payer",
+            "amount": "1200.00",
+            "presented": "1200.00",
+            "accounts": [
+              "2100"
+            ],
+            "adjustments": [
+              "AJE-2026-01"
+            ],
+            "comparative": "0.00",
+            "comparative_presented": "0.00"
+          },
+          {
+            "code": "income_taxes_payable",
+            "label": "Impôts sur le résultat à payer",
+            "amount": "2000.00",
+            "presented": "2000.00",
+            "accounts": [
+              "2200"
+            ],
+            "adjustments": [
+              "AJE-2026-03"
+            ],
+            "comparative": "0.00",
+            "comparative_presented": "0.00"
+          },
+          {
+            "code": "dividends_payable",
+            "label": "Dividendes à payer",
+            "amount": "500.00",
+            "presented": "500.00",
+            "accounts": [
+              "2300"
+            ],
+            "adjustments": [],
+            "comparative": "0.00",
+            "comparative_presented": "0.00"
+          }
+        ],
+        "noncurrent_liabilities": [
+          {
+            "code": "long_term_debt",
+            "label": "Dette à long terme",
+            "amount": "5500.00",
+            "presented": "5500.00",
+            "accounts": [
+              "2500"
+            ],
+            "adjustments": [],
+            "comparative": "4000.00",
+            "comparative_presented": "4000.00"
+          }
+        ],
+        "equity": [
+          {
+            "code": "share_capital",
+            "label": "Capital-actions",
+            "amount": "7000.00",
+            "presented": "7000.00",
+            "accounts": [
+              "3000"
+            ],
+            "adjustments": [],
+            "comparative": "6000.00",
+            "comparative_presented": "6000.00"
+          },
+          {
+            "code": "retained_earnings",
+            "label": "Bénéfices non répartis",
+            "amount": "10200.00",
+            "presented": "10200.00",
+            "accounts": [
+              "3100"
+            ],
+            "adjustments": [],
+            "comparative": "3500.00",
+            "comparative_presented": "3500.00"
+          }
+        ]
+      },
+      "totals": {
+        "total_current_assets": "15700.00",
+        "total_assets": "29200.00",
+        "total_current_liabilities": "6500.00",
+        "total_liabilities": "12000.00",
+        "total_equity": "17200.00",
+        "total_liabilities_and_equity": "29200.00"
+      },
+      "comparative_totals": {
+        "total_assets": "15000.00",
+        "total_liabilities": "5500.00",
+        "total_equity": "9500.00"
+      }
+    },
+    "cash_flow_statement": {
+      "title": "État des flux de trésorerie",
+      "status": "prepared",
+      "method": "indirect",
+      "sections": {
+        "operating": [
+          {
+            "label": "Bénéfice net",
+            "amount": "8700.00"
+          },
+          {
+            "label": "Amortissement",
+            "amount": "1000.00",
+            "movement": "FA-3"
+          },
+          {
+            "label": "Variation : débiteurs",
+            "amount": "-3000.00",
+            "line": "receivables"
+          },
+          {
+            "label": "Variation : frais payés d'avance",
+            "amount": "-600.00",
+            "line": "prepaid_expenses"
+          },
+          {
+            "label": "Variation : créditeurs",
+            "amount": "1300.00",
+            "line": "payables"
+          },
+          {
+            "label": "Variation : charges à payer",
+            "amount": "1200.00",
+            "line": "accrued_liabilities"
+          },
+          {
+            "label": "Variation : impôts sur le résultat à payer",
+            "amount": "2000.00",
+            "line": "income_taxes_payable"
+          }
+        ],
+        "investing": [
+          {
+            "label": "Acquisition de matériel",
+            "amount": "-4000.00",
+            "movement": "FA-1"
+          }
+        ],
+        "financing": [
+          {
+            "label": "Remboursement de la dette à long terme",
+            "amount": "-1000.00",
+            "movement": "DEBT-2"
+          },
+          {
+            "label": "Émission d'actions",
+            "amount": "1000.00",
+            "movement": "EQ-1"
+          },
+          {
+            "label": "Dividendes versés",
+            "amount": "-1500.00",
+            "movement": "EQ-2"
+          }
+        ]
+      },
+      "totals": {
+        "net_cash_operating": "10600.00",
+        "net_cash_investing": "-4000.00",
+        "net_cash_financing": "-1500.00",
+        "fx_effect": "0.00",
+        "net_change": "5100.00",
+        "opening_cash": "5000.00",
+        "closing_cash": "10100.00"
+      }
+    },
+    "equity_statement": {
+      "title": "État des bénéfices non répartis",
+      "status": "prepared",
+      "components": [
+        {
+          "code": "share_capital",
+          "label": "Capital-actions",
+          "opening": "6000.00",
+          "closing": "7000.00",
+          "closing_presented": "7000.00"
+        },
+        {
+          "code": "retained_earnings",
+          "label": "Bénéfices non répartis",
+          "opening": "3500.00",
+          "closing": "10200.00",
+          "closing_presented": "10200.00"
+        }
+      ],
+      "retained_earnings": {
+        "opening": "3500.00",
+        "net_income": "8700.00",
+        "dividends": "-2000.00",
+        "other": "0.00",
+        "closing": "10200.00"
+      },
+      "other_comprehensive_income": "0.00"
+    }
+  },
+  "checks": [
+    {
+      "id": "TB_BALANCED",
+      "status": "pass",
+      "description": "Trial-balance debits equal credits.",
+      "debits": "55500.00",
+      "credits": "55500.00",
+      "difference": "0.00"
+    },
+    {
+      "id": "ADJUSTMENTS_SUPPORTED",
+      "status": "pass",
+      "description": "Every adjustment balances, is approved and uses mapped accounts."
+    },
+    {
+      "id": "MAPPING_COVERAGE",
+      "status": "pass",
+      "description": "Every trial-balance account maps to a statement line.",
+      "unmapped_accounts": [],
+      "unmapped_total": "0.00"
+    },
+    {
+      "id": "OPENING_BALANCED",
+      "status": "pass",
+      "description": "Opening balances sum to zero and are post-closing.",
+      "difference": "0.00"
+    },
+    {
+      "id": "BS_BALANCES",
+      "status": "pass",
+      "description": "Assets equal liabilities plus equity.",
+      "total_assets": "29200.00",
+      "total_liabilities_and_equity": "29200.00",
+      "difference": "0.00"
+    },
+    {
+      "id": "EQUITY_ROLLFORWARD",
+      "status": "pass",
+      "description": "Share capital, retained earnings and accumulated OCI roll forward from opening balances, profit, OCI and schedules."
+    },
+    {
+      "id": "CASH_RECONCILES",
+      "status": "pass",
+      "description": "Opening cash plus cash flows and FX effects equals closing cash.",
+      "opening_cash": "5000.00",
+      "net_change": "5100.00",
+      "fx_effect": "0.00",
+      "expected_closing_cash": "10100.00",
+      "closing_cash": "10100.00",
+      "difference": "0.00"
+    },
+    {
+      "id": "MOVEMENTS_EXPLAIN_CHANGES",
+      "status": "pass",
+      "description": "Movement schedules explain every investing, financing, equity and non-cash balance change."
+    },
+    {
+      "id": "COMPARATIVE_AGREES",
+      "status": "pass",
+      "description": "Prior-period closing balances agree with this period's opening balances."
+    }
+  ],
+  "exceptions": [],
+  "noncash_transactions": [
+    {
+      "id": "FA-2",
+      "line": "property_plant_equipment",
+      "amount": "2500.00",
+      "description": "Matériel acquis en contrepartie d'un billet",
+      "source": "fixed-asset register FA-2026"
+    },
+    {
+      "id": "DEBT-1",
+      "line": "long_term_debt",
+      "amount": "-2500.00",
+      "description": "Billet émis pour du matériel",
+      "source": "loan schedule L-7"
+    },
+    {
+      "id": "EQ-3",
+      "line": "dividends",
+      "amount": "500.00",
+      "description": "Dividendes déclarés non versés",
+      "source": "resolution 2026-12"
+    },
+    {
+      "id": "EQ-4",
+      "line": "dividends_payable",
+      "amount": "-500.00",
+      "description": "Dividendes à payer",
+      "source": "resolution 2026-12"
+    }
+  ],
+  "notes_draft": [
+    {
+      "title": "Mode de présentation",
+      "text": "Projet préparé selon le référentiel choisi : Normes comptables canadiennes pour les entreprises à capital fermé (NCECF). Projet de la direction : non audité, non examiné et non compilé. Préparé pour revue par une personne qualifiée."
+    },
+    {
+      "title": "Principales méthodes comptables",
+      "text": "À rédiger à partir de la politique approuvée pol-synthetic-reporting (version 2026.1). Aucune méthode n'est présumée."
+    },
+    {
+      "title": "Opérations sans effet sur la trésorerie",
+      "text": "Matériel acquis en contrepartie d'un billet (2500.00); Billet émis pour du matériel (-2500.00); Dividendes déclarés non versés (500.00); Dividendes à payer (-500.00)"
+    }
+  ],
+  "traceability": [
+    {
+      "account": "1000",
+      "account_name": "Encaisse",
+      "balance": "10100.00",
+      "line": "cash",
+      "statement": "balance_sheet",
+      "adjustments": []
+    },
+    {
+      "account": "1100",
+      "account_name": "Comptes clients",
+      "balance": "5000.00",
+      "line": "receivables",
+      "statement": "balance_sheet",
+      "adjustments": []
+    },
+    {
+      "account": "1200",
+      "account_name": "Assurance payée d'avance",
+      "balance": "600.00",
+      "line": "prepaid_expenses",
+      "statement": "balance_sheet",
+      "adjustments": []
+    },
+    {
+      "account": "1500",
+      "account_name": "Matériel",
+      "balance": "16500.00",
+      "line": "property_plant_equipment",
+      "statement": "balance_sheet",
+      "adjustments": []
+    },
+    {
+      "account": "1510",
+      "account_name": "Amortissement cumulé – matériel",
+      "balance": "-3000.00",
+      "line": "accumulated_depreciation",
+      "statement": "balance_sheet",
+      "adjustments": [
+        "AJE-2026-02"
+      ]
+    },
+    {
+      "account": "2000",
+      "account_name": "Comptes fournisseurs",
+      "balance": "-2800.00",
+      "line": "payables",
+      "statement": "balance_sheet",
+      "adjustments": []
+    },
+    {
+      "account": "2100",
+      "account_name": "Charges à payer",
+      "balance": "-1200.00",
+      "line": "accrued_liabilities",
+      "statement": "balance_sheet",
+      "adjustments": [
+        "AJE-2026-01"
+      ]
+    },
+    {
+      "account": "2200",
+      "account_name": "Impôts à payer",
+      "balance": "-2000.00",
+      "line": "income_taxes_payable",
+      "statement": "balance_sheet",
+      "adjustments": [
+        "AJE-2026-03"
+      ]
+    },
+    {
+      "account": "2300",
+      "account_name": "Dividendes à payer",
+      "balance": "-500.00",
+      "line": "dividends_payable",
+      "statement": "balance_sheet",
+      "adjustments": []
+    },
+    {
+      "account": "2500",
+      "account_name": "Dette à long terme",
+      "balance": "-5500.00",
+      "line": "long_term_debt",
+      "statement": "balance_sheet",
+      "adjustments": []
+    },
+    {
+      "account": "3000",
+      "account_name": "Capital-actions",
+      "balance": "-7000.00",
+      "line": "share_capital",
+      "statement": "balance_sheet",
+      "adjustments": []
+    },
+    {
+      "account": "3100",
+      "account_name": "Bénéfices non répartis",
+      "balance": "-3500.00",
+      "line": "retained_earnings",
+      "statement": "balance_sheet",
+      "adjustments": []
+    },
+    {
+      "account": "3200",
+      "account_name": "Dividendes",
+      "balance": "2000.00",
+      "line": "dividends",
+      "statement": "balance_sheet",
+      "adjustments": []
+    },
+    {
+      "account": "4000",
+      "account_name": "Produits de services",
+      "balance": "-30000.00",
+      "line": "revenue",
+      "statement": "income_statement",
+      "adjustments": []
+    },
+    {
+      "account": "5000",
+      "account_name": "Charges d'exploitation",
+      "balance": "18000.00",
+      "line": "operating_expenses",
+      "statement": "income_statement",
+      "adjustments": [
+        "AJE-2026-01"
+      ]
+    },
+    {
+      "account": "5100",
+      "account_name": "Amortissement",
+      "balance": "1000.00",
+      "line": "depreciation_amortization",
+      "statement": "income_statement",
+      "adjustments": [
+        "AJE-2026-02"
+      ]
+    },
+    {
+      "account": "5200",
+      "account_name": "Intérêts",
+      "balance": "300.00",
+      "line": "interest_expense",
+      "statement": "income_statement",
+      "adjustments": []
+    },
+    {
+      "account": "5400",
+      "account_name": "Impôts sur le résultat",
+      "balance": "2000.00",
+      "line": "income_tax_expense",
+      "statement": "income_statement",
+      "adjustments": [
+        "AJE-2026-03"
+      ]
+    }
+  ]
+}

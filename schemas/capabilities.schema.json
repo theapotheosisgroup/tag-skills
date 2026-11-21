@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/theapotheosisgroup/tag-skills/schemas/capabilities.schema.json",
+  "title": "TAG logical capability registry (docs/integration/capabilities.json)",
+  "description": "Logical capability names skills refer to, and what each maps to. A contract, not an implementation: the owning runtime authorizes every call.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["registryVersion", "capabilities"],
+  "properties": {
+    "registryVersion": {
+      "const": 1
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "status", "owner", "kind", "description"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"
+          },
+          "status": {
+            "description": "mapped: an existing tool provides it (not exercised live from this repository). proposed: no tool provides it yet.",
+            "enum": ["mapped", "proposed"]
+          },
+          "owner": {
+            "type": "string"
+          },
+          "kind": {
+            "description": "read: returns organization data. render: produces a file from data the caller supplies. route: hands work to a person or queue. record: writes run evidence to the harness's own execution record, never a business record. write: changes a business record or sends something outside.",
+            "enum": ["read", "render", "route", "record", "write"]
+          },
+          "description": {
+            "type": "string"
+          },
+          "binding": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["server", "tool", "reference"],
+            "properties": {
+              "server": {
+                "type": "string"
+              },
+              "tool": {
+                "type": "string"
+              },
+              "reference": {
+                "type": "string"
+              }
+            }
+          },
+          "requiresReview": {
+            "type": "boolean"
+          }
+        },
+        "if": {
+          "properties": {
+            "status": {
+              "const": "mapped"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "binding": {
+              "type": "object"
+            }
+          },
+          "required": ["binding"]
+        }
+      }
+    }
+  }
+}

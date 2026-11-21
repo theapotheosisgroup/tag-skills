@@ -1,0 +1,12 @@
+section,label,amount
+operating,Bénéfice net,8700.00
+operating,Amortissement,1000.00
+operating,Variation : débiteurs,-3000.00
+operating,Variation : frais payés d'avance,-600.00
+operating,Variation : créditeurs,1300.00
+operating,Variation : charges à payer,1200.00
+operating,Variation : impôts sur le résultat à payer,2000.00
+investing,Acquisition de matériel,-4000.00
+financing,Remboursement de la dette à long terme,-1000.00
+financing,Émission d'actions,1000.00
+financing,Dividendes versés,-1500.00

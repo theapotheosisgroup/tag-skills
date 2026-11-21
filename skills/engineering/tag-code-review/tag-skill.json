@@ -1,0 +1,48 @@
+{
+  "name": "tag-code-review",
+  "version": "0.1.0",
+  "domain": "engineering",
+  "priority": "authoring",
+  "audiences": ["engineering"],
+  "invocation": "model",
+  "capabilities": [],
+  "inputs": [
+    {
+      "name": "fixed point (commit, branch, tag, merge-base)",
+      "required": true,
+      "source": "user or the pull request base"
+    },
+    {
+      "name": "spec, issue or pull request description",
+      "required": false,
+      "source": "repository forge via the host's GitHub tools, or a file the user names"
+    },
+    {
+      "name": "standards",
+      "required": true,
+      "source": "AGENTS.md, CONTRIBUTING.md, ARCHITECTURE.md, ADRs, linked organization standards"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "review report",
+      "format": "markdown: ## Standards and ## Spec sections reported side by side, one-line summary, checks run"
+    }
+  ],
+  "dependencies": {
+    "skills": [],
+    "runtime": [
+      {
+        "name": "git",
+        "version": ">=2.30",
+        "purpose": "diff and log against the fixed point"
+      }
+    ]
+  },
+  "sideEffects": "none",
+  "review": {
+    "required": true,
+    "conditions": ["Changes go through the repository's pull request review; the skill never merges or deploys."]
+  },
+  "provenance": ["mattpocock/skills:skills/engineering/code-review"]
+}

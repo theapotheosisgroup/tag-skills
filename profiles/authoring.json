@@ -1,0 +1,13 @@
+{
+  "name": "authoring",
+  "description": "Skills for developing and maintaining TAG: the five engineering skills, writing for agents and handoff. Not for client bookkeeping catalogs.",
+  "skills": [
+    "tag-tdd",
+    "tag-diagnosing-bugs",
+    "tag-codebase-design",
+    "tag-code-review",
+    "tag-domain-modeling",
+    "tag-writing-for-agents",
+    "tag-handoff"
+  ]
+}

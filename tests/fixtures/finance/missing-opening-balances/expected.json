@@ -1,0 +1,24 @@
+{
+  "description": "The simple case without opening balances.",
+  "derivation": [
+    "Income statement and balance sheet can be prepared from the closing trial balance: profit 300, assets 1,300, equity 1,300",
+    "The cash flow statement and the equity roll-forward need opening balances and are not prepared"
+  ],
+  "status": "blocked",
+  "figures": {
+    "net_income": "300",
+    "total_assets": "1300",
+    "total_equity": "1300"
+  },
+  "statements": {
+    "income_statement": "prepared",
+    "balance_sheet": "prepared",
+    "cash_flow_statement": "not_prepared",
+    "equity_statement": "not_prepared"
+  },
+  "exceptions": [
+    {
+      "code": "MISSING_OPENING_BALANCES"
+    }
+  ]
+}

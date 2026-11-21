@@ -1,0 +1,33 @@
+{
+  "description": "Cash of 1,250 and a 50 debit in an unmapped suspense account 5999. The trial balance balances.",
+  "derivation": [
+    "Debits 1,250 + 200 + 50 = 1,500 = credits",
+    "5999 is excluded from every statement and reported",
+    "Profit = 300; equity = 1,300; assets = 1,250; difference = -50",
+    "Cash: 1,000 + 300 = 1,300 expected vs 1,250 = -50"
+  ],
+  "status": "blocked",
+  "figures": {
+    "net_income": "300",
+    "total_assets": "1250",
+    "total_equity": "1300"
+  },
+  "statements": {
+    "cash_flow_statement": "incomplete"
+  },
+  "exceptions": [
+    {
+      "code": "UNMAPPED_ACCOUNT",
+      "amount": "50",
+      "account": "5999"
+    },
+    {
+      "code": "BS_IMBALANCE",
+      "amount": "-50"
+    },
+    {
+      "code": "CASH_FLOW_UNRECONCILED",
+      "amount": "-50"
+    }
+  ]
+}

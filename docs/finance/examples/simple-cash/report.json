@@ -1,0 +1,300 @@
+{
+  "schema": "tag.financial-statements.report/v1",
+  "generator": {
+    "skill": "tag-financial-statements",
+    "version": "0.1.0",
+    "script": "scripts/build_statements.py"
+  },
+  "status": "ready_for_review",
+  "label": "Management draft: not audited, reviewed or compiled. Prepared for review by a qualified person.",
+  "organization": {
+    "id": "org-synthetic-001",
+    "name": "Synthetic Organization Inc."
+  },
+  "entity": {
+    "id": "ent-synthetic-001",
+    "name": "Synthetic Services Ltd."
+  },
+  "period": {
+    "start": "2026-01-01",
+    "end": "2026-12-31",
+    "label": "FY2026"
+  },
+  "framework": "ASPE",
+  "framework_name": "Canadian accounting standards for private enterprises (ASPE)",
+  "language": "en",
+  "reporting_currency": "CAD",
+  "presentation": {
+    "rounding_unit": "1.00",
+    "note": "Presented values are rounded line by line; totals are computed from exact amounts."
+  },
+  "report": {
+    "revision": 1,
+    "input_sha256": "374f50fd2be36d7b267341d7c48c520ce8a500423d11784fc899ce9def2a8ab3",
+    "snapshot": {
+      "id": "snap-simple-cash",
+      "source": "synthetic fixture",
+      "extracted_at": "2027-01-15T09:00:00Z",
+      "complete": true
+    },
+    "policy": {
+      "id": "pol-synthetic-reporting",
+      "version": "2026.1"
+    },
+    "mapping": {
+      "id": "map-synthetic",
+      "version": "1"
+    },
+    "reviewer_status": "not_reviewed"
+  },
+  "statements": {
+    "income_statement": {
+      "title": "Income statement",
+      "status": "prepared",
+      "lines": [
+        {
+          "code": "revenue",
+          "label": "Revenue",
+          "amount": "500.00",
+          "presented": "500.00",
+          "accounts": [
+            "4000"
+          ],
+          "adjustments": []
+        },
+        {
+          "code": "operating_expenses",
+          "label": "Operating expenses",
+          "amount": "-200.00",
+          "presented": "-200.00",
+          "accounts": [
+            "5000"
+          ],
+          "adjustments": []
+        }
+      ],
+      "totals": {
+        "total_revenue": "500.00",
+        "total_expenses": "-200.00",
+        "income_before_tax": "300.00",
+        "net_income": "300.00",
+        "net_income_presented": "300.00"
+      }
+    },
+    "balance_sheet": {
+      "title": "Balance sheet",
+      "status": "prepared",
+      "sections": {
+        "current_assets": [
+          {
+            "code": "cash",
+            "label": "Cash and cash equivalents",
+            "amount": "1300.00",
+            "presented": "1300.00",
+            "accounts": [
+              "1000"
+            ],
+            "adjustments": [],
+            "comparative": "1000.00",
+            "comparative_presented": "1000.00"
+          }
+        ],
+        "noncurrent_assets": [],
+        "current_liabilities": [],
+        "noncurrent_liabilities": [],
+        "equity": [
+          {
+            "code": "share_capital",
+            "label": "Share capital",
+            "amount": "1000.00",
+            "presented": "1000.00",
+            "accounts": [
+              "3000"
+            ],
+            "adjustments": [],
+            "comparative": "1000.00",
+            "comparative_presented": "1000.00"
+          },
+          {
+            "code": "retained_earnings",
+            "label": "Retained earnings",
+            "amount": "300.00",
+            "presented": "300.00",
+            "accounts": [],
+            "adjustments": [],
+            "comparative": "0.00",
+            "comparative_presented": "0.00"
+          }
+        ]
+      },
+      "totals": {
+        "total_current_assets": "1300.00",
+        "total_assets": "1300.00",
+        "total_current_liabilities": "0.00",
+        "total_liabilities": "0.00",
+        "total_equity": "1300.00",
+        "total_liabilities_and_equity": "1300.00"
+      },
+      "comparative_totals": {
+        "total_assets": "1000.00",
+        "total_liabilities": "0.00",
+        "total_equity": "1000.00"
+      }
+    },
+    "cash_flow_statement": {
+      "title": "Cash flow statement",
+      "status": "prepared",
+      "method": "indirect",
+      "sections": {
+        "operating": [
+          {
+            "label": "Net income",
+            "amount": "300.00"
+          }
+        ],
+        "investing": [],
+        "financing": []
+      },
+      "totals": {
+        "net_cash_operating": "300.00",
+        "net_cash_investing": "0.00",
+        "net_cash_financing": "0.00",
+        "fx_effect": "0.00",
+        "net_change": "300.00",
+        "opening_cash": "1000.00",
+        "closing_cash": "1300.00"
+      }
+    },
+    "equity_statement": {
+      "title": "Statement of retained earnings",
+      "status": "prepared",
+      "components": [
+        {
+          "code": "share_capital",
+          "label": "Share capital",
+          "opening": "1000.00",
+          "closing": "1000.00",
+          "closing_presented": "1000.00"
+        },
+        {
+          "code": "retained_earnings",
+          "label": "Retained earnings",
+          "opening": "0.00",
+          "closing": "300.00",
+          "closing_presented": "300.00"
+        }
+      ],
+      "retained_earnings": {
+        "opening": "0.00",
+        "net_income": "300.00",
+        "dividends": "0.00",
+        "other": "0.00",
+        "closing": "300.00"
+      },
+      "other_comprehensive_income": "0.00"
+    }
+  },
+  "checks": [
+    {
+      "id": "TB_BALANCED",
+      "status": "pass",
+      "description": "Trial-balance debits equal credits.",
+      "debits": "1500.00",
+      "credits": "1500.00",
+      "difference": "0.00"
+    },
+    {
+      "id": "ADJUSTMENTS_SUPPORTED",
+      "status": "pass",
+      "description": "Every adjustment balances, is approved and uses mapped accounts."
+    },
+    {
+      "id": "MAPPING_COVERAGE",
+      "status": "pass",
+      "description": "Every trial-balance account maps to a statement line.",
+      "unmapped_accounts": [],
+      "unmapped_total": "0.00"
+    },
+    {
+      "id": "OPENING_BALANCED",
+      "status": "pass",
+      "description": "Opening balances sum to zero and are post-closing.",
+      "difference": "0.00"
+    },
+    {
+      "id": "BS_BALANCES",
+      "status": "pass",
+      "description": "Assets equal liabilities plus equity.",
+      "total_assets": "1300.00",
+      "total_liabilities_and_equity": "1300.00",
+      "difference": "0.00"
+    },
+    {
+      "id": "EQUITY_ROLLFORWARD",
+      "status": "pass",
+      "description": "Share capital, retained earnings and accumulated OCI roll forward from opening balances, profit, OCI and schedules."
+    },
+    {
+      "id": "CASH_RECONCILES",
+      "status": "pass",
+      "description": "Opening cash plus cash flows and FX effects equals closing cash.",
+      "opening_cash": "1000.00",
+      "net_change": "300.00",
+      "fx_effect": "0.00",
+      "expected_closing_cash": "1300.00",
+      "closing_cash": "1300.00",
+      "difference": "0.00"
+    },
+    {
+      "id": "MOVEMENTS_EXPLAIN_CHANGES",
+      "status": "pass",
+      "description": "Movement schedules explain every investing, financing, equity and non-cash balance change."
+    }
+  ],
+  "exceptions": [],
+  "noncash_transactions": [],
+  "notes_draft": [
+    {
+      "title": "Basis of presentation",
+      "text": "Draft prepared under the selected framework: Canadian accounting standards for private enterprises (ASPE). Management draft: not audited, reviewed or compiled. Prepared for review by a qualified person."
+    },
+    {
+      "title": "Significant accounting policies",
+      "text": "To be written from approved policy pol-synthetic-reporting (version 2026.1). No policy is assumed."
+    }
+  ],
+  "traceability": [
+    {
+      "account": "1000",
+      "account_name": "Cash",
+      "balance": "1300.00",
+      "line": "cash",
+      "statement": "balance_sheet",
+      "adjustments": []
+    },
+    {
+      "account": "3000",
+      "account_name": "Share capital",
+      "balance": "-1000.00",
+      "line": "share_capital",
+      "statement": "balance_sheet",
+      "adjustments": []
+    },
+    {
+      "account": "4000",
+      "account_name": "Service revenue",
+      "balance": "-500.00",
+      "line": "revenue",
+      "statement": "income_statement",
+      "adjustments": []
+    },
+    {
+      "account": "5000",
+      "account_name": "Operating expenses",
+      "balance": "200.00",
+      "line": "operating_expenses",
+      "statement": "income_statement",
+      "adjustments": []
+    }
+  ]
+}

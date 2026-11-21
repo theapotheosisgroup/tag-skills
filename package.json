@@ -2,7 +2,7 @@
   "name": "tag-skills",
   "version": "0.0.0",
   "private": true,
-  "description": "Validator and Skills CLI smoke tests for TAG's installable Agent Skills.",
+  "description": "TAG's installable Agent Skills: a 24-skill catalog with validation, provenance, profiles and Skills CLI installation tests.",
   "license": "UNLICENSED",
   "type": "module",
   "engines": {
@@ -13,17 +13,23 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "validate": "node scripts/validate-skills.js && node scripts/validate-skills.js --fixtures tests/fixtures/skills",
+    "catalog:generate": "node scripts/catalog.js",
+    "catalog:check": "node scripts/catalog.js --check",
     "test": "node --test tests/",
-    "validate": "node scripts/validate-skills.js",
-    "test:smoke": "node scripts/validate-skills.js && node scripts/validate-skills.js --fixtures tests/fixtures/skills && node scripts/smoke-skills-cli.js"
+    "test:install": "node scripts/smoke-skills-cli.js",
+    "test:smoke": "npm run validate && npm run catalog:check && npm run test:install",
+    "upstream:check": "node scripts/upstream-check.js",
+    "install:profile": "node scripts/install-profile.js"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@types/node": "26.6.6",
+    "ajv": "8.20.0",
     "eslint": "10.15.0",
     "globals": "17.14.0",
     "prettier": "3.9.10",
-    "skills": "1.7.6",
+    "skills": "1.9.0",
     "typescript": "6.0.3",
     "yaml": "2.9.1"
   }

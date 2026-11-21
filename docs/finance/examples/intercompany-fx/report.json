@@ -1,0 +1,455 @@
+{
+  "schema": "tag.financial-statements.report/v1",
+  "generator": {
+    "skill": "tag-financial-statements",
+    "version": "0.1.0",
+    "script": "scripts/build_statements.py"
+  },
+  "status": "blocked",
+  "label": "Management draft: not audited, reviewed or compiled. Prepared for review by a qualified person.",
+  "organization": {
+    "id": "org-synthetic-001",
+    "name": "Synthetic Organization Inc."
+  },
+  "entity": {
+    "id": "ent-synthetic-001",
+    "name": "Synthetic Services Ltd."
+  },
+  "period": {
+    "start": "2026-01-01",
+    "end": "2026-12-31",
+    "label": "FY2026"
+  },
+  "framework": "IFRS",
+  "framework_name": "IFRS Accounting Standards",
+  "language": "en",
+  "reporting_currency": "CAD",
+  "presentation": {
+    "rounding_unit": "1.00",
+    "note": "Presented values are rounded line by line; totals are computed from exact amounts."
+  },
+  "report": {
+    "revision": 1,
+    "input_sha256": "85701c52634e8d8e21e32d1d787018412439ec95146ef9cebcd4be67dd0625b1",
+    "snapshot": {
+      "id": "snap-intercompany-fx",
+      "source": "synthetic fixture",
+      "extracted_at": "2027-01-15T09:00:00Z",
+      "complete": true
+    },
+    "policy": {
+      "id": "pol-synthetic-reporting",
+      "version": "2026.1"
+    },
+    "mapping": {
+      "id": "map-synthetic",
+      "version": "1"
+    },
+    "reviewer_status": "not_reviewed"
+  },
+  "statements": {
+    "income_statement": {
+      "title": "Statement of profit or loss and other comprehensive income",
+      "status": "prepared",
+      "lines": [
+        {
+          "code": "revenue",
+          "label": "Revenue",
+          "amount": "4300.00",
+          "presented": "4300.00",
+          "accounts": [
+            "4000"
+          ],
+          "adjustments": []
+        },
+        {
+          "code": "operating_expenses",
+          "label": "Operating expenses",
+          "amount": "-2500.00",
+          "presented": "-2500.00",
+          "accounts": [
+            "5000"
+          ],
+          "adjustments": []
+        },
+        {
+          "code": "fx_gain_loss",
+          "label": "Foreign exchange gain (loss)",
+          "amount": "100.00",
+          "presented": "100.00",
+          "accounts": [
+            "5300"
+          ],
+          "adjustments": []
+        },
+        {
+          "code": "oci",
+          "label": "Other comprehensive income",
+          "amount": "200.00",
+          "presented": "200.00",
+          "accounts": [
+            "6000"
+          ],
+          "adjustments": []
+        }
+      ],
+      "totals": {
+        "total_revenue": "4300.00",
+        "total_expenses": "-2400.00",
+        "income_before_tax": "1900.00",
+        "net_income": "1900.00",
+        "net_income_presented": "1900.00",
+        "other_comprehensive_income": "200.00",
+        "comprehensive_income": "2100.00"
+      }
+    },
+    "balance_sheet": {
+      "title": "Statement of financial position",
+      "status": "prepared",
+      "sections": {
+        "current_assets": [
+          {
+            "code": "cash",
+            "label": "Cash and cash equivalents",
+            "amount": "6000.00",
+            "presented": "6000.00",
+            "accounts": [
+              "1000",
+              "1010"
+            ],
+            "adjustments": [],
+            "comparative": "4400.00",
+            "comparative_presented": "4400.00"
+          },
+          {
+            "code": "intercompany_receivable",
+            "label": "Due from related parties",
+            "amount": "800.00",
+            "presented": "800.00",
+            "accounts": [
+              "1150"
+            ],
+            "adjustments": [],
+            "comparative": "500.00",
+            "comparative_presented": "500.00"
+          }
+        ],
+        "noncurrent_assets": [
+          {
+            "code": "investments",
+            "label": "Investments",
+            "amount": "2200.00",
+            "presented": "2200.00",
+            "accounts": [
+              "1600"
+            ],
+            "adjustments": [],
+            "comparative": "2000.00",
+            "comparative_presented": "2000.00"
+          }
+        ],
+        "current_liabilities": [],
+        "noncurrent_liabilities": [],
+        "equity": [
+          {
+            "code": "share_capital",
+            "label": "Share capital",
+            "amount": "5000.00",
+            "presented": "5000.00",
+            "accounts": [
+              "3000"
+            ],
+            "adjustments": [],
+            "comparative": "5000.00",
+            "comparative_presented": "5000.00"
+          },
+          {
+            "code": "retained_earnings",
+            "label": "Retained earnings",
+            "amount": "3800.00",
+            "presented": "3800.00",
+            "accounts": [
+              "3100"
+            ],
+            "adjustments": [],
+            "comparative": "1900.00",
+            "comparative_presented": "1900.00"
+          },
+          {
+            "code": "accumulated_oci",
+            "label": "Accumulated other comprehensive income",
+            "amount": "200.00",
+            "presented": "200.00",
+            "accounts": [],
+            "adjustments": [],
+            "comparative": "0.00",
+            "comparative_presented": "0.00"
+          }
+        ]
+      },
+      "totals": {
+        "total_current_assets": "6800.00",
+        "total_assets": "9000.00",
+        "total_current_liabilities": "0.00",
+        "total_liabilities": "0.00",
+        "total_equity": "9000.00",
+        "total_liabilities_and_equity": "9000.00"
+      },
+      "comparative_totals": {
+        "total_assets": "6900.00",
+        "total_liabilities": "0.00",
+        "total_equity": "6900.00"
+      }
+    },
+    "cash_flow_statement": {
+      "title": "Statement of cash flows",
+      "status": "prepared",
+      "method": "indirect",
+      "sections": {
+        "operating": [
+          {
+            "label": "Net income",
+            "amount": "1900.00"
+          },
+          {
+            "label": "Effect of exchange rate changes on cash",
+            "amount": "-100.00",
+            "schedule": "fx_cash_effect"
+          },
+          {
+            "label": "Change in due from related parties",
+            "amount": "-300.00",
+            "line": "intercompany_receivable"
+          }
+        ],
+        "investing": [],
+        "financing": []
+      },
+      "totals": {
+        "net_cash_operating": "1500.00",
+        "net_cash_investing": "0.00",
+        "net_cash_financing": "0.00",
+        "fx_effect": "100.00",
+        "net_change": "1500.00",
+        "opening_cash": "4400.00",
+        "closing_cash": "6000.00"
+      }
+    },
+    "equity_statement": {
+      "title": "Statement of changes in equity",
+      "status": "prepared",
+      "components": [
+        {
+          "code": "share_capital",
+          "label": "Share capital",
+          "opening": "5000.00",
+          "closing": "5000.00",
+          "closing_presented": "5000.00"
+        },
+        {
+          "code": "retained_earnings",
+          "label": "Retained earnings",
+          "opening": "1900.00",
+          "closing": "3800.00",
+          "closing_presented": "3800.00"
+        },
+        {
+          "code": "accumulated_oci",
+          "label": "Accumulated other comprehensive income",
+          "opening": "0.00",
+          "closing": "200.00",
+          "closing_presented": "200.00"
+        }
+      ],
+      "retained_earnings": {
+        "opening": "1900.00",
+        "net_income": "1900.00",
+        "dividends": "0.00",
+        "other": "0.00",
+        "closing": "3800.00"
+      },
+      "other_comprehensive_income": "200.00"
+    }
+  },
+  "checks": [
+    {
+      "id": "TB_BALANCED",
+      "status": "pass",
+      "description": "Trial-balance debits equal credits.",
+      "debits": "11500.00",
+      "credits": "11500.00",
+      "difference": "0.00"
+    },
+    {
+      "id": "ADJUSTMENTS_SUPPORTED",
+      "status": "pass",
+      "description": "Every adjustment balances, is approved and uses mapped accounts."
+    },
+    {
+      "id": "MAPPING_COVERAGE",
+      "status": "pass",
+      "description": "Every trial-balance account maps to a statement line.",
+      "unmapped_accounts": [],
+      "unmapped_total": "0.00"
+    },
+    {
+      "id": "OPENING_BALANCED",
+      "status": "pass",
+      "description": "Opening balances sum to zero and are post-closing.",
+      "difference": "0.00"
+    },
+    {
+      "id": "BS_BALANCES",
+      "status": "pass",
+      "description": "Assets equal liabilities plus equity.",
+      "total_assets": "9000.00",
+      "total_liabilities_and_equity": "9000.00",
+      "difference": "0.00"
+    },
+    {
+      "id": "EQUITY_ROLLFORWARD",
+      "status": "pass",
+      "description": "Share capital, retained earnings and accumulated OCI roll forward from opening balances, profit, OCI and schedules."
+    },
+    {
+      "id": "CASH_RECONCILES",
+      "status": "pass",
+      "description": "Opening cash plus cash flows and FX effects equals closing cash.",
+      "opening_cash": "4400.00",
+      "net_change": "1500.00",
+      "fx_effect": "100.00",
+      "expected_closing_cash": "6000.00",
+      "closing_cash": "6000.00",
+      "difference": "0.00"
+    },
+    {
+      "id": "MOVEMENTS_EXPLAIN_CHANGES",
+      "status": "pass",
+      "description": "Movement schedules explain every investing, financing, equity and non-cash balance change."
+    },
+    {
+      "id": "INTERCOMPANY_AGREES",
+      "status": "fail",
+      "description": "Intercompany balances agree with counterparty confirmations."
+    }
+  ],
+  "exceptions": [
+    {
+      "code": "INTERCOMPANY_DIFFERENCE",
+      "severity": "error",
+      "message": "The balance with ent-synthetic-sister (intercompany_receivable) differs from the counterparty's confirmation.",
+      "counterparty": "ent-synthetic-sister",
+      "amount": "50.00",
+      "above_materiality": false
+    }
+  ],
+  "noncash_transactions": [
+    {
+      "id": "INV-1",
+      "line": "investments",
+      "amount": "200.00",
+      "description": "Fair value gain on investments through OCI",
+      "source": "investment schedule INV-2026"
+    }
+  ],
+  "notes_draft": [
+    {
+      "title": "Basis of presentation",
+      "text": "Draft prepared under the selected framework: IFRS Accounting Standards. Management draft: not audited, reviewed or compiled. Prepared for review by a qualified person."
+    },
+    {
+      "title": "Significant accounting policies",
+      "text": "To be written from approved policy pol-synthetic-reporting (version 2026.1). No policy is assumed."
+    },
+    {
+      "title": "Non-cash transactions",
+      "text": "Fair value gain on investments through OCI (200.00)"
+    },
+    {
+      "title": "Related party balances",
+      "text": "Balances with: ent-synthetic-sister. Nature and terms to be documented."
+    }
+  ],
+  "traceability": [
+    {
+      "account": "1000",
+      "account_name": "Cash - CAD",
+      "balance": "4500.00",
+      "line": "cash",
+      "statement": "balance_sheet",
+      "adjustments": []
+    },
+    {
+      "account": "1010",
+      "account_name": "Cash - USD (CAD equivalent)",
+      "balance": "1500.00",
+      "line": "cash",
+      "statement": "balance_sheet",
+      "adjustments": []
+    },
+    {
+      "account": "1150",
+      "account_name": "Due from Synthetic Sister Co.",
+      "balance": "800.00",
+      "line": "intercompany_receivable",
+      "statement": "balance_sheet",
+      "adjustments": []
+    },
+    {
+      "account": "1600",
+      "account_name": "Investments at FVOCI",
+      "balance": "2200.00",
+      "line": "investments",
+      "statement": "balance_sheet",
+      "adjustments": []
+    },
+    {
+      "account": "3000",
+      "account_name": "Share capital",
+      "balance": "-5000.00",
+      "line": "share_capital",
+      "statement": "balance_sheet",
+      "adjustments": []
+    },
+    {
+      "account": "3100",
+      "account_name": "Retained earnings",
+      "balance": "-1900.00",
+      "line": "retained_earnings",
+      "statement": "balance_sheet",
+      "adjustments": []
+    },
+    {
+      "account": "4000",
+      "account_name": "Service revenue",
+      "balance": "-4300.00",
+      "line": "revenue",
+      "statement": "income_statement",
+      "adjustments": []
+    },
+    {
+      "account": "5000",
+      "account_name": "Operating expenses",
+      "balance": "2500.00",
+      "line": "operating_expenses",
+      "statement": "income_statement",
+      "adjustments": []
+    },
+    {
+      "account": "5300",
+      "account_name": "Foreign exchange gain",
+      "balance": "-100.00",
+      "line": "fx_gain_loss",
+      "statement": "income_statement",
+      "adjustments": []
+    },
+    {
+      "account": "6000",
+      "account_name": "OCI - fair value gain on investments",
+      "balance": "-200.00",
+      "line": "oci",
+      "statement": "income_statement",
+      "adjustments": []
+    }
+  ]
+}

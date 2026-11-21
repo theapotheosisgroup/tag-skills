@@ -1,0 +1,7 @@
+section,code,label,amount,presented,comparative,accounts
+current_assets,cash,Cash and cash equivalents,6000.00,6000.00,4400.00,1000 1010
+current_assets,intercompany_receivable,Due from related parties,800.00,800.00,500.00,1150
+noncurrent_assets,investments,Investments,2200.00,2200.00,2000.00,1600
+equity,share_capital,Share capital,5000.00,5000.00,5000.00,3000
+equity,retained_earnings,Retained earnings,3800.00,3800.00,1900.00,3100
+equity,accumulated_oci,Accumulated other comprehensive income,200.00,200.00,0.00,

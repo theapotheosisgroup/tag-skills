@@ -1,0 +1,222 @@
+{
+  "registryVersion": 1,
+  "capabilities": [
+    {
+      "name": "tag.context.overview",
+      "status": "mapped",
+      "owner": "tag-mcp / tag-backoffice",
+      "kind": "read",
+      "description": "The caller's nexuses, or one nexus: the caller's role, whether TAG is invited, the TAG tools available there and how its expectations stand.",
+      "binding": {
+        "server": "TAG Back Office MCP (served by tag-backoffice today; moving to tag-mcp)",
+        "tool": "tag_overview",
+        "reference": "tag-backoffice develop@d29c60451306d3c4abf1d6c1df0bbd2be353f096 docs/mcp/tag-backoffice-mcp.md"
+      }
+    },
+    {
+      "name": "tag.work.status",
+      "status": "mapped",
+      "owner": "tag-mcp / tag-backoffice",
+      "kind": "read",
+      "description": "State and outcome of one piece of TAG work, or a paged list by pillar, scoped to the nexus.",
+      "binding": {
+        "server": "TAG Back Office MCP (served by tag-backoffice today; moving to tag-mcp)",
+        "tool": "work_status",
+        "reference": "tag-backoffice develop@d29c60451306d3c4abf1d6c1df0bbd2be353f096 docs/mcp/tag-backoffice-mcp.md"
+      }
+    },
+    {
+      "name": "tag.request.ask",
+      "status": "mapped",
+      "owner": "tag-mcp / tag-backoffice",
+      "kind": "write",
+      "description": "Ask TAG for work no other tool does: files an expectation for the TAG side naming the requester.",
+      "binding": {
+        "server": "TAG Back Office MCP (served by tag-backoffice today; moving to tag-mcp)",
+        "tool": "ask_tag",
+        "reference": "tag-backoffice develop@d29c60451306d3c4abf1d6c1df0bbd2be353f096 docs/mcp/tag-backoffice-mcp.md"
+      },
+      "requiresReview": false
+    },
+    {
+      "name": "tag.finance.run_month_end",
+      "status": "mapped",
+      "owner": "tag-mcp / tag-backoffice",
+      "kind": "write",
+      "description": "Start month-end for a finished month: raise its recurring expectations and check the books. Not a review report. Owning side only.",
+      "binding": {
+        "server": "TAG Back Office MCP (served by tag-backoffice today; moving to tag-mcp)",
+        "tool": "finance_run_month_end",
+        "reference": "tag-backoffice develop@d29c60451306d3c4abf1d6c1df0bbd2be353f096 docs/mcp/tag-backoffice-mcp.md"
+      },
+      "requiresReview": true
+    },
+    {
+      "name": "tag.finance.process_documents",
+      "status": "mapped",
+      "owner": "tag-mcp / tag-backoffice",
+      "kind": "write",
+      "description": "Process documents already in the nexus: classify, match to open expectations; invoices become DRAFT bills.",
+      "binding": {
+        "server": "TAG Back Office MCP (served by tag-backoffice today; moving to tag-mcp)",
+        "tool": "finance_process_documents",
+        "reference": "tag-backoffice develop@d29c60451306d3c4abf1d6c1df0bbd2be353f096 docs/mcp/tag-backoffice-mcp.md"
+      },
+      "requiresReview": true
+    },
+    {
+      "name": "aletia.nexus.read",
+      "status": "mapped",
+      "owner": "aletia",
+      "kind": "read",
+      "description": "Read a nexus as the caller: membership, parties, roles.",
+      "binding": {
+        "server": "Aletia MCP (external server routed by tag-mcp)",
+        "tool": "nexus",
+        "reference": "tag-backoffice develop@d29c60451306d3c4abf1d6c1df0bbd2be353f096 docs/mcp/tag-backoffice-mcp.md"
+      }
+    },
+    {
+      "name": "aletia.search",
+      "status": "mapped",
+      "owner": "aletia",
+      "kind": "read",
+      "description": "Search documents and records in a nexus as the caller; returns only what the caller may see.",
+      "binding": {
+        "server": "Aletia MCP (external server routed by tag-mcp)",
+        "tool": "search",
+        "reference": "tag-backoffice develop@d29c60451306d3c4abf1d6c1df0bbd2be353f096 docs/mcp/tag-backoffice-mcp.md"
+      }
+    },
+    {
+      "name": "tag.ledger.trial_balance.read",
+      "status": "proposed",
+      "owner": "tag-connectors (provider adapter) via tag-mcp",
+      "kind": "read",
+      "description": "Adjusted or unadjusted trial balance for an entity and period, with source identifiers, extraction timestamp and completeness indicator."
+    },
+    {
+      "name": "tag.ledger.chart_of_accounts.read",
+      "status": "proposed",
+      "owner": "tag-connectors via tag-mcp",
+      "kind": "read",
+      "description": "Chart of accounts with account types and status."
+    },
+    {
+      "name": "tag.ledger.transactions.read",
+      "status": "proposed",
+      "owner": "tag-connectors via tag-mcp",
+      "kind": "read",
+      "description": "General-ledger and subledger detail (AR, AP, fixed assets, intercompany) for a period."
+    },
+    {
+      "name": "tag.ledger.bank_statement.read",
+      "status": "proposed",
+      "owner": "tag-connectors via tag-mcp",
+      "kind": "read",
+      "description": "Bank statement lines for an account and period, from the bank feed or an uploaded statement."
+    },
+    {
+      "name": "tag.ledger.journal_entry.post",
+      "status": "proposed",
+      "owner": "tag-backoffice via tag-mcp",
+      "kind": "write",
+      "description": "Post an approved journal entry to the ledger. A separately authorized operation; never performed by a skill script.",
+      "requiresReview": true
+    },
+    {
+      "name": "tag.ledger.period_lock.set",
+      "status": "proposed",
+      "owner": "tag-backoffice via tag-mcp",
+      "kind": "write",
+      "description": "Lock or reopen an accounting period.",
+      "requiresReview": true
+    },
+    {
+      "name": "tag.policy.reporting.read",
+      "status": "proposed",
+      "owner": "owner to be decided (tag-backoffice or aletia)",
+      "kind": "read",
+      "description": "The organization's approved reporting framework (ASPE or IFRS), accounting policies, statement mapping, materiality and review thresholds, presentation language, each with a version."
+    },
+    {
+      "name": "tag.policy.legal_playbook.read",
+      "status": "proposed",
+      "owner": "owner to be decided (tag-backoffice or aletia)",
+      "kind": "read",
+      "description": "The organization's approved, jurisdiction-specific contract and NDA playbooks and delegation-of-authority rules, with versions."
+    },
+    {
+      "name": "tag.contracts.registry.read",
+      "status": "proposed",
+      "owner": "owner to be decided",
+      "kind": "read",
+      "description": "Supplier and customer agreement records: status, dates, obligations, linked documents."
+    },
+    {
+      "name": "tag.data.schema.read",
+      "status": "proposed",
+      "owner": "tag-connectors",
+      "kind": "read",
+      "description": "Approved schema definitions and metric definitions for the read-only data capability."
+    },
+    {
+      "name": "tag.data.query",
+      "status": "proposed",
+      "owner": "tag-connectors",
+      "kind": "read",
+      "description": "Run a read-only query against approved, organization-scoped data sets."
+    },
+    {
+      "name": "tag.sources.list",
+      "status": "proposed",
+      "owner": "tag-mcp",
+      "kind": "read",
+      "description": "The knowledge sources available to the caller in the current nexus, with freshness and authority."
+    },
+    {
+      "name": "tag.documents.render",
+      "status": "proposed",
+      "owner": "tag-connectors",
+      "kind": "render",
+      "description": "Render machine-readable report data supplied by the caller into a spreadsheet (XLSX) or PDF."
+    },
+    {
+      "name": "tag.evidence.attach",
+      "status": "proposed",
+      "owner": "tag-harness",
+      "kind": "record",
+      "description": "Record an evidence reference (document, query, output file and hash) against the current run and correlation identifier in the harness's execution record. Not a business record."
+    },
+    {
+      "name": "tag.review.request",
+      "status": "proposed",
+      "owner": "tag-harness",
+      "kind": "route",
+      "description": "Route an output to a reviewer according to the organization's review rules and record the review state."
+    },
+    {
+      "name": "tag.expectations.read",
+      "status": "proposed",
+      "owner": "aletia",
+      "kind": "read",
+      "description": "Read expectations (obligations and requests) and their states in a nexus."
+    },
+    {
+      "name": "tag.signature.request",
+      "status": "proposed",
+      "owner": "owner to be decided",
+      "kind": "write",
+      "description": "Send a document for signature through the organization's e-signature provider. Requesting a signature is not signing.",
+      "requiresReview": true
+    },
+    {
+      "name": "tag.communication.send",
+      "status": "proposed",
+      "owner": "tag-connectors",
+      "kind": "write",
+      "description": "Send an email or chat message on behalf of the organization (external delivery).",
+      "requiresReview": true
+    }
+  ]
+}

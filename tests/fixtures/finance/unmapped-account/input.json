@@ -1,0 +1,105 @@
+{
+  "schema": "tag.financial-statements.input/v1",
+  "organization": {
+    "id": "org-synthetic-001",
+    "name": "Synthetic Organization Inc."
+  },
+  "entity": {
+    "id": "ent-synthetic-001",
+    "name": "Synthetic Services Ltd."
+  },
+  "period": {
+    "start": "2026-01-01",
+    "end": "2026-12-31",
+    "label": "FY2026"
+  },
+  "reporting_currency": "CAD",
+  "framework": "ASPE",
+  "language": "en",
+  "policies": {
+    "id": "pol-synthetic-reporting",
+    "version": "2026.1",
+    "approved": true,
+    "framework": "ASPE",
+    "cash_flow_method": "indirect"
+  },
+  "mapping": {
+    "id": "map-synthetic",
+    "version": "1",
+    "accounts": {
+      "1000": {
+        "line": "cash"
+      },
+      "3000": {
+        "line": "share_capital"
+      },
+      "3100": {
+        "line": "retained_earnings"
+      },
+      "4000": {
+        "line": "revenue"
+      },
+      "5000": {
+        "line": "operating_expenses"
+      }
+    }
+  },
+  "snapshot": {
+    "id": "snap-unmapped-account",
+    "source": "synthetic fixture",
+    "extracted_at": "2027-01-15T09:00:00Z",
+    "complete": true
+  },
+  "review": {
+    "materiality": "100.00",
+    "reviewer_status": "not_reviewed"
+  },
+  "presentation": {
+    "rounding_unit": "1"
+  },
+  "report": {
+    "revision": 1
+  },
+  "opening_balances": [
+    {
+      "account": "1000",
+      "balance": "1000.00"
+    },
+    {
+      "account": "3000",
+      "balance": "-1000.00"
+    }
+  ],
+  "trial_balance": [
+    {
+      "account": "1000",
+      "name": "Cash",
+      "debit": "1250.00",
+      "credit": "0"
+    },
+    {
+      "account": "3000",
+      "name": "Share capital",
+      "debit": "0",
+      "credit": "1000.00"
+    },
+    {
+      "account": "4000",
+      "name": "Service revenue",
+      "debit": "0",
+      "credit": "500.00"
+    },
+    {
+      "account": "5000",
+      "name": "Operating expenses",
+      "debit": "200.00",
+      "credit": "0"
+    },
+    {
+      "account": "5999",
+      "name": "Suspense",
+      "debit": "50.00",
+      "credit": "0"
+    }
+  ]
+}

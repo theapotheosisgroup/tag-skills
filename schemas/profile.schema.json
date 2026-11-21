@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/theapotheosisgroup/tag-skills/schemas/profile.schema.json",
+  "title": "TAG install profile (profiles/<name>.json)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "description", "skills"],
+  "properties": {
+    "name": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "description": { "type": "string", "minLength": 1 },
+    "extends": {
+      "description": "Profiles whose skills this profile includes.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" }
+    },
+    "skills": {
+      "description": "Skills named explicitly by this profile, in addition to those of the profiles it extends. Skill dependencies are added by the installer.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^tag-[a-z0-9]+(?:-[a-z0-9]+)*$" }
+    }
+  }
+}
