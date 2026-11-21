@@ -38,4 +38,4 @@ Skills are versioned individually in `tag-skill.json`; the repository is release
 ## Generated files
 
 - `catalog.json`: `npm run catalog:generate`; CI fails if it is stale.
-- `docs/finance/examples/`: regenerate with the command in [tests/skills/tag-financial-statements/examples.test.js](../tests/skills/tag-financial-statements/examples.test.js) when the statement script's output changes on purpose.
+- `docs/finance/examples/`: regenerate with the command in [tests/skills/finance-financial-statements/examples.test.js](../tests/skills/finance-financial-statements/examples.test.js) when the statement script's output changes on purpose.

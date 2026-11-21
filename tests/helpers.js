@@ -7,7 +7,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const repo = join(dirname(fileURLToPath(import.meta.url)), "..");
-export const statementsSkill = join(repo, "skills", "finance", "tag-financial-statements");
+export const statementsSkill = join(repo, "skills", "finance", "finance-financial-statements");
 
 /**
  * Normalizes an exact decimal string ("1300.00" -> "1300", "-0.50" -> "-0.5").

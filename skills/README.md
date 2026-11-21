@@ -1,15 +1,11 @@
 # Skills
 
-Published TAG skills, one directory per skill under a category: `skills/<category>/<name>/`. The catalog, with what each skill does, is in the [README](../README.md#catalog); the generated index is [catalog.json](../catalog.json).
+Published TAG skills, one directory per skill under its pillar: `skills/<pillar>/<pillar>-<name>/`. The catalog, with what each skill does, is in the [README](../README.md#catalog); the generated index is [catalog.json](../catalog.json).
 
-| Category | Skills |
+| Pillar | Skills |
 | --- | --- |
-| `finance/` | tag-financial-statements, tag-reconciliation, tag-journal-entry-prep, tag-close-management, tag-variance-analysis, tag-audit-evidence |
-| `data/` | tag-sql-queries, tag-explore-data, tag-validate-data, tag-build-dashboard |
-| `legal/` | tag-review-contract, tag-triage-nda, tag-vendor-check |
-| `knowledge/` | tag-search-strategy, tag-source-management, tag-knowledge-synthesis |
-| `operations/` | tag-task-management |
-| `engineering/` | tag-tdd, tag-diagnosing-bugs, tag-codebase-design, tag-code-review, tag-domain-modeling |
-| `productivity/` | tag-writing-for-agents, tag-handoff |
+| `finance/` | finance-financial-statements, finance-reconciliation, finance-journal-entry-prep, finance-close-management, finance-variance-analysis, finance-audit-evidence, finance-explore-data, finance-validate-data, finance-build-dashboard |
+| `governance/` | governance-review-contract, governance-triage-nda, governance-vendor-check, governance-search-strategy, governance-source-management, governance-knowledge-synthesis, governance-task-management |
+| `people/` | none yet; planned in the [roadmap](../docs/roadmap.md#people-pillar-proposed-not-implemented) |
 
 Each skill holds `SKILL.md`, `tag-skill.json`, `LICENSE`, `NOTICE.md` and the `references/`, `scripts/` and `assets/` it needs ([CONTRIBUTING](../CONTRIBUTING.md#naming-and-layout)). The CI test fixture lives in [`tests/fixtures/skills/`](../tests/fixtures/README.md), never here.

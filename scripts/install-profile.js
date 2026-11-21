@@ -3,7 +3,7 @@
 // dependencies first. The Skills CLI does not read tag-skill.json, so a profile's dependencies are
 // resolved here and passed as an explicit --skill list.
 //
-//   node scripts/install-profile.js --profile finance-core [--profile ...] [--skill tag-x ...]
+//   node scripts/install-profile.js --profile finance [--profile ...] [--skill finance-x ...]
 //       [--source theapotheosisgroup/tag-skills | <local path>] [--ref <tag | commit | branch>]
 //       [--agent universal] [--agent claude-code ...] [--dir <consumer project>]
 //       [--mode copy | symlink] [--dry-run] [--allow-ref-mismatch]

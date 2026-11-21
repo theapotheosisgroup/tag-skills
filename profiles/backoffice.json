@@ -1,14 +1,6 @@
 {
   "name": "backoffice",
-  "description": "controller plus data exploration and read-only SQL, dashboards, the knowledge skills and task management.",
-  "extends": ["controller"],
-  "skills": [
-    "tag-explore-data",
-    "tag-sql-queries",
-    "tag-build-dashboard",
-    "tag-search-strategy",
-    "tag-source-management",
-    "tag-knowledge-synthesis",
-    "tag-task-management"
-  ]
+  "description": "The whole back-office G&A catalog: the finance and governance profiles (and people, once it has skills).",
+  "extends": ["finance", "governance"],
+  "skills": []
 }

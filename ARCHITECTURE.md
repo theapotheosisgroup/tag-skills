@@ -4,7 +4,7 @@
 
 ```mermaid
 flowchart LR
-  repo["tag-skills<br/>skills/&lt;category&gt;/&lt;name&gt;/"] -- "npx skills add<br/>(or a runtime bundle)" --> client["Agent client or TAG harness<br/>(Claude Code, Codex, TrueForge)"]
+  repo["tag-skills<br/>skills/&lt;pillar&gt;/&lt;pillar&gt;-&lt;name&gt;/"] -- "npx skills add<br/>(or a runtime bundle)" --> client["Agent client or TAG harness<br/>(Claude Code, Codex, TrueForge)"]
   client -- "capability call with the run's own<br/>authorized connection and context" --> mcp["TAG MCP surface (tag-mcp),<br/>Aletia MCP"]
   mcp -- "authority decided by aletia;<br/>data via tag-connectors" --> domain["Owning domain<br/>(tag-backoffice, aletia)"]
 ```
@@ -13,8 +13,8 @@ The skill only tells the client which logical capability to call and how ([capab
 
 ## Owns
 
-- Published skills under `skills/<category>/<name>/`, in the Agent Skills format, with TAG metadata (`tag-skill.json`) and upstream licence and notice files.
-- Reporting templates and portable helper scripts inside skills (for example the statement builder in tag-financial-statements), with their evaluations.
+- Published back-office G&A skills under `skills/<pillar>/<pillar>-<name>/` (pillars: finance, people, governance), in the Agent Skills format, with TAG metadata (`tag-skill.json`) and upstream licence and notice files.
+- Reporting templates and portable helper scripts inside skills (for example the statement builder in finance-financial-statements), with their evaluations.
 - Profiles, the generated catalog, the upstream import record (`upstreams.lock.json`) and the logical capability registry (`docs/integration/capabilities.json`), as contracts.
 - The validator, the Skills CLI discovery and installation tests, the profile installer and the upstream comparison tool.
 - The list of supported agent clients and the installation instructions ([docs/INSTALLING.md](docs/INSTALLING.md)).

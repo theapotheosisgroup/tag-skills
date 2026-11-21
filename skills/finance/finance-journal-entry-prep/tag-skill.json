@@ -1,0 +1,94 @@
+{
+  "name": "finance-journal-entry-prep",
+  "version": "0.1.0",
+  "domain": "finance",
+  "priority": "P0",
+  "audiences": ["tag-operations", "client-finance"],
+  "invocation": "model",
+  "capabilities": [
+    {
+      "name": "tag.context.overview",
+      "required": false,
+      "use": "Confirm the nexus, the caller's role and that TAG is invited."
+    },
+    {
+      "name": "tag.ledger.chart_of_accounts.read",
+      "required": true,
+      "use": "Accounts and active flags to validate entry lines."
+    },
+    {
+      "name": "tag.ledger.transactions.read",
+      "required": false,
+      "use": "Subledger and GL detail behind an adjustment."
+    },
+    { "name": "tag.ledger.trial_balance.read", "required": false, "use": "Balances and period status." },
+    {
+      "name": "tag.policy.reporting.read",
+      "required": false,
+      "use": "Delegation-of-authority rules and review thresholds."
+    },
+    { "name": "aletia.search", "required": false, "use": "Find supporting documents the caller may see in the nexus." },
+    { "name": "tag.evidence.attach", "required": false, "use": "Record each entry's support and the check result." },
+    {
+      "name": "tag.review.request",
+      "required": false,
+      "use": "Route entries to the approver the organization's rules name."
+    }
+  ],
+  "inputs": [
+    {
+      "name": "organization, entity, period",
+      "required": true,
+      "source": "TAG harness run context; tag.context.overview"
+    },
+    {
+      "name": "chart of accounts with active flags",
+      "required": true,
+      "source": "tag.ledger.chart_of_accounts.read or a user-supplied export"
+    },
+    {
+      "name": "period status list",
+      "required": true,
+      "source": "ledger period metadata or the finance-close-management plan"
+    },
+    {
+      "name": "adjustments needed, with calculations",
+      "required": true,
+      "source": "finance-reconciliation results, finance-financial-statements exceptions, subledger detail or the user's request"
+    },
+    {
+      "name": "supporting documents",
+      "required": true,
+      "source": "aletia.search in the nexus, or documents the user supplies"
+    },
+    { "name": "delegation-of-authority rules", "required": false, "source": "tag.policy.reporting.read" }
+  ],
+  "outputs": [
+    {
+      "name": "result.json",
+      "format": "json (tag.journal-entry-prep.result/v1)",
+      "description": "Per-entry status and problems, and a posting request that stays not_posted."
+    },
+    {
+      "name": "entry memos",
+      "format": "markdown",
+      "description": "Purpose, calculation, support and required approver per entry."
+    }
+  ],
+  "dependencies": {
+    "skills": [],
+    "runtime": [
+      { "name": "python3", "version": ">=3.10", "purpose": "scripts/check_entries.py (standard library only)" }
+    ]
+  },
+  "sideEffects": "draft",
+  "review": {
+    "required": true,
+    "conditions": [
+      "Every entry needs the approver named by the organization's delegation-of-authority rules before a posting request.",
+      "Entries above the organization's thresholds, non-recurring entries and prior-period corrections always go to review.",
+      "Posting is a separate operation (tag.ledger.journal_entry.post) authorized by the runtime; this skill never performs it."
+    ]
+  },
+  "provenance": ["anthropics/knowledge-work-plugins:finance/skills/journal-entry-prep"]
+}

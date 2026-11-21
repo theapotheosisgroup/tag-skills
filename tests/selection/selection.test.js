@@ -1,13 +1,10 @@
 // Skill-selection evaluation on positive and negative example requests.
 //
 // Real selection is made by the model from each skill's name and description, after the harness
-// filters the catalog by audience (docs/integration/harness-consumption.md). This test checks the
-// two parts that are objective here:
-//   1. the harness filter: a client catalog never contains an authoring skill;
-//   2. description quality, with a deterministic lexical scorer (BM25 over name and description) as
-//      a proxy for the model: the expected skill ranks first for each request, and for ordinary
-//      business requests it still ranks first in the unfiltered catalog, with every authoring skill
-//      scoring under half of it (a margin, so a shared word such as "red" or "green" cannot tip it).
+// filters the catalog by audience (docs/integration/harness-consumption.md). This test checks
+// description quality, the part that is objective here, with a deterministic lexical scorer (BM25
+// over name and description) as a proxy for the model: the expected skill ranks first for each
+// request, both in the audience's catalog and in the unfiltered catalog.
 // A pass does not prove model behaviour; the rubric in docs/evaluation-rubric.md covers that.
 
 import assert from "node:assert/strict";
@@ -72,26 +69,7 @@ function rank(request, skills) {
     .sort((a, b) => b.score - a.score || (a.name < b.name ? -1 : 1));
 }
 
-const authoring = new Set(
-  catalog.skills
-    .filter((/** @type {{ priority: string }} */ s) => s.priority === "authoring")
-    .map((/** @type {{ name: string }} */ s) => s.name),
-);
-
-describe("harness catalog filter", () => {
-  for (const audience of ["client-finance", "client-legal", "tag-operations"]) {
-    test(`the ${audience} catalog contains no authoring skill`, () => {
-      assert.deepEqual(
-        offered(audience)
-          .map((/** @type {{ name: string }} */ s) => s.name)
-          .filter((/** @type {string} */ n) => authoring.has(n)),
-        [],
-      );
-    });
-  }
-  test("the engineering catalog contains only authoring skills", () => {
-    assert.ok(offered("engineering").every((/** @type {{ name: string }} */ s) => authoring.has(s.name)));
-  });
+describe("cases", () => {
   test("every skill has at least one case", () => {
     const covered = new Set(cases.map((/** @type {{ expect: string }} */ c) => c.expect));
     assert.deepEqual(
@@ -115,19 +93,15 @@ describe("selection from descriptions (lexical proxy)", () => {
           .map((r) => `${r.name} ${r.score.toFixed(2)}`)
           .join(", ")}`,
       );
-      if (c.business) {
-        const unfiltered = rank(c.request, offered(null));
-        assert.equal(
-          unfiltered[0].name,
-          c.expect,
-          `unfiltered: ${unfiltered
-            .slice(0, 3)
-            .map((r) => r.name)
-            .join(", ")}`,
-        );
-        const close = unfiltered.filter((r) => authoring.has(r.name) && r.score >= unfiltered[0].score / 2);
-        assert.deepEqual(close, [], `authoring skills within half of ${c.expect}'s score`);
-      }
+      const unfiltered = rank(c.request, offered(null));
+      assert.equal(
+        unfiltered[0].name,
+        c.expect,
+        `unfiltered: ${unfiltered
+          .slice(0, 3)
+          .map((r) => r.name)
+          .join(", ")}`,
+      );
     });
   }
 });

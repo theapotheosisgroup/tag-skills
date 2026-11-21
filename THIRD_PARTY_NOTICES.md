@@ -10,14 +10,13 @@ TAG's original additions (the tooling, schemas, scripts written by TAG, and the 
 - Licence: Apache License, Version 2.0. Text: [LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt), identical to the `LICENSE` file of each selected domain folder (`finance/`, `data/`, `legal/`, `enterprise-search/`, `productivity/`).
 - No NOTICE file exists in the repository at that commit, and the selected folders carry no copyright line. The repository-root `LICENSE` has trailing text that is not part of the Apache licence; the clean domain-folder copies are used.
 - Modified files are marked in each skill's `NOTICE.md` and in a comment at the top of each `references/upstream-guide.md`, as section 4(b) of the licence requires.
-- Skills: tag-financial-statements, tag-reconciliation, tag-journal-entry-prep, tag-close-management, tag-variance-analysis, tag-audit-evidence, tag-sql-queries, tag-explore-data, tag-validate-data, tag-build-dashboard, tag-review-contract, tag-triage-nda, tag-vendor-check, tag-search-strategy, tag-source-management, tag-knowledge-synthesis, tag-task-management.
+- Skills: finance-financial-statements, finance-reconciliation, finance-journal-entry-prep, finance-close-management, finance-variance-analysis, finance-audit-evidence, finance-explore-data, finance-validate-data, finance-build-dashboard, governance-review-contract, governance-triage-nda, governance-vendor-check, governance-search-strategy, governance-source-management, governance-knowledge-synthesis, governance-task-management.
 
 ## mattpocock/skills
 
 - Source: <https://github.com/mattpocock/skills> at commit `abeeaf95660ba9e8b7c753eb38f441ca707a8823`.
 - Licence: MIT. Copyright (c) 2026 Matt Pocock. Text: [LICENSES/MIT-mattpocock-skills.txt](LICENSES/MIT-mattpocock-skills.txt).
-- The copyright and permission notice is included in each skill's `LICENSE`; modifications are listed in each skill's `NOTICE.md`.
-- Skills: tag-tdd, tag-diagnosing-bugs, tag-codebase-design, tag-code-review, tag-domain-modeling, tag-writing-for-agents, tag-handoff.
+- Skills: none since 2026-11-21. The seven engineering and productivity skills forked from this source were removed from the catalog, which is limited to back-office G&A work; their import history is kept as `removed` records in [upstreams.lock.json](upstreams.lock.json). The licence text stays here because earlier commits of this repository distributed them.
 
 ## vercel-labs/skills
 

@@ -108,7 +108,7 @@
           "source": { "type": "string" },
           "path": { "type": "string" },
           "reason": { "type": "string" },
-          "status": { "enum": ["excluded", "blocked"] }
+          "status": { "enum": ["excluded", "blocked", "removed"] }
         }
       }
     }

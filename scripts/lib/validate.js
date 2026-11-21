@@ -23,11 +23,11 @@ const LICENSE_FILE = /^LICENSE(?:\.(?:md|txt))?$/;
 /** TAG files allowed beside SKILL.md: the metadata sidecar and the provenance notice. */
 export const ALLOWED_FILES = new Set(["tag-skill.json", "NOTICE.md"]);
 
-/** Category directories under skills/ (ADR 0003). */
-export const CATEGORIES = ["finance", "data", "legal", "knowledge", "operations", "engineering", "productivity"];
-
-/** Prefix every published skill name carries. */
-export const PUBLISHED_PREFIX = "tag-";
+/**
+ * Category directories under skills/: TAG's service pillars (ADR 0004). A category directory exists
+ * only once it holds a skill.
+ */
+export const CATEGORIES = ["finance", "people", "governance"];
 
 /** File names that suggest a credential. Skills hold no credentials. */
 const CREDENTIAL_FILE =
@@ -47,6 +47,8 @@ const CREDENTIAL_FILE =
  * @property {"categories" | "flat"} [layout]  Root layout for validateRoot: `categories` (the
  *   published skills/ root: skills/<category>/<name>/) or `flat` (<root>/<name>/). Defaults to
  *   `flat` for fixtures and `categories` otherwise.
+ * @property {string} [category]  Category (pillar) directory of a published skill; its name must
+ *   start with `<category>-`. Set by validateSkill from the parent directory in the `categories` layout.
  */
 
 /**
@@ -91,8 +93,10 @@ export function checkFrontmatter(data, dirName, options = {}) {
       problems.push(`"name" must be lowercase letters, digits and single hyphens, got "${name}"`);
     }
     if (name !== dirName) problems.push(`"name" is "${name}" but the directory is "${dirName}"`);
-    if (!options.fixture && options.layout === "categories" && !name.startsWith(PUBLISHED_PREFIX)) {
-      problems.push(`a published skill name must start with "${PUBLISHED_PREFIX}", got "${name}"`);
+    if (!options.fixture && options.category && !name.startsWith(`${options.category}-`)) {
+      problems.push(
+        `a published skill in "${options.category}" must be named "${options.category}-<name>", got "${name}"`,
+      );
     }
   }
 
@@ -210,6 +214,9 @@ export async function validateSkill(skillDir, options = {}) {
   const add = (/** @type {string} */ path, /** @type {string} */ message) => findings.push({ path, message });
   const dirName = basename(skillDir);
   const skillMd = join(skillDir, "SKILL.md");
+  if (options.layout === "categories" && !options.category) {
+    options = { ...options, category: basename(dirname(skillDir)) };
+  }
 
   for (const entry of await readdir(skillDir)) {
     const path = join(skillDir, entry);

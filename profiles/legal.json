@@ -1,5 +1,0 @@
-{
-  "name": "legal",
-  "description": "The three legal skills. Their knowledge dependencies are added from tag-skill.json.",
-  "skills": ["tag-review-contract", "tag-triage-nda", "tag-vendor-check"]
-}

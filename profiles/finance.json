@@ -1,0 +1,15 @@
+{
+  "name": "finance",
+  "description": "The Finance pillar: statements, reconciliation, journal entry preparation, close management, variance analysis, audit evidence, and accounting data exploration, validation and dashboards.",
+  "skills": [
+    "finance-financial-statements",
+    "finance-reconciliation",
+    "finance-journal-entry-prep",
+    "finance-close-management",
+    "finance-variance-analysis",
+    "finance-audit-evidence",
+    "finance-explore-data",
+    "finance-validate-data",
+    "finance-build-dashboard"
+  ]
+}
