@@ -99,7 +99,7 @@ Component status uses the [organization labels](https://github.com/theapotheosis
 | Capability bindings | **Proposed but not implemented** | Seven capabilities map to existing tools (not exercised from here); the rest are proposed. [Dependencies](docs/integration/README.md#dependencies-on-other-repositories) |
 | Harness consumption | **Proposed but not implemented** | TrueForge needs a runtime bundle because this repository is private ([harness consumption](docs/integration/harness-consumption.md)) |
 | Private-repository installation test | **Proposed but not implemented** | Needs a merged default branch and a CI credential decision |
-| `skills/supplier-invoice`, `finance-month-end`, `finance-comparison`, `document-processing`, `governance-review`, `work-status` (R05) | **Proposed but not implemented** | Planned from tag-backoffice sources ([PROVENANCE](docs/PROVENANCE.md#planned-sources-r05-from-the-r00-inventory)) |
+| `skills/finance/finance-supplier-invoice/`, `finance-month-end`, `finance-comparison`, `document-processing`, `governance-review`, `work-status` (R05) | **Proposed but not implemented** | Planned from tag-backoffice sources ([PROVENANCE](docs/PROVENANCE.md#planned-sources-r05-from-the-r00-inventory)) |
 | `skills/intake` | **Blocked** | Its source exists only on unmerged tag-backoffice branches (`ore/fm-port-backoffice`, `ore/fm-intake-agent-*`) |
 | TAG-native follow-on skills | **Proposed but not implemented** | [Roadmap](docs/roadmap.md) |
 
