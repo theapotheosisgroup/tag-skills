@@ -1,0 +1,76 @@
+{
+  "name": "finance-build-dashboard",
+  "version": "0.1.0",
+  "domain": "finance",
+  "priority": "P1",
+  "audiences": ["tag-operations", "client-finance"],
+  "invocation": "model",
+  "capabilities": [
+    {
+      "name": "tag.policy.reporting.read",
+      "required": false,
+      "use": "Approved metric definitions, thresholds and presentation language."
+    },
+    {
+      "name": "tag.data.query",
+      "required": false,
+      "use": "Read-only queries only, for figures that then pass finance-validate-data."
+    },
+    {
+      "name": "tag.evidence.attach",
+      "required": false,
+      "use": "Record the dashboard file, its hash and the input identities."
+    },
+    { "name": "tag.review.request", "required": false, "use": "Route the dashboard to a reviewer before it is shared." }
+  ],
+  "inputs": [
+    {
+      "name": "verified report data",
+      "required": true,
+      "source": "finance-financial-statements report.json, or query results with a finance-validate-data report"
+    },
+    { "name": "metric definitions", "required": true, "source": "the user or tag.policy.reporting.read" },
+    {
+      "name": "audience, purpose, period, entity, language",
+      "required": true,
+      "source": "the user's request and the run context"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "<name>_dashboard.html",
+      "format": "html",
+      "description": "Self-contained dashboard with embedded data, metric definitions and source footer."
+    },
+    {
+      "name": "dashboard note",
+      "format": "markdown",
+      "description": "Sources, verification references, definitions, open exceptions, CDN use."
+    }
+  ],
+  "dependencies": {
+    "skills": ["finance-validate-data"],
+    "runtime": [
+      { "name": "web browser", "version": "any current", "purpose": "view the HTML output" },
+      {
+        "name": "chart.js (optional, CDN)",
+        "version": "4.5.1",
+        "purpose": "only with the upstream Chart.js template; loaded by the viewer's browser from cdn.jsdelivr.net with an integrity hash"
+      },
+      {
+        "name": "chartjs-adapter-date-fns (optional, CDN)",
+        "version": "3.0.0",
+        "purpose": "only with the upstream Chart.js template, for time axes"
+      }
+    ]
+  },
+  "sideEffects": "draft",
+  "review": {
+    "required": true,
+    "conditions": [
+      "Before the dashboard is shared outside the finance function or the organization.",
+      "When any displayed figure comes from a blocked report or carries an open exception."
+    ]
+  },
+  "provenance": ["anthropics/knowledge-work-plugins:data/skills/build-dashboard"]
+}

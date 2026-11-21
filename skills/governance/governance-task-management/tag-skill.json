@@ -1,0 +1,59 @@
+{
+  "name": "governance-task-management",
+  "version": "0.1.0",
+  "domain": "governance",
+  "priority": "P1",
+  "audiences": ["tag-operations", "client-finance", "client-legal"],
+  "invocation": "model",
+  "capabilities": [
+    {
+      "name": "tag.context.overview",
+      "required": true,
+      "use": "Nexuses, caller's role, TAG invited, expectation summary."
+    },
+    { "name": "tag.work.status", "required": true, "use": "State and outcome of TAG work by id or listed by pillar." },
+    { "name": "tag.expectations.read", "required": false, "use": "Full expectation list with states and obligors." },
+    {
+      "name": "tag.request.ask",
+      "required": false,
+      "use": "File a confirmed request as an expectation for TAG's side."
+    }
+  ],
+  "inputs": [
+    {
+      "name": "organization, acting principal, nexus, correlation id",
+      "required": true,
+      "source": "TAG harness run context; tag.context.overview"
+    },
+    {
+      "name": "expectations and their states",
+      "required": true,
+      "source": "tag.expectations.read, or the tag.context.overview summary until it is bound"
+    },
+    { "name": "TAG work states", "required": false, "source": "tag.work.status" },
+    {
+      "name": "task to add: what, for whom, by when",
+      "required": false,
+      "source": "the person's request, confirmed before filing"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "status summary",
+      "format": "markdown",
+      "description": "Items grouped by view with identifiers, states as reported, obligors, due dates."
+    },
+    { "name": "filed request", "format": "text", "description": "Confirmed request text and the returned identifier." }
+  ],
+  "dependencies": { "skills": [], "runtime": [] },
+  "sideEffects": "authorized-write",
+  "review": {
+    "required": true,
+    "conditions": [
+      "The person confirms the exact request text before tag.request.ask is called.",
+      "Requests that commit the organization to a third party, or name another party as obligor, are confirmed by someone with authority to make that commitment.",
+      "Deciding an obligation is a separate authorized operation for the owning side, outside this skill."
+    ]
+  },
+  "provenance": ["anthropics/knowledge-work-plugins:productivity/skills/task-management"]
+}

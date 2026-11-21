@@ -1,0 +1,66 @@
+{
+  "name": "governance-knowledge-synthesis",
+  "version": "0.1.0",
+  "domain": "governance",
+  "priority": "P1",
+  "audiences": ["tag-operations", "client-finance", "client-legal"],
+  "invocation": "model",
+  "capabilities": [
+    {
+      "name": "aletia.search",
+      "required": false,
+      "use": "Re-read a cited item to confirm a quote or date the caller may see."
+    }
+  ],
+  "inputs": [
+    {
+      "name": "organization, acting principal, mandate, nexus, correlation id",
+      "required": true,
+      "source": "TAG harness run context"
+    },
+    {
+      "name": "question and its type",
+      "required": true,
+      "source": "the user or the calling skill"
+    },
+    {
+      "name": "ranked results with source identifiers, timestamps, relevance, and the search log",
+      "required": true,
+      "source": "governance-search-strategy, or results the user supplies with their sources"
+    },
+    {
+      "name": "authority designations",
+      "required": false,
+      "source": "governance-source-management"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "attributed answer",
+      "format": "markdown",
+      "description": "Direct answer, confidence and an inline citation per claim."
+    },
+    {
+      "name": "evidence bundle",
+      "format": "structured list",
+      "description": "Per item: source type, identifier, title, author, timestamp, relevance, excerpt, supported claims."
+    },
+    {
+      "name": "conflicts and gaps",
+      "format": "markdown",
+      "description": "Conflicting positions with sources and dates; sources not searched or refused."
+    }
+  ],
+  "dependencies": {
+    "skills": ["governance-search-strategy"],
+    "runtime": []
+  },
+  "sideEffects": "read",
+  "review": {
+    "required": false,
+    "conditions": [
+      "When the answer supports a legal, financial or personnel decision, the calling skill's review conditions apply."
+    ]
+  },
+  "provenance": ["anthropics/knowledge-work-plugins:enterprise-search/skills/knowledge-synthesis"]
+}

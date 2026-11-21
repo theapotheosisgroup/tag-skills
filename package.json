@@ -2,7 +2,7 @@
   "name": "tag-skills",
   "version": "0.0.0",
   "private": true,
-  "description": "TAG's installable Agent Skills: a 24-skill catalog with validation, provenance, profiles and Skills CLI installation tests.",
+  "description": "TAG's installable Agent Skills: a 16-skill back-office G&A catalog (Finance, People, Governance) with validation, provenance, profiles and Skills CLI installation tests.",
   "license": "UNLICENSED",
   "type": "module",
   "engines": {

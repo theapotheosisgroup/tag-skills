@@ -23,7 +23,7 @@ Contracts in this directory:
 | Integration | How it was tested here |
 | --- | --- |
 | Vercel Skills CLI 1.9.0: discovery, selected installs for codex, claude-code and universal, copy and symlink modes, lockfile restore | **Live**, against the pinned CLI and a local checkout, in CI (`npm run test:install`) |
-| Upstream sources (anthropics/knowledge-work-plugins, mattpocock/skills) | **Live** with `npm run upstream:check` on 2026-11-20 (all 24 records verified; upstream HEADs equal the pinned commits). Not in CI; a local-repository test runs in CI |
+| Upstream sources (anthropics/knowledge-work-plugins, mattpocock/skills) | **Live** with `npm run upstream:check` on 2026-11-20 (all 24 records then in the lock verified; upstream HEADs equal the pinned commits). The 16 remaining records are unchanged since. Not in CI; a local-repository test runs in CI |
 | Missing tool, missing policy, refused capability, unauthorized write | **Mocked** contract checks ([tests/contracts](../../tests/contracts/capability-contract.test.js), [tests/mocks/capability-host.js](../../tests/mocks/capability-host.js)) |
 | TAG Back Office MCP tools, Aletia MCP, tag-connectors, tag-harness, aletia authority | **Pending**: no live call is made from this repository |
 | Installation from the private GitHub repository with real credentials | **Pending**: needs a merged default branch and a CI credential decision |
@@ -38,6 +38,6 @@ Each item below is work outside this repository. None is done by this change.
 4. **tag-mcp / tag-connectors: ledger reads.** Bind `tag.ledger.trial_balance.read`, `tag.ledger.chart_of_accounts.read`, `tag.ledger.transactions.read`, `tag.ledger.bank_statement.read` (Xero MCP surface over tag-connectors). A period-status read (`tag.ledger.periods.read`) is a likely addition.
 5. **tag-backoffice / tag-mcp: authorized writes.** Define `tag.ledger.journal_entry.post` and `tag.ledger.period_lock.set` with confirmation, idempotency and attribution. Skills never call them without an authorized grant and an approved review.
 6. **Owner decision: policy capabilities.** Decide who owns `tag.policy.reporting.read` and `tag.policy.legal_playbook.read` (tag-backoffice or aletia) and their schemas. Until then, policies come from documents the organization supplies.
-7. **aletia: expectations and Matters.** Bind `tag.expectations.read`. "Matter" is not implemented anywhere; the mapping in tag-task-management is proposed until a model exists.
+7. **aletia: expectations and Matters.** Bind `tag.expectations.read`. "Matter" is not implemented anywhere; the mapping in governance-task-management is proposed until a model exists.
 8. **tag-connectors: rendering and communication.** Bind `tag.documents.render` (XLSX, PDF) and `tag.communication.send`.
 9. **.github: standards.** Update `standards/AGENTS-AND-SKILLS.md` for category directories ([ADR 0003](../adr/0003-categories-and-tag-skill-metadata.md)).

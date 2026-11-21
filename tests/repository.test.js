@@ -48,37 +48,45 @@ async function editJson(path, change) {
 /** @param {{ message: string }[]} findings */
 const messages = (findings) => findings.map((f) => f.message).join("\n");
 
-const ALL = [
-  "tag-audit-evidence",
-  "tag-build-dashboard",
-  "tag-close-management",
-  "tag-code-review",
-  "tag-codebase-design",
-  "tag-diagnosing-bugs",
-  "tag-domain-modeling",
-  "tag-explore-data",
-  "tag-financial-statements",
-  "tag-handoff",
-  "tag-journal-entry-prep",
-  "tag-knowledge-synthesis",
-  "tag-reconciliation",
-  "tag-review-contract",
-  "tag-search-strategy",
-  "tag-source-management",
-  "tag-sql-queries",
-  "tag-task-management",
-  "tag-tdd",
-  "tag-triage-nda",
-  "tag-validate-data",
-  "tag-variance-analysis",
-  "tag-vendor-check",
-  "tag-writing-for-agents",
+const FINANCE = [
+  "finance-audit-evidence",
+  "finance-build-dashboard",
+  "finance-close-management",
+  "finance-explore-data",
+  "finance-financial-statements",
+  "finance-journal-entry-prep",
+  "finance-reconciliation",
+  "finance-validate-data",
+  "finance-variance-analysis",
+];
+const GOVERNANCE = [
+  "governance-knowledge-synthesis",
+  "governance-review-contract",
+  "governance-search-strategy",
+  "governance-source-management",
+  "governance-task-management",
+  "governance-triage-nda",
+  "governance-vendor-check",
+];
+const ALL = [...FINANCE, ...GOVERNANCE];
+
+/** Imports removed from the catalog on 2026-11-21: engineering, authoring and SQL skills. */
+const REMOVED = [
+  "anthropics/knowledge-work-plugins:data/skills/sql-queries",
+  "mattpocock/skills:skills/engineering/code-review",
+  "mattpocock/skills:skills/engineering/codebase-design",
+  "mattpocock/skills:skills/engineering/diagnosing-bugs",
+  "mattpocock/skills:skills/engineering/domain-modeling",
+  "mattpocock/skills:skills/engineering/tdd",
+  "mattpocock/skills:skills/productivity/handoff",
+  "mattpocock/skills:skills/productivity/writing-for-agents",
 ];
 
 describe("committed repository", () => {
-  test("ships exactly the 24 selected forks", async () => {
+  test("ships exactly the 16 back-office forks, each prefixed with its pillar", async () => {
     const { skills } = await loadRepository(repo);
     assert.deepEqual(skills.map((s) => s.name).sort(), ALL);
+    for (const skill of skills) assert.ok(skill.name.startsWith(`${skill.category}-`), skill.name);
   });
   test("passes every repository-level check", async () => {
     const { findings } = await checkRepository(repo);
@@ -98,6 +106,14 @@ describe("committed repository", () => {
     assert.equal(lock.blocked[0].status, "excluded");
     assert.match(lock.blocked[0].id, /dinoclaw_guides/);
   });
+  test("removed skills keep their provenance as removed records, not imports", async () => {
+    const { lock } = await loadRepository(repo);
+    const removed = lock.blocked.filter((/** @type {{ status: string }} */ b) => b.status === "removed");
+    assert.deepEqual(removed.map((/** @type {{ id: string }} */ b) => b.id).sort(), REMOVED);
+    for (const id of REMOVED) {
+      assert.ok(!lock.imports.some((/** @type {{ id: string }} */ i) => i.id === id), `${id} is still imported`);
+    }
+  });
 });
 
 describe("profiles", () => {
@@ -106,75 +122,18 @@ describe("profiles", () => {
     const { profiles, skills } = await loadRepository(repo);
     return expandProfiles([name], profiles, skills);
   }
-  test("finance-core is the five P0 skills", async () => {
-    assert.deepEqual(await expand("finance-core"), [
-      "tag-close-management",
-      "tag-financial-statements",
-      "tag-journal-entry-prep",
-      "tag-reconciliation",
-      "tag-variance-analysis",
-    ]);
+  test("the profiles are the pillars plus backoffice", async () => {
+    const { profiles } = await loadRepository(repo);
+    assert.deepEqual(profiles.map((p) => p.name).sort(), ["backoffice", "finance", "governance"]);
   });
-  test("controller adds audit evidence and data validation", async () => {
-    const finance = await expand("finance-core");
-    const controller = await expand("controller");
-    assert.deepEqual(
-      controller.filter((s) => !finance.includes(s)),
-      ["tag-audit-evidence", "tag-validate-data"],
-    );
+  test("finance is every finance- skill", async () => {
+    assert.deepEqual(await expand("finance"), FINANCE);
   });
-  test("backoffice adds data exploration, SQL, dashboards, knowledge and task management", async () => {
-    const controller = await expand("controller");
-    const backoffice = await expand("backoffice");
-    assert.deepEqual(
-      backoffice.filter((s) => !controller.includes(s)),
-      [
-        "tag-build-dashboard",
-        "tag-explore-data",
-        "tag-knowledge-synthesis",
-        "tag-search-strategy",
-        "tag-source-management",
-        "tag-sql-queries",
-        "tag-task-management",
-      ],
-    );
+  test("governance is every governance- skill", async () => {
+    assert.deepEqual(await expand("governance"), GOVERNANCE);
   });
-  test("legal expands to the legal skills plus their knowledge dependencies", async () => {
-    const legal = await expand("legal");
-    for (const name of [
-      "tag-review-contract",
-      "tag-triage-nda",
-      "tag-vendor-check",
-      "tag-knowledge-synthesis",
-      "tag-search-strategy",
-    ]) {
-      assert.ok(legal.includes(name), `${name} missing from legal`);
-    }
-    assert.ok(
-      legal.every((s) =>
-        /^tag-(review-contract|triage-nda|vendor-check|knowledge-synthesis|search-strategy|source-management)$/.test(s),
-      ),
-    );
-  });
-  test("authoring is the seven authoring skills, and no business profile includes them", async () => {
-    const authoring = await expand("authoring");
-    assert.deepEqual(authoring, [
-      "tag-code-review",
-      "tag-codebase-design",
-      "tag-diagnosing-bugs",
-      "tag-domain-modeling",
-      "tag-handoff",
-      "tag-tdd",
-      "tag-writing-for-agents",
-    ]);
-    for (const profile of ["finance-core", "controller", "backoffice", "legal"]) {
-      const skills = await expand(profile);
-      assert.deepEqual(
-        skills.filter((s) => authoring.includes(s)),
-        [],
-        `${profile} includes authoring skills`,
-      );
-    }
+  test("backoffice is the whole catalog", async () => {
+    assert.deepEqual(await expand("backoffice"), ALL);
   });
   test("every profile's expansion is closed under dependencies", async () => {
     const { profiles, skills } = await loadRepository(repo);
@@ -192,7 +151,7 @@ describe("profiles", () => {
 
 describe("repository checks reject broken contracts", () => {
   const sidecar = (/** @type {string} */ root) =>
-    join(root, "skills", "finance", "tag-financial-statements", "tag-skill.json");
+    join(root, "skills", "finance", "finance-financial-statements", "tag-skill.json");
 
   test("an unknown capability", async () => {
     const root = await copyRepository();
@@ -222,24 +181,24 @@ describe("repository checks reject broken contracts", () => {
   });
   test("a dependency cycle and an unknown dependency", async () => {
     const root = await copyRepository();
-    await editJson(sidecar(root), (d) => (d.dependencies.skills = ["tag-close-management", "tag-missing"]));
+    await editJson(sidecar(root), (d) => (d.dependencies.skills = ["finance-close-management", "finance-missing"]));
     const text = messages((await checkRepository(root)).findings);
-    assert.match(text, /dependency "tag-missing" is not a published skill/);
+    assert.match(text, /dependency "finance-missing" is not a published skill/);
     assert.match(text, /skill dependency cycle/);
   });
   test("a profile naming an unknown skill or profile", async () => {
     const root = await copyRepository();
-    await editJson(join(root, "profiles", "legal.json"), (d) => {
-      d.skills.push("tag-nope");
+    await editJson(join(root, "profiles", "governance.json"), (d) => {
+      d.skills.push("governance-nope");
       d.extends = ["ghost"];
     });
     const text = messages((await checkRepository(root)).findings);
-    assert.match(text, /skill "tag-nope" is not a published skill/);
+    assert.match(text, /skill "governance-nope" is not a published skill/);
     assert.match(text, /extends unknown profile "ghost"/);
   });
   test("a modified LICENSE, a missing notice and a tampered lock hash", async () => {
     const root = await copyRepository();
-    const dir = join(root, "skills", "finance", "tag-financial-statements");
+    const dir = join(root, "skills", "finance", "finance-financial-statements");
     await writeFile(join(dir, "LICENSE"), "changed");
     await writeFile(join(dir, "NOTICE.md"), "# Notice\n");
     await editJson(join(root, "upstreams.lock.json"), (d) => (d.imports[1].files[0].sha256 = "0".repeat(64)));
@@ -258,20 +217,20 @@ describe("catalog", () => {
     assert.equal(first, second);
     assert.equal(first, await readFile(join(repo, "catalog.json"), "utf8"));
   });
-  test("the catalog matches its schema and lists 24 skills and 5 profiles", async () => {
+  test("the catalog matches its schema and lists 16 skills and 3 profiles", async () => {
     const catalog = JSON.parse(await readFile(join(repo, "catalog.json"), "utf8"));
     const schemas = await loadSchemas(repo);
     assert.ok(schemas.catalog(catalog), JSON.stringify(schemas.catalog.errors));
-    assert.equal(catalog.skills.length, 24);
+    assert.equal(catalog.skills.length, 16);
     assert.deepEqual(
       catalog.profiles.map((/** @type {{ name: string }} */ p) => p.name),
-      ["authoring", "backoffice", "controller", "finance-core", "legal"],
+      ["backoffice", "finance", "governance"],
     );
   });
   test("a content change changes the catalog", async () => {
     const root = await copyRepository();
     const before = await buildCatalog(await loadRepository(root));
-    await writeFile(join(root, "skills", "data", "tag-sql-queries", "references", "extra.md"), "# Extra\n");
+    await writeFile(join(root, "skills", "finance", "finance-explore-data", "references", "extra.md"), "# Extra\n");
     assert.notEqual(await buildCatalog(await loadRepository(root)), before);
   });
 });

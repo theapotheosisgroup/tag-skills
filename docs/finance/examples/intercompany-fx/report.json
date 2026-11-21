@@ -1,7 +1,7 @@
 {
   "schema": "tag.financial-statements.report/v1",
   "generator": {
-    "skill": "tag-financial-statements",
+    "skill": "finance-financial-statements",
     "version": "0.1.0",
     "script": "scripts/build_statements.py"
   },

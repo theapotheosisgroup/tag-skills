@@ -1,6 +1,6 @@
 # 0003. Category directories, TAG skill metadata and provenance inside each skill
 
-- **Status:** Accepted
+- **Status:** Accepted; the category list and the `tag-` prefix are superseded by [ADR 0004](0004-pillar-categories-and-prefixes.md)
 - **Date:** 2026-11-20
 - **Deciders:** the mission lead (TAG Skills implementation brief, 2026-11-20), the tag-skills maintainers (CODEOWNERS)
 

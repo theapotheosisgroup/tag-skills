@@ -5,5 +5,5 @@ node_modules/
 # Generated files: written by scripts with a fixed format, checked by catalog:check and the validator.
 catalog.json
 upstreams.lock.json
-# Generated finance example outputs: compared byte-for-byte with the script by tests/skills/tag-financial-statements/examples.test.js.
+# Generated finance example outputs: compared byte-for-byte with the script by tests/skills/finance-financial-statements/examples.test.js.
 docs/finance/examples/

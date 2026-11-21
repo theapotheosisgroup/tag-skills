@@ -14,6 +14,5 @@ Every skill run happens in a context the TAG harness supplies. Skills read it; t
 
 - A client-owned agent and a TAG-owned agent can run the same skill under different grants. The skill is the same; the grant differs, and the runtime checks it on every call.
 - Access is validated at the runtime and tool boundary. A skill's description or metadata never establishes access.
-- A handoff document (tag-handoff) carries context between sessions. It is not a delegation grant and does not implement A2A.
 
-The finance input format records the organization and entity explicitly ([tag-financial-statements input format](../../skills/finance/tag-financial-statements/references/input-format.md)), so every report identifies whose data it is.
+The finance input format records the organization and entity explicitly ([finance-financial-statements input format](../../skills/finance/finance-financial-statements/references/input-format.md)), so every report identifies whose data it is.

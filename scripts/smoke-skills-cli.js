@@ -2,8 +2,8 @@
 // Discovery and installation tests with the pinned Vercel Skills CLI (node_modules/.bin/skills,
 // installed from package-lock.json; no network install). `npm run test:install`.
 //
-//  1. Discovery from the repository root lists every published skill under skills/<category>/ (all
-//     24) and never the test fixture, which is hidden by `metadata.internal: true`.
+//  1. Discovery from the repository root lists every published skill under skills/<pillar>/ (all
+//     16) and never the test fixture, which is hidden by `metadata.internal: true`.
 //  2. Discovery of tests/fixtures with INSTALL_INTERNAL_SKILLS=1 lists the fixture.
 //  3. For codex, claude-code and universal, a selected-skill install into a fresh consumer project
 //     puts exactly the selected skills where that client reads them, every file byte-for-byte equal
@@ -32,7 +32,7 @@ const repo = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const cli = join(repo, "node_modules", ".bin", "skills");
 const fixturesRoot = join(repo, "tests", "fixtures");
 const FIXTURE = "tag-test-fixture";
-const EXPECTED_SKILLS = 24;
+const EXPECTED_SKILLS = 16;
 
 /** Project-level skill directory per client, as the pinned Skills CLI installs them. */
 const CLIENTS = { codex: ".agents/skills", "claude-code": ".claude/skills", universal: ".agents/skills" };
@@ -135,7 +135,7 @@ try {
   console.log(`ok - tests/fixtures lists ${FIXTURE}`);
 
   // 3. Selected-skill installs per client.
-  const selection = ["tag-financial-statements", "tag-journal-entry-prep", "tag-tdd"];
+  const selection = ["finance-financial-statements", "finance-journal-entry-prep", "governance-triage-nda"];
   for (const [client, dir] of Object.entries(CLIENTS)) {
     const project = await consumer();
     const install = await exec(cli, ["add", repo, "--skill", ...selection, "--agent", client, "--copy", "--yes"], {
@@ -156,7 +156,7 @@ try {
       "scripts/build_statements.py",
       "assets/example-input.json",
     ]) {
-      await stat(join(project, dir, "tag-financial-statements", required));
+      await stat(join(project, dir, "finance-financial-statements", required));
     }
     console.log(`ok - ${client}: ${selection.length} selected skills in ${dir}, byte-for-byte, nothing unrelated`);
   }
@@ -200,7 +200,7 @@ try {
       "--source",
       repo,
       "--profile",
-      "legal",
+      "governance",
       "--agent",
       "claude-code",
       "--mode",
@@ -211,33 +211,21 @@ try {
     { cwd: work, env },
   );
   if (copyRun.code !== 0) fail(`profile install (copy) failed (exit ${copyRun.code}):\n${copyRun.output}`);
-  const legal = await entries(join(copyProject, ".claude", "skills"));
-  for (const needed of [
-    "tag-review-contract",
-    "tag-triage-nda",
-    "tag-vendor-check",
-    "tag-search-strategy",
-    "tag-knowledge-synthesis",
-  ]) {
-    if (!legal.includes(needed)) fail(`profile "legal" did not install ${needed}: [${legal.join(", ")}]`);
+  const governance = await entries(join(copyProject, ".claude", "skills"));
+  const expectedGovernance = published
+    .map((s) => s.name)
+    .filter((name) => name.startsWith("governance-"))
+    .sort();
+  if (JSON.stringify(governance) !== JSON.stringify(expectedGovernance)) {
+    fail(`profile "governance" installed [${governance.join(", ")}], expected [${expectedGovernance.join(", ")}]`);
   }
-  if (
-    legal.some(
-      (name) =>
-        !/^tag-(review-contract|triage-nda|vendor-check|search-strategy|knowledge-synthesis|source-management)$/.test(
-          name,
-        ),
-    )
-  ) {
-    fail(`profile "legal" installed unrelated skills: [${legal.join(", ")}]`);
-  }
-  for (const name of legal) {
+  for (const name of governance) {
     if ((await lstat(join(copyProject, ".claude", "skills", name))).isSymbolicLink())
       fail(`copy mode left a symlink for ${name}`);
     await sameAsSource(join(copyProject, ".claude", "skills", name), name);
   }
   console.log(
-    `ok - install-profile --profile legal --mode copy: ${legal.length} skills including knowledge dependencies`,
+    `ok - install-profile --profile governance --mode copy: exactly the ${governance.length} governance- skills`,
   );
 
   const linkProject = await consumer();
@@ -248,7 +236,7 @@ try {
       "--source",
       repo,
       "--skill",
-      "tag-close-management",
+      "finance-close-management",
       "--agent",
       "claude-code",
       "--agent",
@@ -261,7 +249,12 @@ try {
     { cwd: work, env },
   );
   if (linkRun.code !== 0) fail(`profile install (symlink) failed (exit ${linkRun.code}):\n${linkRun.output}`);
-  const expected = ["tag-close-management", "tag-financial-statements", "tag-journal-entry-prep", "tag-reconciliation"];
+  const expected = [
+    "finance-close-management",
+    "finance-financial-statements",
+    "finance-journal-entry-prep",
+    "finance-reconciliation",
+  ];
   const linked = await entries(join(linkProject, ".claude", "skills"));
   if (JSON.stringify(linked) !== JSON.stringify(expected))
     fail(`symlink install: .claude/skills holds [${linked.join(", ")}]`);
@@ -273,14 +266,14 @@ try {
     await sameAsSource(target, name);
   }
   console.log(
-    "ok - install-profile --skill tag-close-management --mode symlink: dependencies expanded, claude-code links to .agents/skills",
+    "ok - install-profile --skill finance-close-management --mode symlink: dependencies expanded, claude-code links to .agents/skills",
   );
 
   // 7. Installed scripts run outside the repository, without its files or dependencies.
   const isolated = join(work, "isolated");
   await cp(join(all, ".agents", "skills"), isolated, { recursive: true });
   const bare = { PATH: process.env.PATH ?? "" };
-  const statements = join(isolated, "tag-financial-statements");
+  const statements = join(isolated, "finance-financial-statements");
   const fsRun = await exec(
     "python3",
     ["-I", "scripts/build_statements.py", "--input", "assets/example-input.json", "--out-dir", join(work, "fs-out")],
@@ -300,10 +293,10 @@ try {
     fail(`installed build_statements.py produced unexpected totals: ${JSON.stringify(totals.income_statement.totals)}`);
   }
   console.log(
-    "ok - installed tag-financial-statements script runs in isolation: profit 300, closing cash 1300, equity 1300",
+    "ok - installed finance-financial-statements script runs in isolation: profit 300, closing cash 1300, equity 1300",
   );
 
-  const entriesSkill = join(isolated, "tag-journal-entry-prep");
+  const entriesSkill = join(isolated, "finance-journal-entry-prep");
   const jeOut = join(work, "je-result.json");
   const jeRun = await exec(
     "python3",
@@ -318,7 +311,7 @@ try {
   if (je.summary.invalid !== 0 || !JSON.stringify(je).includes('"not_posted"')) {
     fail(`installed check_entries.py produced an unexpected result: ${JSON.stringify(je.summary)}`);
   }
-  console.log("ok - installed tag-journal-entry-prep script runs in isolation and never posts (not_posted)");
+  console.log("ok - installed finance-journal-entry-prep script runs in isolation and never posts (not_posted)");
 } finally {
   await rm(work, { recursive: true, force: true });
 }

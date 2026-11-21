@@ -1,0 +1,13 @@
+{
+  "name": "governance",
+  "description": "The Governance pillar: contract review, NDA triage, vendor checks, the knowledge skills (search strategy, source management, knowledge synthesis) and task management.",
+  "skills": [
+    "governance-review-contract",
+    "governance-triage-nda",
+    "governance-vendor-check",
+    "governance-search-strategy",
+    "governance-source-management",
+    "governance-knowledge-synthesis",
+    "governance-task-management"
+  ]
+}

@@ -15,8 +15,10 @@ CI runs the same commands, plus Python 3.10 script tests, Markdown lint, offline
 
 ## Naming and layout
 
-- A skill lives in `skills/<category>/<name>/`. Categories: finance, data, legal, knowledge, operations, engineering, productivity ([ADR 0003](docs/adr/0003-categories-and-tag-skill-metadata.md)).
-- `<name>` starts with `tag-`, is lowercase kebab-case, at most 64 characters, unique across categories, and equals the `name` field. A fork keeps the upstream name after the prefix unless the TAG scope differs (for example `audit-support` became `tag-audit-evidence`).
+- The catalog holds back-office G&A skills only. Engineering, authoring and general productivity skills do not belong here.
+- A skill lives in `skills/<pillar>/<pillar>-<name>/`. Pillars are TAG's service lines: `finance`, `people`, `governance` ([ADR 0004](docs/adr/0004-pillar-categories-and-prefixes.md)). A pillar directory exists only once it holds a skill.
+- The name follows the [Agent Skills naming rules](https://agentskills.io/specification#name-field): 1-64 characters, lowercase letters, digits and single hyphens, no leading or trailing hyphen, equal to the folder name and the `name` field. TAG adds the pillar prefix (`finance-`, `people-`, `governance-`) to namespace its skills against others installed beside them; the specification does not require a prefix. Names are unique across pillars.
+- A fork keeps the upstream name after the prefix unless the TAG scope differs (for example `audit-support` became `finance-audit-evidence`). Pick the pillar by the service the work belongs to, not by the upstream collection (for example the upstream `legal` and `enterprise-search` skills are `governance-`).
 - A skill folder holds `SKILL.md`, `tag-skill.json`, `LICENSE` and `NOTICE.md` (for forks), and only the `references/`, `scripts/` and `assets/` it needs. Nothing links outside the folder.
 
 ## Adding or changing a skill

@@ -1,6 +1,6 @@
 # Finance reporting: policy configuration and operating example
 
-How an organization configures reporting for the finance skills, and a worked run of [tag-financial-statements](../../skills/finance/tag-financial-statements/SKILL.md) on synthetic data.
+How an organization configures reporting for the finance skills, and a worked run of [finance-financial-statements](../../skills/finance/finance-financial-statements/SKILL.md) on synthetic data.
 
 ## Reporting policy configuration
 
@@ -8,15 +8,15 @@ Policies belong to the organization and come from `tag.policy.reporting.read` (p
 
 | Setting | Used by | Notes |
 | --- | --- | --- |
-| Reporting framework: `ASPE` (NCECF) or `IFRS` | tag-financial-statements | Explicit. A missing or unsupported framework blocks the package |
+| Reporting framework: `ASPE` (NCECF) or `IFRS` | finance-financial-statements | Explicit. A missing or unsupported framework blocks the package |
 | Policy id, version and approval state | all finance skills | Recorded in every report; an unapproved policy blocks |
-| Presentation language: `en` or `fr` | tag-financial-statements | Statement titles and labels follow the framework's French or English names |
-| Chart-of-accounts to statement mapping (id, version, line per account, currency, intercompany counterparty) | tag-financial-statements, tag-variance-analysis | Line codes: [input format](../../skills/finance/tag-financial-statements/references/input-format.md#line-codes) |
-| Cash-flow method | tag-financial-statements | `indirect` (the only method supported) |
-| Materiality and review thresholds (amount, percentage, per line class) | tag-financial-statements, tag-variance-analysis, tag-reconciliation | Annotate and prioritize; never suppress a difference |
-| Reviewer and approver roles, delegation of authority | tag-journal-entry-prep, tag-close-management, tag-review-contract, tag-triage-nda | Applied by the runtime and review routing, not by the skill |
-| Close checklist, owners and deadlines | tag-close-management | |
-| SOX scope | tag-audit-evidence | SOX procedures apply only when the organization confirms it is in scope |
+| Presentation language: `en` or `fr` | finance-financial-statements | Statement titles and labels follow the framework's French or English names |
+| Chart-of-accounts to statement mapping (id, version, line per account, currency, intercompany counterparty) | finance-financial-statements, finance-variance-analysis | Line codes: [input format](../../skills/finance/finance-financial-statements/references/input-format.md#line-codes) |
+| Cash-flow method | finance-financial-statements | `indirect` (the only method supported) |
+| Materiality and review thresholds (amount, percentage, per line class) | finance-financial-statements, finance-variance-analysis, finance-reconciliation | Annotate and prioritize; never suppress a difference |
+| Reviewer and approver roles, delegation of authority | finance-journal-entry-prep, finance-close-management, governance-review-contract, governance-triage-nda | Applied by the runtime and review routing, not by the skill |
+| Close checklist, owners and deadlines | finance-close-management | |
+| SOX scope | finance-audit-evidence | SOX procedures apply only when the organization confirms it is in scope |
 
 A missing setting is reported as an exception naming the setting. Where a judgement is not settled by policy, the skill asks or routes the item for review.
 
@@ -25,7 +25,7 @@ A missing setting is reported as an exception naming the setting. Where a judgem
 The commands below use the committed synthetic fixtures. The outputs in [examples/](examples/) are the script's real output for three of them, kept in sync by a test.
 
 ```bash
-cd skills/finance/tag-financial-statements
+cd skills/finance/finance-financial-statements
 python3 scripts/build_statements.py --input ../../../tests/fixtures/finance/accruals-noncash/input.json --out-dir /tmp/fs
 ```
 
@@ -40,4 +40,4 @@ python3 scripts/build_statements.py --input ../../../tests/fixtures/finance/accr
 
 Each report records the input file's SHA-256, the snapshot id, the policy and mapping versions, the reviewer status (`not_reviewed`) and a management-draft label. Evidence for a run is the input file, `report.json` (with its checks and exceptions) and the renderings; the harness records them against the correlation id with `tag.evidence.attach` once that capability is bound.
 
-What happens next in a real run: the error exceptions go back to whoever owns the inputs (a corrected extract, a schedule, an approval), corrections are prepared with tag-journal-entry-prep and posted only through the authorized posting operation, and the package goes to the organization's reviewer.
+What happens next in a real run: the error exceptions go back to whoever owns the inputs (a corrected extract, a schedule, an approval), corrections are prepared with finance-journal-entry-prep and posted only through the authorized posting operation, and the package goes to the organization's reviewer.

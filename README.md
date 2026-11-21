@@ -2,40 +2,34 @@
 
 TAG's library of installable **Agent Skills**: portable workflow instructions, templates and small scripts that teach an agent how to do TAG back-office work through TAG's authorized capabilities. Distributed from this Git repository with the [Vercel Skills CLI](https://github.com/vercel-labs/skills); no npm package is published.
 
-- **Repository status:** **Active development**. The 24-skill catalog is implemented; live capability bindings are pending in other repositories ([integration](docs/integration/README.md)).
+- **Repository status:** **Active development**. The 16-skill back-office catalog is implemented; live capability bindings are pending in other repositories ([integration](docs/integration/README.md)).
 - **Visibility:** private ([organization repository catalogue](https://github.com/theapotheosisgroup/.github#repository-catalogue)).
-- **Standards:** [theapotheosisgroup/.github](https://github.com/theapotheosisgroup/.github/tree/main/standards), in particular [AGENTS-AND-SKILLS](https://github.com/theapotheosisgroup/.github/blob/main/standards/AGENTS-AND-SKILLS.md#skills). Repository exceptions are recorded in [ADR 0003](docs/adr/0003-categories-and-tag-skill-metadata.md).
+- **Standards:** [theapotheosisgroup/.github](https://github.com/theapotheosisgroup/.github/tree/main/standards), in particular [AGENTS-AND-SKILLS](https://github.com/theapotheosisgroup/.github/blob/main/standards/AGENTS-AND-SKILLS.md#skills). Repository exceptions are recorded in [ADR 0003](docs/adr/0003-categories-and-tag-skill-metadata.md) and [ADR 0004](docs/adr/0004-pillar-categories-and-prefixes.md).
 
 ## Catalog
 
-Skills live in `skills/<category>/<name>/`, following Matt Pocock's category layout. P0 is the first financial-reporting workflow, P1 the rest of the business catalog, and authoring skills support TAG's own engineering (installed through the `authoring` profile, never offered in client catalogs). The generated index, with metadata and content hashes, is [catalog.json](catalog.json).
+The catalog is back-office G&A work only, grouped by TAG's service pillars: **Finance**, **People** and **Governance**. Skills live in `skills/<pillar>/<pillar>-<name>/`; People has no skills yet ([roadmap](docs/roadmap.md#people-pillar-proposed-not-implemented)). P0 is the first financial-reporting workflow, P1 the rest of the catalog. The generated index, with metadata and content hashes, is [catalog.json](catalog.json).
 
-| Category | Skill | Priority | Side effects | What it does |
+**Why a prefix.** The [Agent Skills specification](https://agentskills.io/specification) does not require one: a name is 1-64 lowercase letters, digits and single hyphens, equal to its folder. Skills from several sources are installed side by side in one flat directory per agent (for example `.claude/skills/<name>/`), so a bare name such as `reconciliation` or `review-contract` can collide with another collection's skill and the agent picks by name and description. The pillar prefix namespaces TAG's skills against other installed skills, keeps names unique across pillars, and tells the agent (and the person reading an installed list) which service line a skill belongs to. It replaces the earlier `tag-` prefix, which namespaced but said nothing about the work ([ADR 0004](docs/adr/0004-pillar-categories-and-prefixes.md)).
+
+| Pillar | Skill | Priority | Side effects | What it does |
 | --- | --- | --- | --- | --- |
-| finance | [`tag-close-management`](skills/finance/tag-close-management/SKILL.md) | P0 | authorized-write | Close plan, dependencies, owners, period locks and unresolved items |
-| finance | [`tag-financial-statements`](skills/finance/tag-financial-statements/SKILL.md) | P0 | draft | Draft statement package (income statement, balance sheet, cash flows, equity, notes, exceptions) under ASPE or IFRS, English or French, with a reproducible script |
-| finance | [`tag-journal-entry-prep`](skills/finance/tag-journal-entry-prep/SKILL.md) | P0 | draft | Prepare supported adjusting entries with a checking script; posting is a separate authorized operation |
-| finance | [`tag-reconciliation`](skills/finance/tag-reconciliation/SKILL.md) | P0 | draft | Bank, control-account, subledger and intercompany reconciliations; differences reported, never plugged |
-| finance | [`tag-variance-analysis`](skills/finance/tag-variance-analysis/SKILL.md) | P0 | draft | Actual vs budget, forecast or prior period with traceable drivers and configured thresholds |
-| finance | [`tag-audit-evidence`](skills/finance/tag-audit-evidence/SKILL.md) | P1 | draft | Evidence indexes and workpapers; general evidence support distinct from SOX-specific procedures |
-| data | [`tag-build-dashboard`](skills/data/tag-build-dashboard/SKILL.md) | P1 | draft | Management dashboards from verified report data and declared metric definitions |
-| data | [`tag-explore-data`](skills/data/tag-explore-data/SKILL.md) | P1 | draft | Profile accounting data: missing fields, duplicates, sign issues, coverage gaps |
-| data | [`tag-sql-queries`](skills/data/tag-sql-queries/SKILL.md) | P1 | read | Read-only SQL through the scoped data capability and approved schemas |
-| data | [`tag-validate-data`](skills/data/tag-validate-data/SKILL.md) | P1 | draft | Check calculations, completeness, aggregation and whether conclusions follow |
-| legal | [`tag-review-contract`](skills/legal/tag-review-contract/SKILL.md) | P1 | authorized-write | Review against the organization's approved, jurisdiction-specific playbook; routing and signature requests kept separate |
-| legal | [`tag-triage-nda`](skills/legal/tag-triage-nda/SKILL.md) | P1 | read | Classify NDA deviations and route under the organization's delegation rules |
-| legal | [`tag-vendor-check`](skills/legal/tag-vendor-check/SKILL.md) | P1 | read | Supplier agreement status, dates, obligations and supporting records |
-| knowledge | [`tag-knowledge-synthesis`](skills/knowledge/tag-knowledge-synthesis/SKILL.md) | P1 | read | Attributed answers and evidence bundles with conflicts kept visible |
-| knowledge | [`tag-search-strategy`](skills/knowledge/tag-search-strategy/SKILL.md) | P1 | read | Plan searches within the active organization, nexus and delegated access |
-| knowledge | [`tag-source-management`](skills/knowledge/tag-source-management/SKILL.md) | P1 | read | Available sources, freshness, authority and missing integrations |
-| operations | [`tag-task-management`](skills/operations/tag-task-management/SKILL.md) | P1 | authorized-write | Work tracked as TAG expectations and work items; Matter mapping proposed |
-| engineering | [`tag-code-review`](skills/engineering/tag-code-review/SKILL.md) | authoring | none | Requirements review and standards review, side by side |
-| engineering | [`tag-codebase-design`](skills/engineering/tag-codebase-design/SKILL.md) | authoring | none | Deep modules with small public interfaces |
-| engineering | [`tag-diagnosing-bugs`](skills/engineering/tag-diagnosing-bugs/SKILL.md) | authoring | none | Reproduce, isolate, diagnose, fix and regression-test |
-| engineering | [`tag-domain-modeling`](skills/engineering/tag-domain-modeling/SKILL.md) | authoring | none | TAG glossary and precise domain terms |
-| engineering | [`tag-tdd`](skills/engineering/tag-tdd/SKILL.md) | authoring | none | Behaviour-focused, test-first engineering changes |
-| productivity | [`tag-handoff`](skills/productivity/tag-handoff/SKILL.md) | authoring | none | Resumable handoff documents (user-invoked); not a delegation grant |
-| productivity | [`tag-writing-for-agents`](skills/productivity/tag-writing-for-agents/SKILL.md) | authoring | none | Concise skills and agent documents with triggers, steps and completion criteria |
+| finance | [`finance-close-management`](skills/finance/finance-close-management/SKILL.md) | P0 | authorized-write | Close plan, dependencies, owners, period locks and unresolved items |
+| finance | [`finance-financial-statements`](skills/finance/finance-financial-statements/SKILL.md) | P0 | draft | Draft statement package (income statement, balance sheet, cash flows, equity, notes, exceptions) under ASPE or IFRS, English or French, with a reproducible script |
+| finance | [`finance-journal-entry-prep`](skills/finance/finance-journal-entry-prep/SKILL.md) | P0 | draft | Prepare supported adjusting entries with a checking script; posting is a separate authorized operation |
+| finance | [`finance-reconciliation`](skills/finance/finance-reconciliation/SKILL.md) | P0 | draft | Bank, control-account, subledger and intercompany reconciliations; differences reported, never plugged |
+| finance | [`finance-variance-analysis`](skills/finance/finance-variance-analysis/SKILL.md) | P0 | draft | Actual vs budget, forecast or prior period with traceable drivers and configured thresholds |
+| finance | [`finance-audit-evidence`](skills/finance/finance-audit-evidence/SKILL.md) | P1 | draft | Evidence indexes and workpapers; general evidence support distinct from SOX-specific procedures |
+| finance | [`finance-build-dashboard`](skills/finance/finance-build-dashboard/SKILL.md) | P1 | draft | Management dashboards from verified report data and declared metric definitions |
+| finance | [`finance-explore-data`](skills/finance/finance-explore-data/SKILL.md) | P1 | draft | Profile accounting data: missing fields, duplicates, sign issues, coverage gaps |
+| finance | [`finance-validate-data`](skills/finance/finance-validate-data/SKILL.md) | P1 | draft | Check calculations, completeness, aggregation and whether conclusions follow |
+| governance | [`governance-review-contract`](skills/governance/governance-review-contract/SKILL.md) | P1 | authorized-write | Review against the organization's approved, jurisdiction-specific playbook; routing and signature requests kept separate |
+| governance | [`governance-triage-nda`](skills/governance/governance-triage-nda/SKILL.md) | P1 | read | Classify NDA deviations and route under the organization's delegation rules |
+| governance | [`governance-vendor-check`](skills/governance/governance-vendor-check/SKILL.md) | P1 | read | Supplier agreement status, dates, obligations and supporting records |
+| governance | [`governance-knowledge-synthesis`](skills/governance/governance-knowledge-synthesis/SKILL.md) | P1 | read | Attributed answers and evidence bundles with conflicts kept visible |
+| governance | [`governance-search-strategy`](skills/governance/governance-search-strategy/SKILL.md) | P1 | read | Plan searches within the active organization, nexus and delegated access |
+| governance | [`governance-source-management`](skills/governance/governance-source-management/SKILL.md) | P1 | read | Available sources, freshness, authority and missing integrations |
+| governance | [`governance-task-management`](skills/governance/governance-task-management/SKILL.md) | P1 | authorized-write | Work tracked as TAG expectations and work items; Matter mapping proposed |
 
 Side effects: `none` (guidance only), `read` (reads organization data through capabilities), `draft` (also writes drafts or files, never a business record), `authorized-write` (may invoke a write capability, which the runtime authorizes and review governs). Every skill is forked from a pinned upstream commit; see [Provenance](#provenance).
 
@@ -48,32 +42,32 @@ The repository is private: the CLI clones it with your existing Git, SSH or GitH
 npx skills@latest add theapotheosisgroup/tag-skills --list
 
 # Install the initial finance workflow into a consumer project for Codex and Claude Code
-npx skills@latest add theapotheosisgroup/tag-skills --skill tag-financial-statements tag-reconciliation tag-journal-entry-prep tag-close-management tag-variance-analysis -a codex -a claude-code
+npx skills@latest add theapotheosisgroup/tag-skills --skill finance-financial-statements finance-reconciliation finance-journal-entry-prep finance-close-management finance-variance-analysis -a codex -a claude-code
 
 # Install a selected, versioned skill into an isolated TAG runtime bundle
-npx skills@latest add theapotheosisgroup/tag-skills@<RELEASE_TAG_OR_COMMIT> --skill tag-financial-statements -a universal --copy -y
+npx skills@latest add theapotheosisgroup/tag-skills@<RELEASE_TAG_OR_COMMIT> --skill finance-financial-statements -a universal --copy -y
 ```
 
 These are consumer commands: run them in the project that will use the skills, never to overwrite this repository's `skills/`. For controlled builds use the version this repository tests (`npx skills@1.9.0`) instead of `@latest`, and an immutable release tag or full commit SHA; with that CLI version a branch or a short SHA must be written `#<ref>` ([details](docs/INSTALLING.md)).
 
-A skill installed on its own works on its own, except where its `tag-skill.json` declares skill dependencies (for example tag-close-management needs tag-reconciliation, tag-journal-entry-prep and tag-financial-statements); its SKILL.md names them. Use a profile to get them installed together.
+A skill installed on its own works on its own, except where its `tag-skill.json` declares skill dependencies (for example finance-close-management needs finance-reconciliation, finance-journal-entry-prep and finance-financial-statements); its SKILL.md names them. Use a profile to get them installed together.
 
 ## Profiles
 
 The Skills CLI does not read TAG's dependency metadata, so profiles are installed with [scripts/install-profile.js](scripts/install-profile.js), a small wrapper over the pinned CLI that expands dependencies into an explicit `--skill` list and validates every argument before invoking it. Run it from a checkout of this repository after `npm ci`:
 
 ```bash
-npm run install:profile -- --profile finance-core --dir ../consumer-project --agent claude-code --agent codex
-npm run install:profile -- --profile controller --ref v0.1.0 --agent universal --mode copy --dir ./bundle
+npm run install:profile -- --profile finance --dir ../consumer-project --agent claude-code --agent codex
+npm run install:profile -- --profile backoffice --ref v0.1.0 --agent universal --mode copy --dir ./bundle
 ```
 
 | Profile | Contents | Skills after expansion |
 | --- | --- | --- |
-| `authoring` | Skills for developing and maintaining TAG: the five engineering skills, writing for agents and handoff. Not for client bookkeeping catalogs. | 7 |
-| `backoffice` | controller plus data exploration and read-only SQL, dashboards, the knowledge skills and task management. | 14 |
-| `controller` | finance-core plus audit evidence preparation and data validation. | 7 |
-| `finance-core` | The first financial-reporting workflow: statements, reconciliation, journal entry preparation, close management and variance analysis. | 5 |
-| `legal` | The three legal skills. Their knowledge dependencies are added from tag-skill.json. | 5 |
+| `backoffice` | The whole back-office G&A catalog: the finance and governance profiles (and people, once it has skills). | 16 |
+| `finance` | The Finance pillar: statements, reconciliation, journal entry preparation, close management, variance analysis, audit evidence, and accounting data exploration, validation and dashboards. | 9 |
+| `governance` | The Governance pillar: contract review, NDA triage, vendor checks, the knowledge skills (search strategy, source management, knowledge synthesis) and task management. | 7 |
+
+The earlier profiles map as follows: `finance-core` and `controller` → `finance` (a superset), `legal` → `governance` (a superset), `backoffice` → `backoffice` (now the whole catalog). `authoring` was removed with the engineering and productivity skills.
 
 Dependencies are expanded from this checkout, so a remote install is pinned to a matching revision: by default this checkout's HEAD commit, which must already be on the remote, with no uncommitted changes under `skills/` or `profiles/`. See [docs/INSTALLING.md](docs/INSTALLING.md#profiles-and-dependencies) for the checks and how to resolve a refusal.
 
@@ -81,7 +75,7 @@ Options: `--source` (default `theapotheosisgroup/tag-skills`, or a local path, i
 
 ## Contract
 
-1. **Format.** Each skill passes [`scripts/validate-skills.js`](scripts/validate-skills.js): Agent Skills frontmatter limited to specification fields, a unique `tag-` name equal to its folder, a description that says what the skill does and when to use it, links that resolve inside the skill.
+1. **Format.** Each skill passes [`scripts/validate-skills.js`](scripts/validate-skills.js): Agent Skills frontmatter limited to specification fields, a unique name equal to its folder and prefixed with its pillar (`finance-`, `people-`, `governance-`), a description that says what the skill does and when to use it, links that resolve inside the skill.
 2. **TAG metadata.** `tag-skill.json` ([schema](schemas/tag-skill.schema.json)) declares version, domain, audiences, invocation mode, logical capabilities, inputs, outputs, dependencies, side-effect class, review conditions and provenance. It describes a contract; it grants nothing.
 3. **Self-contained.** Everything a skill needs is in its folder or declared: scripts list their interpreter (for example `python3 >= 3.10`), capabilities are named, other skills are declared dependencies. Licence and notice files travel with the skill.
 4. **No credentials, no direct writes.** No secret, token or key; no script that writes a ledger or business record or sends anything. Writes go through authorized capabilities after review ([capability contract](docs/integration/capability-contract.md)).
@@ -91,7 +85,7 @@ The boundary and its reasons are in [ARCHITECTURE.md](ARCHITECTURE.md), [ADR 000
 
 ## Provenance
 
-[upstreams.lock.json](upstreams.lock.json) is TAG's import record: for each fork, the source repository, commit, path, licence, original and TAG names, destination, import date, per-file and folder hashes, dependency paths and TAG adaptations. It is separate from the CLI's consumer `skills-lock.json`. Licences: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [LICENSES/](LICENSES/). Upstream changes are reviewed with `npm run upstream:check` ([maintenance guide](docs/maintenance.md)). The previously identified `samuelclk/dinoclaw_guides` financial-statements skill is excluded until its licence is established.
+[upstreams.lock.json](upstreams.lock.json) is TAG's import record: for each fork, the source repository, commit, path, licence, original and TAG names, destination, import date, per-file and folder hashes, dependency paths and TAG adaptations. It is separate from the CLI's consumer `skills-lock.json`. Licences: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [LICENSES/](LICENSES/). Upstream changes are reviewed with `npm run upstream:check` ([maintenance guide](docs/maintenance.md)). The previously identified `samuelclk/dinoclaw_guides` financial-statements skill is excluded until its licence is established. Skills removed from the catalog (the engineering and productivity skills and SQL queries, on 2026-11-21) keep their import history in the lock as `removed` records.
 
 ## Status
 
@@ -99,8 +93,8 @@ Component status uses the [organization labels](https://github.com/theapotheosis
 
 | Component | Status | Notes |
 | --- | --- | --- |
-| 24 forked skills ([catalog](#catalog)) | **Implemented but not deployed** | Installable from this repository; no release tag yet |
-| tag-financial-statements script and fixtures | **Implemented but not deployed** | Six synthetic fixtures with hand-derived results; [operating example](docs/finance/README.md) |
+| 16 forked skills ([catalog](#catalog)) | **Implemented but not deployed** | Installable from this repository; no release tag yet |
+| finance-financial-statements script and fixtures | **Implemented but not deployed** | Six synthetic fixtures with hand-derived results; [operating example](docs/finance/README.md) |
 | Validator, catalog, profiles, profile installer, upstream check | **Implemented but not deployed** | Development tooling; runs in CI except `upstream:check` (network) |
 | Capability bindings | **Proposed but not implemented** | Seven capabilities map to existing tools (not exercised from here); the rest are proposed. [Dependencies](docs/integration/README.md#dependencies-on-other-repositories) |
 | Harness consumption | **Proposed but not implemented** | TrueForge needs a runtime bundle because this repository is private ([harness consumption](docs/integration/harness-consumption.md)) |

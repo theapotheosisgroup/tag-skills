@@ -11,10 +11,10 @@ Skills install with the [Vercel Skills CLI](https://github.com/vercel-labs/skill
 npx skills@1.9.0 add theapotheosisgroup/tag-skills --list
 
 # Install the initial finance workflow into the current project for Codex and Claude Code
-npx skills@1.9.0 add theapotheosisgroup/tag-skills --skill tag-financial-statements tag-reconciliation tag-journal-entry-prep tag-close-management tag-variance-analysis -a codex -a claude-code
+npx skills@1.9.0 add theapotheosisgroup/tag-skills --skill finance-financial-statements finance-reconciliation finance-journal-entry-prep finance-close-management finance-variance-analysis -a codex -a claude-code
 
 # Install one skill, pinned to a release, as copies, into an isolated TAG runtime bundle
-npx skills@1.9.0 add theapotheosisgroup/tag-skills@v0.1.0 --skill tag-financial-statements -a universal --copy -y
+npx skills@1.9.0 add theapotheosisgroup/tag-skills@v0.1.0 --skill finance-financial-statements -a universal --copy -y
 ```
 
 - Run installs from the consumer project's root. `--global` installs for your user instead.
@@ -31,13 +31,13 @@ The CLI installs exactly the skills you name. It does not read `tag-skill.json`,
 
 ```bash
 npm ci
-npm run install:profile -- --profile legal --dir /path/to/project --agent claude-code
-npm run install:profile -- --skill tag-close-management --dry-run   # shows the expanded list, the pinned source and the CLI command
+npm run install:profile -- --profile governance --dir /path/to/project --agent claude-code
+npm run install:profile -- --skill finance-close-management --dry-run   # shows the expanded list, the pinned source and the CLI command
 ```
 
 The installer reads dependencies from your checkout, so it pins the remote install to the revision they came from. By default that is the checkout's HEAD commit (`theapotheosisgroup/tag-skills#<40-character sha>`), and it refuses if the commit is not on the remote yet: push it, pass `--ref <tag | commit | branch>` from a checkout at that revision, or install from the checkout with `--source <path>`. The check tries HTTPS, then SSH, with your existing credentials and never prompts; if neither reaches the repository, the installer says why. Uncommitted changes under `skills/` or `profiles/` also block a remote install (with `--ref`, unless `--allow-ref-mismatch`): commit and push them, or use `--source <path>`. `--dry-run` works offline, reports the pin as not verified and lists any uncommitted metadata.
 
-Profiles: `finance-core`, `controller`, `backoffice`, `legal`, `authoring` ([README](../README.md#profiles)).
+Profiles: `finance`, `governance`, `backoffice` ([README](../README.md#profiles)).
 
 ## Tested clients
 
@@ -48,7 +48,7 @@ Profiles: `finance-core`, `controller`, `backoffice`, `legal`, `authoring` ([REA
 | Universal (any client that reads `.agents/skills/`, and TAG runtime bundles) | `universal` | `.agents/skills/<name>/` | Tested in CI on every pull request |
 | Other clients the Skills CLI supports | see `npx skills add --help` | per client | Not tested by TAG |
 
-Directories differ between clients and CLI versions; `npm run test:install` checks the paths for the pinned version. Skills with scripts need the interpreter in their `compatibility` field and `tag-skill.json` (currently `python3 >= 3.10` for the two finance scripts, `bash` and `git` for two authoring skills).
+Directories differ between clients and CLI versions; `npm run test:install` checks the paths for the pinned version. Skills with scripts need the interpreter in their `compatibility` field and `tag-skill.json` (currently `python3 >= 3.10` for the two finance scripts).
 
 ## What installation does not do
 

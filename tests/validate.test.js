@@ -229,29 +229,35 @@ describe("validateRoot", () => {
     await writeFile(join(root, "stray.md"), "x");
     assert.match(messages((await validateRoot(root, { layout: "flat" })).findings), /only skill directories/);
   });
-  test("category layout: accepts tag- skills with sidecars inside known categories", async () => {
+  test("category layout: accepts pillar-prefixed skills with sidecars inside known categories", async () => {
     const root = await makeRoot({
-      "finance/tag-demo": { "SKILL.md": valid("tag-demo"), "tag-skill.json": "{}" },
-      "data/tag-other": { "SKILL.md": valid("tag-other"), "tag-skill.json": "{}" },
+      "finance/finance-demo": { "SKILL.md": valid("finance-demo"), "tag-skill.json": "{}" },
+      "governance/governance-other": { "SKILL.md": valid("governance-other"), "tag-skill.json": "{}" },
+      "people/people-onboarding": { "SKILL.md": valid("people-onboarding"), "tag-skill.json": "{}" },
     });
     await writeFile(join(root, "finance", "README.md"), "# Finance\n");
     const result = await validateRoot(root);
     assert.deepEqual(result.findings, []);
-    assert.deepEqual(result.skills, ["tag-other", "tag-demo"]);
+    assert.deepEqual(result.skills, ["finance-demo", "governance-other", "people-onboarding"]);
   });
-  test("category layout: rejects unknown categories, missing sidecars, missing prefix and duplicate names", async () => {
+  test("category layout: rejects unknown categories, missing sidecars, a wrong prefix and duplicate names", async () => {
     const root = await makeRoot({
-      "misc/tag-demo": { "SKILL.md": valid("tag-demo"), "tag-skill.json": "{}" },
+      "misc/misc-demo": { "SKILL.md": valid("misc-demo"), "tag-skill.json": "{}" },
+      "data/finance-data": { "SKILL.md": valid("finance-data"), "tag-skill.json": "{}" },
       "finance/demo": { "SKILL.md": valid("demo"), "tag-skill.json": "{}" },
-      "finance/tag-nometa": { "SKILL.md": valid("tag-nometa") },
-      "data/tag-twice": { "SKILL.md": valid("tag-twice"), "tag-skill.json": "{}" },
-      "legal/tag-twice": { "SKILL.md": valid("tag-twice"), "tag-skill.json": "{}" },
+      "finance/tag-demo": { "SKILL.md": valid("tag-demo"), "tag-skill.json": "{}" },
+      "finance/finance-nometa": { "SKILL.md": valid("finance-nometa") },
+      "finance/governance-twice": { "SKILL.md": valid("governance-twice"), "tag-skill.json": "{}" },
+      "governance/governance-twice": { "SKILL.md": valid("governance-twice"), "tag-skill.json": "{}" },
     });
     const text = messages((await validateRoot(root)).findings);
     assert.match(text, /unknown category "misc"/);
-    assert.match(text, /must start with "tag-"/);
+    assert.match(text, /unknown category "data"/);
+    assert.match(text, /in "finance" must be named "finance-<name>", got "demo"/);
+    assert.match(text, /in "finance" must be named "finance-<name>", got "tag-demo"/);
+    assert.match(text, /in "finance" must be named "finance-<name>", got "governance-twice"/);
     assert.match(text, /tag-skill.json is missing/);
-    assert.match(text, /skill name "tag-twice" is also used/);
+    assert.match(text, /skill name "governance-twice" is also used/);
   });
   test("reports a missing root", async () => {
     assert.match(messages((await validateRoot(join(work, "nope"))).findings), /does not exist/);

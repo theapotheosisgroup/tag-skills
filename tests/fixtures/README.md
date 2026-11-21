@@ -12,7 +12,7 @@ Every fixture skill sets `metadata.internal: true`. The Skills CLI hides interna
 
 ## Finance fixtures
 
-[`finance/`](finance/) holds synthetic inputs for tag-financial-statements. Each case has `input.json` (the snapshot format in the skill's [input format](../../skills/finance/tag-financial-statements/references/input-format.md)) and `expected.json`, whose figures and exceptions were derived by hand, independently of the script; `expected.json` lists the derivation. The organizations, entities and amounts are invented.
+[`finance/`](finance/) holds synthetic inputs for finance-financial-statements. Each case has `input.json` (the snapshot format in the skill's [input format](../../skills/finance/finance-financial-statements/references/input-format.md)) and `expected.json`, whose figures and exceptions were derived by hand, independently of the script; `expected.json` lists the derivation. The organizations, entities and amounts are invented.
 
 | Case | Covers |
 | --- | --- |

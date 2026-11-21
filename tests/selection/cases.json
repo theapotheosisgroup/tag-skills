@@ -1,155 +1,90 @@
 {
-  "description": "Example requests for the skill-selection evaluation (tests/selection/selection.test.js). 'audience' is the catalog the harness offers; 'expect' is the skill that should be selected; 'business: true' marks ordinary client work, where no authoring skill may be selected even from the unfiltered catalog.",
+  "description": "Example requests for the skill-selection evaluation (tests/selection/selection.test.js). 'audience' is the catalog the harness offers; 'expect' is the skill that should be selected, both from that catalog and from the unfiltered catalog.",
   "cases": [
     {
       "request": "Prepare the FY2026 draft balance sheet, income statement and cash flow statement for Synthetic Services so the controller can review them",
       "audience": "client-finance",
-      "expect": "tag-financial-statements",
-      "business": true
+      "expect": "finance-financial-statements"
     },
     {
       "request": "Why doesn't our balance sheet balance this year? The cash flow statement is also off.",
       "audience": "client-finance",
-      "expect": "tag-financial-statements",
-      "business": true
+      "expect": "finance-financial-statements"
     },
     {
       "request": "Reconcile the operating bank account to the December bank statement and list the outstanding cheques and deposits in transit",
       "audience": "client-finance",
-      "expect": "tag-reconciliation",
-      "business": true
+      "expect": "finance-reconciliation"
     },
     {
       "request": "Draft the adjusting journal entries for the December accruals and prepaid insurance amortization",
       "audience": "client-finance",
-      "expect": "tag-journal-entry-prep",
-      "business": true
+      "expect": "finance-journal-entry-prep"
     },
     {
       "request": "Build the month-end close checklist for November with owners, deadlines and dependencies, and tell me what is blocking the close",
       "audience": "client-finance",
-      "expect": "tag-close-management",
-      "business": true
+      "expect": "finance-close-management"
     },
     {
       "request": "Explain the budget versus actual variance in operating expenses for Q3, with the drivers",
       "audience": "client-finance",
-      "expect": "tag-variance-analysis",
-      "business": true
+      "expect": "finance-variance-analysis"
     },
     {
       "request": "The auditors sent their request list; assemble the evidence index and workpapers for each requested item",
       "audience": "client-finance",
-      "expect": "tag-audit-evidence",
-      "business": true
-    },
-    {
-      "request": "Write a read-only SQL query that totals revenue by month from the approved general ledger data set",
-      "audience": "client-finance",
-      "expect": "tag-sql-queries",
-      "business": true
+      "expect": "finance-audit-evidence"
     },
     {
       "request": "Profile this general-ledger export for duplicates, missing fields and debit/credit sign issues before we use it",
       "audience": "client-finance",
-      "expect": "tag-explore-data",
-      "business": true
+      "expect": "finance-explore-data"
     },
     {
       "request": "Before I send this analysis to the board, validate the calculations, totals and whether the conclusions follow from the data",
       "audience": "client-finance",
-      "expect": "tag-validate-data",
-      "business": true
+      "expect": "finance-validate-data"
     },
     {
       "request": "Build a management dashboard with KPI cards and trend charts from the verified statement report",
       "audience": "client-finance",
-      "expect": "tag-build-dashboard",
-      "business": true
+      "expect": "finance-build-dashboard"
     },
     {
       "request": "Review this supplier master services agreement against our contract playbook and propose redlines",
       "audience": "client-legal",
-      "expect": "tag-review-contract",
-      "business": true
+      "expect": "governance-review-contract"
     },
     {
       "request": "A new NDA came in from a prospect; triage it and tell me if it is green, yellow or red",
       "audience": "client-legal",
-      "expect": "tag-triage-nda",
-      "business": true
+      "expect": "governance-triage-nda"
     },
     {
       "request": "What agreements do we have with this supplier, and when is the renewal notice deadline?",
       "audience": "client-legal",
-      "expect": "tag-vendor-check",
-      "business": true
+      "expect": "governance-vendor-check"
     },
     {
       "request": "Plan a search across our documents, email and chat to find who approved the new travel policy",
       "audience": "client-finance",
-      "expect": "tag-search-strategy",
-      "business": true
+      "expect": "governance-search-strategy"
     },
     {
       "request": "Which knowledge sources can I search here, how fresh are they and which integrations are missing?",
       "audience": "client-finance",
-      "expect": "tag-source-management",
-      "business": true
+      "expect": "governance-source-management"
     },
     {
       "request": "Combine these search results into one attributed answer with an evidence bundle and keep the conflicting sources visible",
       "audience": "client-legal",
-      "expect": "tag-knowledge-synthesis",
-      "business": true
+      "expect": "governance-knowledge-synthesis"
     },
     {
       "request": "What is still open and overdue, and who is it waiting on? Follow up the expectations for this month",
       "audience": "client-finance",
-      "expect": "tag-task-management",
-      "business": true
-    },
-    {
-      "request": "Write the failing test first for the new rounding rule, then make it pass: red-green-refactor",
-      "audience": "engineering",
-      "expect": "tag-tdd",
-      "business": false
-    },
-    {
-      "request": "Diagnose this flaky bug: the import job crashes intermittently, find the root cause and add a regression test",
-      "audience": "engineering",
-      "expect": "tag-diagnosing-bugs",
-      "business": false
-    },
-    {
-      "request": "Review the changes on this branch since main against the spec and the repository standards",
-      "audience": "engineering",
-      "expect": "tag-code-review",
-      "business": false
-    },
-    {
-      "request": "Help me design a deeper module with a smaller public interface for the connector client",
-      "audience": "engineering",
-      "expect": "tag-codebase-design",
-      "business": false
-    },
-    {
-      "request": "Sharpen the glossary: what exactly do mandate, Matter and Expectation mean in our domain model?",
-      "audience": "engineering",
-      "expect": "tag-domain-modeling",
-      "business": false
-    },
-    {
-      "request": "Write a new skill with explicit triggers, ordered steps and completion criteria",
-      "audience": "engineering",
-      "expect": "tag-writing-for-agents",
-      "business": false
-    },
-    {
-      "request": "Compact this session into a handoff document so another agent can resume the work",
-      "audience": "engineering",
-      "expect": "tag-handoff",
-      "business": false
+      "expect": "governance-task-management"
     }
   ]
 }

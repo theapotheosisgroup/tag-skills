@@ -1,0 +1,64 @@
+{
+  "name": "finance-validate-data",
+  "version": "0.1.0",
+  "domain": "finance",
+  "priority": "P1",
+  "audiences": ["tag-operations", "client-finance"],
+  "invocation": "model",
+  "capabilities": [
+    {
+      "name": "tag.data.query",
+      "required": false,
+      "use": "Recompute figures from the approved source, with a read-only query."
+    },
+    { "name": "tag.data.schema.read", "required": false, "use": "Metric definitions to check calculations against." },
+    { "name": "tag.ledger.trial_balance.read", "required": false, "use": "Control totals for completeness checks." },
+    {
+      "name": "tag.policy.reporting.read",
+      "required": false,
+      "use": "Approved thresholds and definitions for financial reporting."
+    },
+    { "name": "tag.evidence.attach", "required": false, "use": "Record the validation report and what it checked." },
+    {
+      "name": "tag.review.request",
+      "required": false,
+      "use": "Route the analysis to a qualified reviewer when required."
+    }
+  ],
+  "inputs": [
+    {
+      "name": "analysis or report to validate, with purpose and audience",
+      "required": true,
+      "source": "the user, or report.json from finance-financial-statements"
+    },
+    {
+      "name": "source data identity (snapshot id, query, extraction time)",
+      "required": false,
+      "source": "the analysis, recorded evidence, or the user"
+    },
+    { "name": "control figures", "required": false, "source": "tag.ledger.trial_balance.read or the user" },
+    {
+      "name": "metric definitions and thresholds",
+      "required": false,
+      "source": "tag.data.schema.read, tag.policy.reporting.read or the analysis"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "validation report",
+      "format": "markdown",
+      "description": "Objective-check table, checks not run, claim-by-claim judgement, overall status and caveats."
+    }
+  ],
+  "dependencies": { "skills": [], "runtime": [] },
+  "sideEffects": "draft",
+  "review": {
+    "required": true,
+    "conditions": [
+      "Analyses going outside the organization.",
+      "Any failed objective check on a reported figure.",
+      "Any judgement on accounting treatment."
+    ]
+  },
+  "provenance": ["anthropics/knowledge-work-plugins:data/skills/validate-data"]
+}
