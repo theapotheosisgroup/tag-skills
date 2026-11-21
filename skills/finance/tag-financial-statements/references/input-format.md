@@ -1,6 +1,6 @@
 # Input snapshot format (`tag.financial-statements.input/v1`)
 
-One JSON object. Amounts are decimal strings (for example `"1250.00"`) or JSON numbers; both are read as exact decimals. Balances are **debit-positive**: a debit balance is positive, a credit balance negative.
+One JSON object. Amounts are decimal strings (for example `"1250.00"`) or JSON numbers; both are read as exact decimals. A string amount uses a dot decimal separator and no thousands separators, spaces or currency symbols: `"1250,00"` and `"1,250.00"` are rejected (exit 2), never reinterpreted. Balances are **debit-positive**: a debit balance is positive, a credit balance negative.
 
 [assets/example-input.json](../assets/example-input.json) is a complete minimal example.
 

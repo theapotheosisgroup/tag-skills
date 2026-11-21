@@ -9,8 +9,11 @@
 //       [--mode copy | symlink] [--dry-run] [--allow-ref-mismatch]
 //
 // Defaults: source theapotheosisgroup/tag-skills, agent universal, dir the current directory,
-// mode symlink (the CLI's default). Dependency metadata comes from this checkout, so with --ref the
-// checkout must be at that revision (or pass --allow-ref-mismatch knowingly).
+// mode symlink (the CLI's default). Dependency metadata comes from this checkout, so a remote install
+// is always pinned to a revision that matches it: without --ref, to this checkout's HEAD commit
+// (<owner>/<repo>#<40-character sha>), which must already be on the remote (push it, pass --ref,
+// or install from --source <local path>); with --ref, the checkout must be at that revision (or
+// pass --allow-ref-mismatch knowingly). A local path source is installed as it is.
 //
 // Validation runs before the CLI is invoked, and the CLI is run with an argument array (no shell).
 // Existing Git, SSH or GitHub credentials are used by the CLI as they are; nothing here reads,
@@ -31,6 +34,10 @@ export const TESTED_AGENTS = ["universal", "claude-code", "codex"];
 const AGENT = /^[a-z0-9][a-z0-9-]*$/;
 const REF = /^[A-Za-z0-9][A-Za-z0-9._/-]*$/;
 const GITHUB_SHORTHAND = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
+const COMMIT = /^[0-9a-f]{40}$/;
+
+/** @param {string} source */
+export const isLocalSource = (source) => isAbsolute(source) || source.startsWith(".");
 
 /**
  * @typedef {object} InstallOptions
@@ -38,6 +45,7 @@ const GITHUB_SHORTHAND = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
  * @property {string[]} skills
  * @property {string} source
  * @property {string} [ref]
+ * @property {string} [commit]  this checkout's HEAD commit; pins a remote source when --ref is absent
  * @property {string[]} agents
  * @property {string} dir
  * @property {"copy" | "symlink"} mode
@@ -63,13 +71,15 @@ export function planInstall(options, repository) {
     if (!TESTED_AGENTS.includes(agent))
       warnings.push(`agent "${agent}" is passed to the Skills CLI but not tested by TAG`);
   }
-  const local = isAbsolute(options.source) || options.source.startsWith(".");
+  const local = isLocalSource(options.source);
   if (!local && !GITHUB_SHORTHAND.test(options.source)) {
     throw new Error(`--source must be <owner>/<repo> or a local path, got "${options.source}"`);
   }
   if (options.ref !== undefined) {
     if (local) throw new Error("--ref applies to a remote source; check out the revision locally instead");
     if (!REF.test(options.ref) || options.ref.includes("..")) throw new Error(`invalid --ref "${options.ref}"`);
+  } else if (!local && !(options.commit && COMMIT.test(options.commit))) {
+    throw new Error("could not resolve this checkout's HEAD commit to pin the remote source; pass --ref");
   }
   const bySkill = new Map(repository.skills.map((s) => [s.name, s]));
   const fromProfiles = options.profiles.length
@@ -78,16 +88,43 @@ export function planInstall(options, repository) {
   const skills = expandSkills([...fromProfiles, ...options.skills], bySkill);
   // `#ref` is unambiguous for every ref; `@ref` would be read as a skill filter unless it is a
   // version tag or a full commit SHA.
-  const sourceSpec = local
-    ? resolve(options.source)
-    : options.ref
-      ? `${options.source}#${options.ref}`
-      : options.source;
+  const sourceSpec = local ? resolve(options.source) : `${options.source}#${options.ref ?? options.commit}`;
   const args = ["add", sourceSpec, "--skill", ...skills];
   for (const agent of options.agents) args.push("--agent", agent);
   if (options.mode === "copy") args.push("--copy");
   args.push("--yes");
   return { skills, args, warnings };
+}
+
+/** @param {string} source  a validated <owner>/<repo> */
+export const remoteUrl = (source) => `https://github.com/${source}.git`;
+
+/**
+ * Whether a commit is reachable from a branch or tag of the remote repository. The remote tips are
+ * listed with git ls-remote; ancestry is checked against the objects in `cwd`, so a tip this
+ * checkout has not fetched counts as not containing the commit.
+ * @param {string} url
+ * @param {string} commit
+ * @param {string} [cwd]
+ */
+export async function remoteHasCommit(url, commit, cwd = repo) {
+  const { stdout } = await run("git", ["ls-remote", "--heads", "--tags", url], { cwd });
+  const tips = new Set(
+    stdout
+      .split("\n")
+      .map((line) => line.split("\t")[0])
+      .filter(Boolean),
+  );
+  if (tips.has(commit)) return true;
+  for (const tip of tips) {
+    try {
+      await run("git", ["merge-base", "--is-ancestor", commit, tip], { cwd });
+      return true;
+    } catch {
+      // not an ancestor, or the tip is not in this checkout
+    }
+  }
+  return false;
 }
 
 /**
@@ -103,8 +140,11 @@ async function localCommit(ref) {
   }
 }
 
-/** @param {string[]} argv */
-export async function main(argv) {
+/**
+ * @param {string[]} argv
+ * @param {{ remoteHasCommit?: (url: string, commit: string) => Promise<boolean> }} [deps]
+ */
+export async function main(argv, { remoteHasCommit: onRemote = remoteHasCommit } = {}) {
   const { values } = parseArgs({
     args: argv,
     options: {
@@ -138,6 +178,8 @@ export async function main(argv) {
     dir: resolve(values.dir ?? process.cwd()),
     mode: /** @type {"copy" | "symlink"} */ (values.mode),
   };
+  const pinToHead = !isLocalSource(options.source) && options.ref === undefined;
+  if (pinToHead) options.commit = (await localCommit("HEAD")) ?? undefined;
   const plan = planInstall(options, repository);
   for (const warning of plan.warnings) console.error(`warning: ${warning}`);
 
@@ -150,8 +192,22 @@ export async function main(argv) {
       console.error(`warning: ${message}`);
     }
   }
+  if (pinToHead && options.commit && !(await onRemote(remoteUrl(options.source), options.commit))) {
+    throw new Error(
+      `this checkout's HEAD commit ${options.commit} is not on ${options.source}, so the install cannot be pinned ` +
+        "to the revision its dependency metadata came from; push the commit (or git fetch if it is already " +
+        "pushed), pass --ref <ref>, or install from a local checkout with --source <path>",
+    );
+  }
   if (values["dry-run"]) {
-    console.log(JSON.stringify({ dir: options.dir, skills: plan.skills, command: ["skills", ...plan.args] }, null, 2));
+    const pin = pinToHead ? { commit: options.commit, from: "this checkout's HEAD" } : null;
+    console.log(
+      JSON.stringify(
+        { dir: options.dir, source: plan.args[1], pin, skills: plan.skills, command: ["skills", ...plan.args] },
+        null,
+        2,
+      ),
+    );
     return 0;
   }
   const dirStat = await stat(options.dir).catch(() => null);

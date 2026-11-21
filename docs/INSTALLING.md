@@ -32,8 +32,10 @@ The CLI installs exactly the skills you name. It does not read `tag-skill.json`,
 ```bash
 npm ci
 npm run install:profile -- --profile legal --dir /path/to/project --agent claude-code
-npm run install:profile -- --skill tag-close-management --dry-run   # shows the expanded list and the CLI command
+npm run install:profile -- --skill tag-close-management --dry-run   # shows the expanded list, the pinned source and the CLI command
 ```
+
+The installer reads dependencies from your checkout, so it pins the remote install to the revision they came from. By default that is the checkout's HEAD commit (`theapotheosisgroup/tag-skills#<40-character sha>`), and it refuses if the commit is not on the remote yet: push it, pass `--ref <tag | commit | branch>` from a checkout at that revision, or install from the checkout with `--source <path>`.
 
 Profiles: `finance-core`, `controller`, `backoffice`, `legal`, `authoring` ([README](../README.md#profiles)).
 

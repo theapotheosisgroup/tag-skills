@@ -27,6 +27,7 @@ import argparse
 import csv
 import hashlib
 import json
+import re
 import sys
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from pathlib import Path
@@ -229,18 +230,25 @@ TEXT = {
 }
 
 
+AMOUNT = re.compile(r"[+-]?(?:\d+(?:\.\d*)?|\.\d+)")
+
+
 class InputError(Exception):
     """The input snapshot cannot be read as the documented format."""
 
 
 def dec(value: Any, where: str) -> Decimal:
-    """Parses an amount. Accepts decimal strings and JSON numbers (parsed as Decimal)."""
+    """Parses an amount: a plain dot-decimal string or a JSON number (parsed as Decimal)."""
     if value is None or value == "":
         return ZERO
-    if isinstance(value, bool):
-        raise InputError(f"{where}: expected an amount, got a boolean")
+    if isinstance(value, bool) or not isinstance(value, (str, int, Decimal)):
+        raise InputError(f"{where}: expected an amount, got {value!r}")
+    if isinstance(value, str) and not AMOUNT.fullmatch(value):
+        raise InputError(
+            f"{where}: {value!r} is not a decimal amount: use a dot decimal separator and no thousands separators"
+        )
     try:
-        result = Decimal(str(value).replace(",", "").strip())
+        result = Decimal(value)
     except InvalidOperation as error:
         raise InputError(f"{where}: {value!r} is not a decimal amount") from error
     if not result.is_finite():

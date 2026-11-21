@@ -224,7 +224,7 @@
       "provenance": [
         "anthropics/knowledge-work-plugins:finance/skills/financial-statements"
       ],
-      "contentHash": "sha256:0dbbeaf009eab9eefa1a5984c0a7faa939ab1c00e6e70069103cc04f6f6acf53"
+      "contentHash": "sha256:cfb10a72cb09f80d7a199d9bd8a9df3fe4cd4b4f7e3fd6e312cd2f3636970e12"
     },
     {
       "name": "tag-handoff",

@@ -228,4 +228,15 @@ describe("missing and unsupported inputs", () => {
     const wrong = await buildStatements({ schema: "something-else" });
     assert.equal(wrong.code, 2);
   });
+  for (const amount of ["1250,00", "1,250.00"]) {
+    test(`a comma amount (${amount}) exits 2 naming the field instead of being misread`, async () => {
+      const { input } = await load("simple-cash");
+      input.trial_balance[0].debit = amount;
+      const result = await buildStatements(input);
+      assert.equal(result.code, 2);
+      assert.equal(result.report, null);
+      assert.match(result.stderr, /trial_balance\[0\]\.debit/);
+      assert.match(result.stderr, /dot decimal separator/);
+    });
+  }
 });
