@@ -1,0 +1,13 @@
+section,code,label,amount,presented,comparative,accounts
+current_assets,cash,Trésorerie et équivalents de trésorerie,10100.00,10100.00,5000.00,1000
+current_assets,receivables,Débiteurs,5000.00,5000.00,2000.00,1100
+current_assets,prepaid_expenses,Frais payés d'avance,600.00,600.00,0.00,1200
+noncurrent_assets,property_plant_equipment,"Immobilisations corporelles, au coût",16500.00,16500.00,10000.00,1500
+noncurrent_assets,accumulated_depreciation,Amortissement cumulé,-3000.00,-3000.00,-2000.00,1510
+current_liabilities,payables,Créditeurs,2800.00,2800.00,1500.00,2000
+current_liabilities,accrued_liabilities,Charges à payer,1200.00,1200.00,0.00,2100
+current_liabilities,income_taxes_payable,Impôts sur le résultat à payer,2000.00,2000.00,0.00,2200
+current_liabilities,dividends_payable,Dividendes à payer,500.00,500.00,0.00,2300
+noncurrent_liabilities,long_term_debt,Dette à long terme,5500.00,5500.00,4000.00,2500
+equity,share_capital,Capital-actions,7000.00,7000.00,6000.00,3000
+equity,retained_earnings,Bénéfices non répartis,10200.00,10200.00,3500.00,3100

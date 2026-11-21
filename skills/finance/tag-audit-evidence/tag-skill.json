@@ -1,0 +1,82 @@
+{
+  "name": "tag-audit-evidence",
+  "version": "0.1.0",
+  "domain": "finance",
+  "priority": "P1",
+  "audiences": ["tag-operations", "client-finance"],
+  "invocation": "model",
+  "capabilities": [
+    {
+      "name": "tag.context.overview",
+      "required": false,
+      "use": "Confirm the nexus, the caller's role and that TAG is invited."
+    },
+    {
+      "name": "aletia.search",
+      "required": true,
+      "use": "Locate requested documents and prior workpapers the caller may see."
+    },
+    { "name": "tag.work.status", "required": false, "use": "State of related TAG work." },
+    { "name": "tag.ledger.trial_balance.read", "required": false, "use": "Balances the evidence ties to." },
+    {
+      "name": "tag.ledger.transactions.read",
+      "required": false,
+      "use": "Populations and transaction detail for selections."
+    },
+    { "name": "tag.policy.reporting.read", "required": false, "use": "Materiality and sampling requirements." },
+    {
+      "name": "tag.evidence.attach",
+      "required": false,
+      "use": "Record each evidence item, its hash and source against the run."
+    },
+    { "name": "tag.review.request", "required": false, "use": "Route the package for review before release." }
+  ],
+  "inputs": [
+    {
+      "name": "organization, entity, period, requester and request list",
+      "required": true,
+      "source": "TAG harness run context; request document via aletia.search"
+    },
+    {
+      "name": "mode (general or SOX) and SOX scope confirmation",
+      "required": true,
+      "source": "The organization, stated explicitly"
+    },
+    {
+      "name": "ledger balances, populations and detail",
+      "required": false,
+      "source": "tag.ledger.trial_balance.read, tag.ledger.transactions.read or exports"
+    },
+    { "name": "supporting documents", "required": true, "source": "aletia.search or documents the user supplies" },
+    {
+      "name": "sample-size and materiality requirements",
+      "required": false,
+      "source": "tag.policy.reporting.read or the examiner's written instructions"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "evidence index",
+      "format": "csv or json",
+      "description": "One row per request with source, hash, status and gap."
+    },
+    {
+      "name": "workpapers",
+      "format": "markdown",
+      "description": "Population, selection, procedures, results and exceptions per area or test."
+    },
+    { "name": "gap list", "format": "markdown", "description": "Missing or partial items with owners." }
+  ],
+  "dependencies": { "skills": [], "runtime": [] },
+  "sideEffects": "draft",
+  "review": {
+    "required": true,
+    "conditions": [
+      "Before any evidence is released outside the organization.",
+      "Every exception found during testing.",
+      "Any conclusion on control effectiveness or deficiency severity is the qualified reviewer's, never the skill's.",
+      "SOX procedures only after the organization confirms it is in scope."
+    ]
+  },
+  "provenance": ["anthropics/knowledge-work-plugins:finance/skills/audit-support"]
+}

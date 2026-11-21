@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/theapotheosisgroup/tag-skills/schemas/tag-skill.schema.json",
+  "title": "TAG skill metadata (tag-skill.json)",
+  "description": "The TAG contract of one skill. It describes what the skill needs and does; it grants no access and enforces no authorization.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "version",
+    "domain",
+    "priority",
+    "audiences",
+    "invocation",
+    "capabilities",
+    "inputs",
+    "outputs",
+    "dependencies",
+    "sideEffects",
+    "review",
+    "provenance"
+  ],
+  "properties": {
+    "name": { "type": "string", "pattern": "^tag-[a-z0-9]+(?:-[a-z0-9]+)*$", "maxLength": 64 },
+    "version": {
+      "description": "Semantic version of this skill's contract and instructions.",
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?$"
+    },
+    "domain": {
+      "description": "Must equal the category directory the skill lives in.",
+      "enum": ["finance", "data", "legal", "knowledge", "operations", "engineering", "productivity"]
+    },
+    "priority": { "enum": ["P0", "P1", "authoring"] },
+    "audiences": {
+      "description": "Who the skill is offered to. The harness filters its catalog on this field.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "enum": ["tag-operations", "client-finance", "client-legal", "engineering"] }
+    },
+    "invocation": {
+      "description": "model: the agent may select the skill from its description, and a person may also ask for it. user: only an explicit request loads it.",
+      "enum": ["model", "user"]
+    },
+    "capabilities": {
+      "description": "Logical capabilities the skill uses. Each name must exist in docs/integration/capabilities.json.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "required", "use"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$" },
+          "required": { "type": "boolean" },
+          "use": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "required", "source"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "required": { "type": "boolean" },
+          "source": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "format"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "format": { "type": "string", "minLength": 1 },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["skills", "runtime"],
+      "properties": {
+        "skills": {
+          "description": "Other TAG skills this one requires. The profile installer expands them; the Skills CLI does not.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^tag-[a-z0-9]+(?:-[a-z0-9]+)*$" }
+        },
+        "runtime": {
+          "description": "Interpreters or packages the skill's bundled scripts need.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "version"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "version": { "type": "string", "minLength": 1 },
+              "purpose": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "sideEffects": {
+      "description": "none: guidance only. read: reads organization data through capabilities. draft: also produces drafts or files, never a business record. authorized-write: may invoke a write capability, which the runtime authorizes and the review conditions govern.",
+      "enum": ["none", "read", "draft", "authorized-write"]
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "conditions"],
+      "properties": {
+        "required": { "type": "boolean" },
+        "conditions": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "provenance": {
+      "description": "Identifiers of entries in upstreams.lock.json imports[].id. Empty for original TAG skills.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}

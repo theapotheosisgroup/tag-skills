@@ -1,5 +1,7 @@
 // Validates skill directories against the Agent Skills format (https://agentskills.io/specification)
-// and the TAG rules in theapotheosisgroup/.github standards/AGENTS-AND-SKILLS.md.
+// and the TAG rules in theapotheosisgroup/.github standards/AGENTS-AND-SKILLS.md, with the
+// repository's category layout and sidecar files (docs/adr/0003-categories-and-tag-skill-metadata.md).
+// Cross-skill checks (sidecar schema, profiles, provenance) are in repository.js.
 //
 // The checks are pure functions over the filesystem: they read, never write.
 
@@ -18,6 +20,14 @@ export const ALLOWED_FIELDS = new Set(["name", "description", "license", "compat
 /** Entries allowed at the top level of a skill directory. */
 export const ALLOWED_DIRS = new Set(["references", "scripts", "assets"]);
 const LICENSE_FILE = /^LICENSE(?:\.(?:md|txt))?$/;
+/** TAG files allowed beside SKILL.md: the metadata sidecar and the provenance notice. */
+export const ALLOWED_FILES = new Set(["tag-skill.json", "NOTICE.md"]);
+
+/** Category directories under skills/ (ADR 0003). */
+export const CATEGORIES = ["finance", "data", "legal", "knowledge", "operations", "engineering", "productivity"];
+
+/** Prefix every published skill name carries. */
+export const PUBLISHED_PREFIX = "tag-";
 
 /** File names that suggest a credential. Skills hold no credentials. */
 const CREDENTIAL_FILE =
@@ -34,6 +44,9 @@ const CREDENTIAL_FILE =
  * @property {boolean} [fixture]  Validate as a test fixture: `metadata.internal: true` is then
  *   required, so the Skills CLI hides the fixture from anyone installing from this repository.
  *   Published skills must not set it.
+ * @property {"categories" | "flat"} [layout]  Root layout for validateRoot: `categories` (the
+ *   published skills/ root: skills/<category>/<name>/) or `flat` (<root>/<name>/). Defaults to
+ *   `flat` for fixtures and `categories` otherwise.
  */
 
 /**
@@ -78,6 +91,9 @@ export function checkFrontmatter(data, dirName, options = {}) {
       problems.push(`"name" must be lowercase letters, digits and single hyphens, got "${name}"`);
     }
     if (name !== dirName) problems.push(`"name" is "${name}" but the directory is "${dirName}"`);
+    if (!options.fixture && options.layout === "categories" && !name.startsWith(PUBLISHED_PREFIX)) {
+      problems.push(`a published skill name must start with "${PUBLISHED_PREFIX}", got "${name}"`);
+    }
   }
 
   if (typeof description !== "string" || description.trim().length === 0) {
@@ -200,15 +216,29 @@ export async function validateSkill(skillDir, options = {}) {
     const stat = await lstat(path);
     if (entry === "SKILL.md" && stat.isFile()) continue;
     if (LICENSE_FILE.test(entry) && stat.isFile()) continue;
+    if (ALLOWED_FILES.has(entry) && stat.isFile()) continue;
     if (ALLOWED_DIRS.has(entry) && stat.isDirectory()) continue;
     add(
       path,
-      `unexpected entry: a skill holds SKILL.md, an optional LICENSE file and the directories ${[...ALLOWED_DIRS].join(", ")}`,
+      `unexpected entry: a skill holds SKILL.md, optional LICENSE, ${[...ALLOWED_FILES].join(" and ")} files and the directories ${[...ALLOWED_DIRS].join(", ")}`,
     );
+  }
+  if (!options.fixture && options.layout === "categories") {
+    try {
+      if (!(await lstat(join(skillDir, "tag-skill.json"))).isFile()) throw new Error("not a file");
+    } catch {
+      add(
+        join(skillDir, "tag-skill.json"),
+        "tag-skill.json is missing: every published skill declares its TAG contract",
+      );
+    }
   }
 
   const root = resolve(skillDir);
+  /** @type {string[]} */
+  const markdown = [];
   for await (const { path, stat } of walk(skillDir)) {
+    if (stat.isFile() && path.endsWith(".md") && path !== skillMd) markdown.push(path);
     if (stat.isSymbolicLink()) {
       add(path, "symbolic links are not allowed: a skill must be self-contained and installable by copy");
       continue;
@@ -247,38 +277,51 @@ export async function validateSkill(skillDir, options = {}) {
 
   if (parts.body.trim().length === 0) add(skillMd, "SKILL.md has no instructions after the frontmatter");
 
-  for (const target of relativeLinks(parts.body)) {
-    const resolved = resolve(dirname(skillMd), target);
-    if (!isInside(root, resolved)) {
-      add(skillMd, `link "${target}" points outside the skill directory; a skill must be self-contained`);
-      continue;
-    }
-    try {
-      await lstat(resolved);
-    } catch {
-      add(skillMd, `link "${target}" does not resolve to a file in the skill`);
+  // Every bundled Markdown file is read after installation, so its links must resolve inside the skill too.
+  const documents = [{ file: skillMd, body: parts.body }];
+  for (const file of markdown.sort()) documents.push({ file, body: await readFile(file, "utf8") });
+  for (const { file, body } of documents) {
+    for (const target of relativeLinks(body)) {
+      const resolved = resolve(dirname(file), target);
+      if (!isInside(root, resolved)) {
+        add(file, `link "${target}" points outside the skill directory; a skill must be self-contained`);
+        continue;
+      }
+      try {
+        await lstat(resolved);
+      } catch {
+        add(file, `link "${target}" does not resolve to a file in the skill`);
+      }
     }
   }
   return findings;
 }
 
 /**
- * Validates a flat skills root: every entry is a skill directory, except README.md.
+ * Validates a skills root. With the `categories` layout (the published skills/ root), every entry is
+ * a category directory from CATEGORIES (or README.md), and every entry of a category is a skill
+ * directory (or README.md). With the `flat` layout (fixtures), every entry is a skill directory.
+ * Skill names must be unique across the root.
  * @param {string} skillsRoot
  * @param {ValidateOptions} [options]
- * @returns {Promise<{ skills: string[], findings: Finding[] }>}
+ * @returns {Promise<{ skills: string[], dirs: string[], findings: Finding[] }>}
  */
 export async function validateRoot(skillsRoot, options = {}) {
+  const layout = options.layout ?? (options.fixture ? "flat" : "categories");
+  const opts = { ...options, layout };
   /** @type {Finding[]} */
   const findings = [];
   /** @type {string[]} */
-  const skills = [];
+  const dirs = [];
   let entries;
   try {
     entries = (await readdir(skillsRoot)).sort();
   } catch {
-    return { skills, findings: [{ path: skillsRoot, message: "skills root does not exist" }] };
+    return { skills: [], dirs, findings: [{ path: skillsRoot, message: "skills root does not exist" }] };
   }
+  /** @type {string[]} */
+  const parents = [];
+  if (layout === "flat") parents.push(skillsRoot);
   for (const entry of entries) {
     const path = join(skillsRoot, entry);
     const stat = await lstat(path);
@@ -287,8 +330,36 @@ export async function validateRoot(skillsRoot, options = {}) {
       findings.push({ path, message: "only skill directories and README.md belong in a skills root" });
       continue;
     }
-    skills.push(entry);
-    findings.push(...(await validateSkill(path, options)));
+    if (layout === "flat") {
+      dirs.push(path);
+    } else if (!CATEGORIES.includes(entry)) {
+      findings.push({ path, message: `unknown category "${entry}" (allowed: ${CATEGORIES.join(", ")})` });
+    } else {
+      parents.push(path);
+    }
   }
-  return { skills, findings };
+  if (layout === "categories") {
+    for (const category of parents) {
+      for (const entry of (await readdir(category)).sort()) {
+        const path = join(category, entry);
+        const stat = await lstat(path);
+        if (entry === "README.md" && stat.isFile()) continue;
+        if (!stat.isDirectory()) {
+          findings.push({ path, message: "only skill directories and README.md belong in a category directory" });
+          continue;
+        }
+        dirs.push(path);
+      }
+    }
+  }
+  /** @type {Map<string, string>} */
+  const seen = new Map();
+  for (const dir of dirs) {
+    const name = basename(dir);
+    const previous = seen.get(name);
+    if (previous) findings.push({ path: dir, message: `skill name "${name}" is also used by ${previous}` });
+    seen.set(name, dir);
+    findings.push(...(await validateSkill(dir, opts)));
+  }
+  return { skills: dirs.map((d) => basename(d)), dirs, findings };
 }

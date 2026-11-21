@@ -1,0 +1,6 @@
+code,label,amount,presented,accounts,adjustments
+revenue,Revenue,4300.00,4300.00,4000,
+operating_expenses,Operating expenses,-2500.00,-2500.00,5000,
+fx_gain_loss,Foreign exchange gain (loss),100.00,100.00,5300,
+oci,Other comprehensive income,200.00,200.00,6000,
+net_income,Net income,1900.00,1900.00,,

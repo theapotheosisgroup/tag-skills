@@ -1,0 +1,19 @@
+account,account_name,balance,line,statement,adjustments
+1000,Encaisse,10100.00,cash,balance_sheet,
+1100,Comptes clients,5000.00,receivables,balance_sheet,
+1200,Assurance payée d'avance,600.00,prepaid_expenses,balance_sheet,
+1500,Matériel,16500.00,property_plant_equipment,balance_sheet,
+1510,Amortissement cumulé – matériel,-3000.00,accumulated_depreciation,balance_sheet,AJE-2026-02
+2000,Comptes fournisseurs,-2800.00,payables,balance_sheet,
+2100,Charges à payer,-1200.00,accrued_liabilities,balance_sheet,AJE-2026-01
+2200,Impôts à payer,-2000.00,income_taxes_payable,balance_sheet,AJE-2026-03
+2300,Dividendes à payer,-500.00,dividends_payable,balance_sheet,
+2500,Dette à long terme,-5500.00,long_term_debt,balance_sheet,
+3000,Capital-actions,-7000.00,share_capital,balance_sheet,
+3100,Bénéfices non répartis,-3500.00,retained_earnings,balance_sheet,
+3200,Dividendes,2000.00,dividends,balance_sheet,
+4000,Produits de services,-30000.00,revenue,income_statement,
+5000,Charges d'exploitation,18000.00,operating_expenses,income_statement,AJE-2026-01
+5100,Amortissement,1000.00,depreciation_amortization,income_statement,AJE-2026-02
+5200,Intérêts,300.00,interest_expense,income_statement,
+5400,Impôts sur le résultat,2000.00,income_tax_expense,income_statement,AJE-2026-03

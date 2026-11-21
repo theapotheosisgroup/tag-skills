@@ -19,3 +19,11 @@
 # Security policy and ownership.
 /SECURITY.md          @inocult
 /CODEOWNERS           @inocult
+
+# The skill contract: metadata schemas, profiles, the capability registry and provenance.
+/profiles/              @inocult
+/schemas/               @inocult
+/docs/integration/      @inocult
+/upstreams.lock.json    @inocult
+/LICENSES/              @inocult
+/THIRD_PARTY_NOTICES.md @inocult

@@ -1,0 +1,46 @@
+{
+  "name": "tag-domain-modeling",
+  "version": "0.1.0",
+  "domain": "engineering",
+  "priority": "authoring",
+  "audiences": ["engineering"],
+  "invocation": "model",
+  "capabilities": [],
+  "inputs": [
+    {
+      "name": "existing glossary and ADRs",
+      "required": false,
+      "source": "GLOSSARY.md, GLOSSARY-MAP.md or CONTEXT.md, docs/adr/"
+    },
+    {
+      "name": "TAG shared terms",
+      "required": true,
+      "source": "references/TAG-TERMS.md, checked against the owning repositories"
+    },
+    {
+      "name": "code",
+      "required": true,
+      "source": "local checkout"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "glossary and ADR edits",
+      "format": "markdown files"
+    },
+    {
+      "name": "session summary",
+      "format": "markdown: terms added, unresolved, contradictions"
+    }
+  ],
+  "dependencies": {
+    "skills": [],
+    "runtime": []
+  },
+  "sideEffects": "none",
+  "review": {
+    "required": true,
+    "conditions": ["Changes go through the repository's pull request review; the skill never merges or deploys."]
+  },
+  "provenance": ["mattpocock/skills:skills/engineering/domain-modeling"]
+}

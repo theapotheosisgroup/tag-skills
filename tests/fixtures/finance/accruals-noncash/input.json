@@ -1,0 +1,438 @@
+{
+  "schema": "tag.financial-statements.input/v1",
+  "organization": {
+    "id": "org-synthetic-001",
+    "name": "Synthetic Organization Inc."
+  },
+  "entity": {
+    "id": "ent-synthetic-001",
+    "name": "Synthetic Services Ltd."
+  },
+  "period": {
+    "start": "2026-01-01",
+    "end": "2026-12-31",
+    "label": "FY2026"
+  },
+  "reporting_currency": "CAD",
+  "framework": "ASPE",
+  "language": "fr",
+  "policies": {
+    "id": "pol-synthetic-reporting",
+    "version": "2026.1",
+    "approved": true,
+    "framework": "ASPE",
+    "cash_flow_method": "indirect"
+  },
+  "mapping": {
+    "id": "map-synthetic",
+    "version": "1",
+    "accounts": {
+      "1000": {
+        "line": "cash"
+      },
+      "1100": {
+        "line": "receivables"
+      },
+      "1200": {
+        "line": "prepaid_expenses"
+      },
+      "1500": {
+        "line": "property_plant_equipment"
+      },
+      "1510": {
+        "line": "accumulated_depreciation"
+      },
+      "2000": {
+        "line": "payables"
+      },
+      "2100": {
+        "line": "accrued_liabilities"
+      },
+      "2200": {
+        "line": "income_taxes_payable"
+      },
+      "2300": {
+        "line": "dividends_payable"
+      },
+      "2500": {
+        "line": "long_term_debt"
+      },
+      "3000": {
+        "line": "share_capital"
+      },
+      "3100": {
+        "line": "retained_earnings"
+      },
+      "3200": {
+        "line": "dividends"
+      },
+      "4000": {
+        "line": "revenue"
+      },
+      "5000": {
+        "line": "operating_expenses"
+      },
+      "5100": {
+        "line": "depreciation_amortization"
+      },
+      "5200": {
+        "line": "interest_expense"
+      },
+      "5400": {
+        "line": "income_tax_expense"
+      }
+    }
+  },
+  "snapshot": {
+    "id": "snap-accruals-noncash",
+    "source": "synthetic fixture",
+    "extracted_at": "2027-01-15T09:00:00Z",
+    "complete": true
+  },
+  "review": {
+    "materiality": "100.00",
+    "reviewer_status": "not_reviewed"
+  },
+  "presentation": {
+    "rounding_unit": "1"
+  },
+  "report": {
+    "revision": 1
+  },
+  "opening_balances": [
+    {
+      "account": "1000",
+      "balance": "5000"
+    },
+    {
+      "account": "1100",
+      "balance": "2000"
+    },
+    {
+      "account": "1500",
+      "balance": "10000"
+    },
+    {
+      "account": "1510",
+      "balance": "-2000"
+    },
+    {
+      "account": "2000",
+      "balance": "-1500"
+    },
+    {
+      "account": "2500",
+      "balance": "-4000"
+    },
+    {
+      "account": "3000",
+      "balance": "-6000"
+    },
+    {
+      "account": "3100",
+      "balance": "-3500"
+    }
+  ],
+  "trial_balance": [
+    {
+      "account": "1000",
+      "name": "Encaisse",
+      "debit": "10100.00",
+      "credit": "0"
+    },
+    {
+      "account": "1100",
+      "name": "Comptes clients",
+      "debit": "5000.00",
+      "credit": "0"
+    },
+    {
+      "account": "1200",
+      "name": "Assurance payée d'avance",
+      "debit": "600.00",
+      "credit": "0"
+    },
+    {
+      "account": "1500",
+      "name": "Matériel",
+      "debit": "16500.00",
+      "credit": "0"
+    },
+    {
+      "account": "1510",
+      "name": "Amortissement cumulé – matériel",
+      "debit": "0",
+      "credit": "3000.00"
+    },
+    {
+      "account": "2000",
+      "name": "Comptes fournisseurs",
+      "debit": "0",
+      "credit": "2800.00"
+    },
+    {
+      "account": "2100",
+      "name": "Charges à payer",
+      "debit": "0",
+      "credit": "1200.00"
+    },
+    {
+      "account": "2200",
+      "name": "Impôts à payer",
+      "debit": "0",
+      "credit": "2000.00"
+    },
+    {
+      "account": "2300",
+      "name": "Dividendes à payer",
+      "debit": "0",
+      "credit": "500.00"
+    },
+    {
+      "account": "2500",
+      "name": "Dette à long terme",
+      "debit": "0",
+      "credit": "5500.00"
+    },
+    {
+      "account": "3000",
+      "name": "Capital-actions",
+      "debit": "0",
+      "credit": "7000.00"
+    },
+    {
+      "account": "3100",
+      "name": "Bénéfices non répartis",
+      "debit": "0",
+      "credit": "3500.00"
+    },
+    {
+      "account": "3200",
+      "name": "Dividendes",
+      "debit": "2000.00",
+      "credit": "0"
+    },
+    {
+      "account": "4000",
+      "name": "Produits de services",
+      "debit": "0",
+      "credit": "30000.00"
+    },
+    {
+      "account": "5000",
+      "name": "Charges d'exploitation",
+      "debit": "18000.00",
+      "credit": "0"
+    },
+    {
+      "account": "5100",
+      "name": "Amortissement",
+      "debit": "1000.00",
+      "credit": "0"
+    },
+    {
+      "account": "5200",
+      "name": "Intérêts",
+      "debit": "300.00",
+      "credit": "0"
+    },
+    {
+      "account": "5400",
+      "name": "Impôts sur le résultat",
+      "debit": "2000.00",
+      "credit": "0"
+    }
+  ],
+  "adjustments": [
+    {
+      "id": "AJE-2026-01",
+      "approved": true,
+      "description": "Accrued operating expenses at year end",
+      "lines": [
+        {
+          "account": "5000",
+          "debit": "1200.00"
+        },
+        {
+          "account": "2100",
+          "credit": "1200.00"
+        }
+      ]
+    },
+    {
+      "id": "AJE-2026-02",
+      "approved": true,
+      "description": "Annual depreciation",
+      "lines": [
+        {
+          "account": "5100",
+          "debit": "1000.00"
+        },
+        {
+          "account": "1510",
+          "credit": "1000.00"
+        }
+      ]
+    },
+    {
+      "id": "AJE-2026-03",
+      "approved": true,
+      "description": "Current income tax",
+      "lines": [
+        {
+          "account": "5400",
+          "debit": "2000.00"
+        },
+        {
+          "account": "2200",
+          "credit": "2000.00"
+        }
+      ]
+    }
+  ],
+  "schedules": {
+    "movements": [
+      {
+        "id": "FA-1",
+        "line": "property_plant_equipment",
+        "amount": "4000",
+        "section": "investing",
+        "description": "Acquisition de matériel",
+        "source": "fixed-asset register FA-2026"
+      },
+      {
+        "id": "FA-2",
+        "line": "property_plant_equipment",
+        "amount": "2500",
+        "section": "noncash",
+        "description": "Matériel acquis en contrepartie d'un billet",
+        "source": "fixed-asset register FA-2026"
+      },
+      {
+        "id": "FA-3",
+        "line": "accumulated_depreciation",
+        "amount": "-1000",
+        "section": "noncash_pnl",
+        "description": "Amortissement",
+        "source": "AJE-2026-02"
+      },
+      {
+        "id": "DEBT-1",
+        "line": "long_term_debt",
+        "amount": "-2500",
+        "section": "noncash",
+        "description": "Billet émis pour du matériel",
+        "source": "loan schedule L-7"
+      },
+      {
+        "id": "DEBT-2",
+        "line": "long_term_debt",
+        "amount": "1000",
+        "section": "financing",
+        "description": "Remboursement de la dette à long terme",
+        "source": "loan schedule L-7"
+      },
+      {
+        "id": "EQ-1",
+        "line": "share_capital",
+        "amount": "-1000",
+        "section": "financing",
+        "description": "Émission d'actions",
+        "source": "minute book 2026-05"
+      },
+      {
+        "id": "EQ-2",
+        "line": "dividends",
+        "amount": "1500",
+        "section": "financing",
+        "description": "Dividendes versés",
+        "source": "bank 2026-11"
+      },
+      {
+        "id": "EQ-3",
+        "line": "dividends",
+        "amount": "500",
+        "section": "noncash",
+        "description": "Dividendes déclarés non versés",
+        "source": "resolution 2026-12"
+      },
+      {
+        "id": "EQ-4",
+        "line": "dividends_payable",
+        "amount": "-500",
+        "section": "noncash",
+        "description": "Dividendes à payer",
+        "source": "resolution 2026-12"
+      }
+    ]
+  },
+  "comparative": {
+    "period": {
+      "start": "2025-01-01",
+      "end": "2025-12-31",
+      "label": "FY2025"
+    },
+    "trial_balance": [
+      {
+        "account": "1000",
+        "name": "Encaisse",
+        "debit": "5000",
+        "credit": "0"
+      },
+      {
+        "account": "1100",
+        "name": "Comptes clients",
+        "debit": "2000",
+        "credit": "0"
+      },
+      {
+        "account": "1500",
+        "name": "Matériel",
+        "debit": "10000",
+        "credit": "0"
+      },
+      {
+        "account": "1510",
+        "name": "Amortissement cumulé – matériel",
+        "debit": "0",
+        "credit": "2000"
+      },
+      {
+        "account": "2000",
+        "name": "Comptes fournisseurs",
+        "debit": "0",
+        "credit": "1500"
+      },
+      {
+        "account": "2500",
+        "name": "Dette à long terme",
+        "debit": "0",
+        "credit": "4000"
+      },
+      {
+        "account": "3000",
+        "name": "Capital-actions",
+        "debit": "0",
+        "credit": "6000"
+      },
+      {
+        "account": "3100",
+        "name": "Bénéfices non répartis",
+        "debit": "0",
+        "credit": "1000"
+      },
+      {
+        "account": "4000",
+        "name": "Produits de services",
+        "debit": "0",
+        "credit": "20000"
+      },
+      {
+        "account": "5000",
+        "name": "Charges d'exploitation",
+        "debit": "17500",
+        "credit": "0"
+      }
+    ]
+  }
+}

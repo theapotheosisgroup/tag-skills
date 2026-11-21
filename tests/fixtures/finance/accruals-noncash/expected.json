@@ -1,0 +1,39 @@
+{
+  "description": "A year with revenue on account, accrued and payable expenses, a prepaid, depreciation, cash and note-financed equipment, a loan repayment, a share issue, dividends partly unpaid and accrued income tax. ASPE, French presentation, with a prior-year comparative.",
+  "derivation": [
+    "Closing cash = 5,000 + collections 27,000 - opex paid 15,500 - prepaid 600 - equipment 4,000 - loan repayment 1,000 - interest 300 - dividends paid 1,500 + shares 1,000 = 10,100",
+    "Net income = 30,000 - 18,000 - 1,000 - 300 - 2,000 = 8,700",
+    "Operating cash flow = 8,700 + depreciation 1,000 - increase in receivables 3,000 - prepaid 600 + payables 1,300 + accrued 1,200 + taxes payable 2,000 = 10,600 (direct: 27,000 - 15,500 - 600 - 300 = 10,600)",
+    "Investing = -4,000; financing = -1,000 - 1,500 + 1,000 = -1,500; net change = 5,100; 5,000 + 5,100 = 10,100",
+    "Retained earnings = 3,500 + 8,700 - 2,000 = 10,200; equity = 7,000 + 10,200 = 17,200",
+    "Assets = 10,100 + 5,000 + 600 + 16,500 - 3,000 = 29,200; liabilities = 2,800 + 1,200 + 2,000 + 500 + 5,500 = 12,000",
+    "Non-cash: equipment of 2,500 acquired with a note; dividends of 500 declared and unpaid",
+    "Prior year closes into the opening balances: retained earnings 1,000 + (20,000 - 17,500) = 3,500"
+  ],
+  "status": "ready_for_review",
+  "figures": {
+    "net_income": "8700",
+    "net_cash_operating": "10600",
+    "net_cash_investing": "-4000",
+    "net_cash_financing": "-1500",
+    "opening_cash": "5000",
+    "closing_cash": "10100",
+    "total_assets": "29200",
+    "total_liabilities": "12000",
+    "total_equity": "17200",
+    "retained_earnings_closing": "10200"
+  },
+  "statements": {
+    "income_statement": "prepared",
+    "balance_sheet": "prepared",
+    "cash_flow_statement": "prepared",
+    "equity_statement": "prepared"
+  },
+  "titles": {
+    "balance_sheet": "Bilan",
+    "income_statement": "État des résultats",
+    "equity_statement": "État des bénéfices non répartis"
+  },
+  "noncash_transactions": ["FA-2", "DEBT-1", "EQ-3", "EQ-4"],
+  "exceptions": []
+}

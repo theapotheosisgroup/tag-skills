@@ -1,0 +1,39 @@
+{
+  "schema": "tag.journal-entry-prep.batch/v1",
+  "organization": { "id": "org-synthetic-001", "name": "Synthetic Organization Inc." },
+  "entity": { "id": "ent-synthetic-001", "name": "Synthetic Services Ltd." },
+  "chart_of_accounts": [
+    { "account": "1200", "name": "Prepaid insurance", "active": true },
+    { "account": "2100", "name": "Accrued liabilities", "active": true },
+    { "account": "5000", "name": "Operating expenses", "active": true },
+    { "account": "5050", "name": "Insurance expense", "active": true }
+  ],
+  "periods": [
+    { "period": "2026-11", "start": "2026-11-01", "end": "2026-11-30", "status": "closed" },
+    { "period": "2026-12", "start": "2026-12-01", "end": "2026-12-31", "status": "open" }
+  ],
+  "entries": [
+    {
+      "id": "AJE-2026-12-01",
+      "date": "2026-12-31",
+      "description": "Accrue December utilities invoice received in January",
+      "support": ["synthetic-invoice-UT-0042"],
+      "approval": { "status": "approved", "approver": "synthetic-controller" },
+      "lines": [
+        { "account": "5000", "debit": "1200.00", "credit": "0" },
+        { "account": "2100", "debit": "0", "credit": "1200.00" }
+      ]
+    },
+    {
+      "id": "AJE-2026-12-02",
+      "date": "2026-12-31",
+      "description": "Amortize one month of prepaid insurance",
+      "support": ["synthetic-policy-schedule-INS-7"],
+      "approval": { "status": "pending" },
+      "lines": [
+        { "account": "5050", "debit": "50.00", "credit": "0" },
+        { "account": "1200", "debit": "0", "credit": "50.00" }
+      ]
+    }
+  ]
+}

@@ -4,9 +4,12 @@
 # has no release tag yet; move the pins to a release SHA when one exists. Every job blocks: none uses
 # continue-on-error.
 #
-# What runs, and why only this: tag-skills holds documentation, a skill validator and Skills CLI smoke
-# tests (README "Continuous integration"). Further checks (script tests per skill, private-repository
-# installation) are added with the first published skills in R05.
+# What runs: format, lint, type check, unit, contract (mocked), finance fixture, selection and script
+# tests, then validation, the catalog check and Skills CLI discovery and installation (README
+# "Continuous integration"). The reusable node job uses the runner image's Python 3 for skill-script
+# tests; python-minimum repeats them on Python 3.10, the minimum the scripts declare. No job uses live
+# client credentials or performs a ledger operation. Not in CI: upstream:check (network) and
+# installation from the private GitHub repository (needs a credential decision).
 name: ci
 
 on:
@@ -21,8 +24,8 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # Lockfile install, format, lint, type check, validator unit tests, and test:smoke (validate skills/
-  # and the fixture, then Skills CLI discovery and installation). No build: nothing is built.
+  # Lockfile install, format, lint, type check, npm test, and test:smoke (validate skills/ and the
+  # fixture, check catalog.json, then Skills CLI discovery and installation). No build: nothing is built.
   node:
     name: node
     permissions:
@@ -32,6 +35,40 @@ jobs:
       node-version-file: .nvmrc
       contract-test-script: test:smoke
       build-script: ""
+
+  # Skill scripts declare python3 >= 3.10; prove it on 3.10 itself.
+  python-minimum:
+    name: python-minimum
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.10"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install from lockfile
+        run: npm ci
+
+      - name: Skill-script and contract tests on Python 3.10
+        run: |
+          set -euo pipefail
+          python3 --version
+          python3 -c 'import sys; assert sys.version_info[:2] == (3, 10), sys.version'
+          node --test tests/skills/ tests/contracts/
 
   markdown:
     name: markdown

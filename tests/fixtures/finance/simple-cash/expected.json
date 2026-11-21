@@ -1,0 +1,28 @@
+{
+  "description": "Brief fixture: opening cash and contributed equity of 1,000; cash service revenue 500; cash operating expense 200; nothing else.",
+  "derivation": [
+    "Profit = 500 - 200 = 300",
+    "Operating cash flow = profit 300 (no non-cash items, no working capital)",
+    "Closing cash = 1,000 + 500 - 200 = 1,300",
+    "Total equity = share capital 1,000 + retained earnings (0 + 300) = 1,300"
+  ],
+  "status": "ready_for_review",
+  "figures": {
+    "net_income": "300",
+    "net_cash_operating": "300",
+    "net_cash_investing": "0",
+    "net_cash_financing": "0",
+    "opening_cash": "1000",
+    "closing_cash": "1300",
+    "total_assets": "1300",
+    "total_liabilities": "0",
+    "total_equity": "1300"
+  },
+  "statements": {
+    "income_statement": "prepared",
+    "balance_sheet": "prepared",
+    "cash_flow_statement": "prepared",
+    "equity_statement": "prepared"
+  },
+  "exceptions": []
+}

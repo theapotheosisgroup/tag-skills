@@ -1,5 +1,15 @@
 # Skills
 
-Published TAG skills live here, one directory per skill: `skills/<name>/SKILL.md`, with optional `references/`, `scripts/` and `assets/`.
+Published TAG skills, one directory per skill under a category: `skills/<category>/<name>/`. The catalog, with what each skill does, is in the [README](../README.md#catalog); the generated index is [catalog.json](../catalog.json).
 
-**Empty on purpose.** No skill has been migrated yet. The first skills arrive in phase R05 of the foundation reorganization; see the [README](../README.md#status) for the plan. The CI test fixture lives in [`tests/fixtures/skills/`](../tests/fixtures/README.md), never here.
+| Category | Skills |
+| --- | --- |
+| `finance/` | tag-financial-statements, tag-reconciliation, tag-journal-entry-prep, tag-close-management, tag-variance-analysis, tag-audit-evidence |
+| `data/` | tag-sql-queries, tag-explore-data, tag-validate-data, tag-build-dashboard |
+| `legal/` | tag-review-contract, tag-triage-nda, tag-vendor-check |
+| `knowledge/` | tag-search-strategy, tag-source-management, tag-knowledge-synthesis |
+| `operations/` | tag-task-management |
+| `engineering/` | tag-tdd, tag-diagnosing-bugs, tag-codebase-design, tag-code-review, tag-domain-modeling |
+| `productivity/` | tag-writing-for-agents, tag-handoff |
+
+Each skill holds `SKILL.md`, `tag-skill.json`, `LICENSE`, `NOTICE.md` and the `references/`, `scripts/` and `assets/` it needs ([CONTRIBUTING](../CONTRIBUTING.md#naming-and-layout)). The CI test fixture lives in [`tests/fixtures/skills/`](../tests/fixtures/README.md), never here.

@@ -167,6 +167,24 @@ describe("validateSkill", () => {
     assert.match(text, /"references\/missing.md" does not resolve/);
     assert.match(text, /"reports\/100%.md" does not resolve/);
   });
+  test("accepts the TAG sidecar and notice files", async () => {
+    const { dir } = await makeSkill("demo-skill", {
+      "SKILL.md": valid(),
+      "tag-skill.json": "{}",
+      "NOTICE.md": "# Notice\n",
+    });
+    assert.deepEqual(await validateSkill(dir), []);
+  });
+  test("checks links in every bundled Markdown file, not only SKILL.md", async () => {
+    const { dir } = await makeSkill("demo-skill", {
+      "SKILL.md": valid() + "\nSee [the guide](references/guide.md).\n",
+      "references/guide.md": "[back](../SKILL.md) [gone](other.md) [out](../../x.md)\n",
+    });
+    const text = messages(await validateSkill(dir));
+    assert.match(text, /"other.md" does not resolve/);
+    assert.match(text, /"..\/..\/x.md" points outside/);
+    assert.doesNotMatch(text, /"..\/SKILL.md"/);
+  });
   test("reports unexpected entries, credentials, symlinks and non-executable scripts", async () => {
     const { dir } = await makeSkill("demo-skill", {
       "SKILL.md": valid(),
@@ -184,20 +202,64 @@ describe("validateSkill", () => {
   });
 });
 
+/**
+ * Creates a published-style root: <root>/<category>/<name>/.
+ * @param {Record<string, Record<string, string>>} skills  "category/name" -> files
+ */
+async function makeRoot(skills) {
+  const root = join(work, `cats-${counter++}`);
+  for (const [path, files] of Object.entries(skills)) {
+    for (const [file, content] of Object.entries(files)) {
+      await mkdir(dirname(join(root, path, file)), { recursive: true });
+      await writeFile(join(root, path, file), content);
+    }
+  }
+  return root;
+}
+
 describe("validateRoot", () => {
-  test("allows README.md and rejects stray files", async () => {
+  test("flat layout: allows README.md and rejects stray files", async () => {
     const { root } = await makeSkill("demo-skill", { "SKILL.md": valid() });
     await writeFile(join(root, "README.md"), "# Skills\n");
-    assert.deepEqual(await validateRoot(root), { skills: ["demo-skill"], findings: [] });
+    assert.deepEqual(await validateRoot(root, { layout: "flat" }), {
+      skills: ["demo-skill"],
+      dirs: [join(root, "demo-skill")],
+      findings: [],
+    });
     await writeFile(join(root, "stray.md"), "x");
-    assert.match(messages((await validateRoot(root)).findings), /only skill directories/);
+    assert.match(messages((await validateRoot(root, { layout: "flat" })).findings), /only skill directories/);
+  });
+  test("category layout: accepts tag- skills with sidecars inside known categories", async () => {
+    const root = await makeRoot({
+      "finance/tag-demo": { "SKILL.md": valid("tag-demo"), "tag-skill.json": "{}" },
+      "data/tag-other": { "SKILL.md": valid("tag-other"), "tag-skill.json": "{}" },
+    });
+    await writeFile(join(root, "finance", "README.md"), "# Finance\n");
+    const result = await validateRoot(root);
+    assert.deepEqual(result.findings, []);
+    assert.deepEqual(result.skills, ["tag-other", "tag-demo"]);
+  });
+  test("category layout: rejects unknown categories, missing sidecars, missing prefix and duplicate names", async () => {
+    const root = await makeRoot({
+      "misc/tag-demo": { "SKILL.md": valid("tag-demo"), "tag-skill.json": "{}" },
+      "finance/demo": { "SKILL.md": valid("demo"), "tag-skill.json": "{}" },
+      "finance/tag-nometa": { "SKILL.md": valid("tag-nometa") },
+      "data/tag-twice": { "SKILL.md": valid("tag-twice"), "tag-skill.json": "{}" },
+      "legal/tag-twice": { "SKILL.md": valid("tag-twice"), "tag-skill.json": "{}" },
+    });
+    const text = messages((await validateRoot(root)).findings);
+    assert.match(text, /unknown category "misc"/);
+    assert.match(text, /must start with "tag-"/);
+    assert.match(text, /tag-skill.json is missing/);
+    assert.match(text, /skill name "tag-twice" is also used/);
   });
   test("reports a missing root", async () => {
     assert.match(messages((await validateRoot(join(work, "nope"))).findings), /does not exist/);
   });
   test("the committed fixture is a valid, hidden fixture", async () => {
     const result = await validateRoot(join(repo, "tests", "fixtures", "skills"), { fixture: true });
-    assert.deepEqual(result, { skills: ["tag-test-fixture"], findings: [] });
+    assert.deepEqual(result.findings, []);
+    assert.deepEqual(result.skills, ["tag-test-fixture"]);
   });
   test("the committed skills root is valid", async () => {
     assert.deepEqual((await validateRoot(join(repo, "skills"))).findings, []);

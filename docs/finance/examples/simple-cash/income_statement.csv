@@ -1,0 +1,4 @@
+code,label,amount,presented,accounts,adjustments
+revenue,Revenue,500.00,500.00,4000,
+operating_expenses,Operating expenses,-200.00,-200.00,5000,
+net_income,Net income,300.00,300.00,,

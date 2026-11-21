@@ -1,0 +1,6 @@
+{
+  "name": "controller",
+  "description": "finance-core plus audit evidence preparation and data validation.",
+  "extends": ["finance-core"],
+  "skills": ["tag-audit-evidence", "tag-validate-data"]
+}

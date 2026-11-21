@@ -1,0 +1,81 @@
+{
+  "name": "tag-variance-analysis",
+  "version": "0.1.0",
+  "domain": "finance",
+  "priority": "P0",
+  "audiences": ["tag-operations", "client-finance"],
+  "invocation": "model",
+  "capabilities": [
+    {
+      "name": "tag.context.overview",
+      "required": false,
+      "use": "Confirm the nexus, the caller's role and that TAG is invited."
+    },
+    {
+      "name": "tag.policy.reporting.read",
+      "required": true,
+      "use": "Configured materiality and percentage thresholds and reporting lines."
+    },
+    { "name": "tag.ledger.trial_balance.read", "required": false, "use": "Actual and prior-period balances." },
+    { "name": "tag.ledger.transactions.read", "required": false, "use": "Transaction detail behind each driver." },
+    { "name": "tag.data.query", "required": false, "use": "Budget, forecast and operational volumes, read-only." },
+    { "name": "aletia.search", "required": false, "use": "Supporting documents and owner explanations." },
+    { "name": "tag.evidence.attach", "required": false, "use": "Record sources behind each driver." },
+    { "name": "tag.review.request", "required": false, "use": "Route commentary for review before it is shared." }
+  ],
+  "inputs": [
+    {
+      "name": "organization, entity, period, comparison basis",
+      "required": true,
+      "source": "TAG harness run context and the user's request"
+    },
+    {
+      "name": "actual results by line and account",
+      "required": true,
+      "source": "tag-financial-statements report.json or tag.ledger.trial_balance.read"
+    },
+    {
+      "name": "budget, forecast or prior-period figures with version",
+      "required": true,
+      "source": "tag.data.query, tag.ledger.trial_balance.read or an identified file from the user"
+    },
+    {
+      "name": "configured thresholds",
+      "required": true,
+      "source": "tag.policy.reporting.read, or labelled proposals agreed with the user"
+    },
+    {
+      "name": "transaction detail and supporting documents",
+      "required": false,
+      "source": "tag.ledger.transactions.read, tag.data.query, aletia.search"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "variance table",
+      "format": "markdown, csv or json",
+      "description": "Variances, materiality flags and the thresholds applied."
+    },
+    {
+      "name": "variance narratives with drivers",
+      "format": "markdown",
+      "description": "Drivers with amounts and evidence, plus the unexplained remainder."
+    },
+    {
+      "name": "bridge table",
+      "format": "markdown or csv",
+      "description": "Waterfall from comparison to actual, reconciling exactly."
+    }
+  ],
+  "dependencies": { "skills": [], "runtime": [] },
+  "sideEffects": "draft",
+  "review": {
+    "required": true,
+    "conditions": [
+      "Before commentary is shared outside the finance function.",
+      "When a material variance has a significant unexplained remainder.",
+      "When thresholds used were proposed rather than configured by the organization."
+    ]
+  },
+  "provenance": ["anthropics/knowledge-work-plugins:finance/skills/variance-analysis"]
+}

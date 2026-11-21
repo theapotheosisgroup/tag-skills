@@ -1,0 +1,197 @@
+{
+  "schema": "tag.financial-statements.input/v1",
+  "organization": {
+    "id": "org-synthetic-001",
+    "name": "Synthetic Organization Inc."
+  },
+  "entity": {
+    "id": "ent-synthetic-001",
+    "name": "Synthetic Services Ltd."
+  },
+  "period": {
+    "start": "2026-01-01",
+    "end": "2026-12-31",
+    "label": "FY2026"
+  },
+  "reporting_currency": "CAD",
+  "framework": "IFRS",
+  "language": "en",
+  "policies": {
+    "id": "pol-synthetic-reporting",
+    "version": "2026.1",
+    "approved": true,
+    "framework": "IFRS",
+    "cash_flow_method": "indirect"
+  },
+  "mapping": {
+    "id": "map-synthetic",
+    "version": "1",
+    "accounts": {
+      "1000": {
+        "line": "cash"
+      },
+      "1010": {
+        "line": "cash",
+        "currency": "USD"
+      },
+      "1150": {
+        "line": "intercompany_receivable",
+        "counterparty": "ent-synthetic-sister"
+      },
+      "1600": {
+        "line": "investments"
+      },
+      "3000": {
+        "line": "share_capital"
+      },
+      "3100": {
+        "line": "retained_earnings"
+      },
+      "3300": {
+        "line": "accumulated_oci"
+      },
+      "4000": {
+        "line": "revenue"
+      },
+      "5000": {
+        "line": "operating_expenses"
+      },
+      "5300": {
+        "line": "fx_gain_loss"
+      },
+      "6000": {
+        "line": "oci"
+      }
+    }
+  },
+  "snapshot": {
+    "id": "snap-intercompany-fx",
+    "source": "synthetic fixture",
+    "extracted_at": "2027-01-15T09:00:00Z",
+    "complete": true
+  },
+  "review": {
+    "materiality": "100.00",
+    "reviewer_status": "not_reviewed"
+  },
+  "presentation": {
+    "rounding_unit": "1"
+  },
+  "report": {
+    "revision": 1
+  },
+  "opening_balances": [
+    {
+      "account": "1000",
+      "balance": "3000"
+    },
+    {
+      "account": "1010",
+      "balance": "1400"
+    },
+    {
+      "account": "1600",
+      "balance": "2000"
+    },
+    {
+      "account": "1150",
+      "balance": "500"
+    },
+    {
+      "account": "3000",
+      "balance": "-5000"
+    },
+    {
+      "account": "3100",
+      "balance": "-1900"
+    }
+  ],
+  "trial_balance": [
+    {
+      "account": "1000",
+      "name": "Cash - CAD",
+      "debit": "4500.00",
+      "credit": "0"
+    },
+    {
+      "account": "1010",
+      "name": "Cash - USD (CAD equivalent)",
+      "debit": "1500.00",
+      "credit": "0"
+    },
+    {
+      "account": "1150",
+      "name": "Due from Synthetic Sister Co.",
+      "debit": "800.00",
+      "credit": "0"
+    },
+    {
+      "account": "1600",
+      "name": "Investments at FVOCI",
+      "debit": "2200.00",
+      "credit": "0"
+    },
+    {
+      "account": "3000",
+      "name": "Share capital",
+      "debit": "0",
+      "credit": "5000.00"
+    },
+    {
+      "account": "3100",
+      "name": "Retained earnings",
+      "debit": "0",
+      "credit": "1900.00"
+    },
+    {
+      "account": "4000",
+      "name": "Service revenue",
+      "debit": "0",
+      "credit": "4300.00"
+    },
+    {
+      "account": "5000",
+      "name": "Operating expenses",
+      "debit": "2500.00",
+      "credit": "0"
+    },
+    {
+      "account": "5300",
+      "name": "Foreign exchange gain",
+      "debit": "0",
+      "credit": "100.00"
+    },
+    {
+      "account": "6000",
+      "name": "OCI - fair value gain on investments",
+      "debit": "0",
+      "credit": "200.00"
+    }
+  ],
+  "schedules": {
+    "movements": [
+      {
+        "id": "INV-1",
+        "line": "investments",
+        "amount": "200",
+        "section": "noncash",
+        "description": "Fair value gain on investments through OCI",
+        "source": "investment schedule INV-2026"
+      }
+    ],
+    "fx_cash_effect": {
+      "amount": "100",
+      "source": "USD cash revaluation FX-2026-12"
+    }
+  },
+  "intercompany": {
+    "confirmations": [
+      {
+        "counterparty": "ent-synthetic-sister",
+        "line": "intercompany_receivable",
+        "balance": "750.00",
+        "source": "confirmation IC-2026-12"
+      }
+    ]
+  }
+}

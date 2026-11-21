@@ -1,0 +1,7 @@
+code,label,amount,presented,accounts,adjustments
+revenue,Produits,30000.00,30000.00,4000,
+operating_expenses,Charges d'exploitation,-18000.00,-18000.00,5000,AJE-2026-01
+depreciation_amortization,Amortissements,-1000.00,-1000.00,5100,AJE-2026-02
+interest_expense,Charges d'intérêts,-300.00,-300.00,5200,
+income_tax_expense,Impôts sur le résultat,-2000.00,-2000.00,5400,AJE-2026-03
+net_income,Bénéfice net,8700.00,8700.00,,

@@ -1,0 +1,2 @@
+code,severity,message,amount
+INTERCOMPANY_DIFFERENCE,error,The balance with ent-synthetic-sister (intercompany_receivable) differs from the counterparty's confirmation.,50.00

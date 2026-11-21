@@ -1,37 +1,33 @@
 # Tests
 
-What the `tag-skills` CI tests today, what it will test when skills arrive, and which security invariants this repository owns. CI runs every command below on each pull request ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)).
+What the `tag-skills` CI tests and which security invariants this repository owns. CI runs every command below on each pull request ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)).
 
-## What exists now (R01)
+## Layout and what each test proves
 
-| Test | Command | What it proves |
-| --- | --- | --- |
-| Validator unit tests, [`validate.test.js`](validate.test.js) | `npm test` | The validator accepts a well-formed skill and rejects each rule violation. Invalid skills are built in temporary directories, so no broken `SKILL.md` is ever committed where a client could load it. |
-| Published skills | `npm run validate` | Every directory under [`skills/`](../skills/README.md) passes the validator. `skills/` is empty until R05, so this reports 0 skills. |
-| Test fixture | `node scripts/validate-skills.js --fixtures tests/fixtures/skills` | The [fixture skill](fixtures/README.md) is valid and hidden from installers. |
-| Skills CLI discovery and installation | `node scripts/smoke-skills-cli.js` | With the pinned Skills CLI: the repository root lists every published skill and never the fixture; the fixture is discoverable from `tests/fixtures`; each skill installs into a disposable consumer project for Claude Code and Codex, byte-for-byte equal to its source. |
+| Test | Command | What it proves | Criterion |
+| --- | --- | --- | --- |
+| [`validate.test.js`](validate.test.js) | `npm test` | The validator accepts well-formed skills and rejects each rule violation, in both layouts. Invalid skills are built in temporary directories | Objective |
+| [`repository.test.js`](repository.test.js) | `npm test` | The committed repository ships exactly the 24 forks and passes every contract check; profiles expand to the documented sets and stay closed under dependencies; broken sidecars, profiles, licences, notices and lock hashes are rejected; catalog generation is reproducible and matches `catalog.json` | Objective |
+| [`install-profile.test.js`](install-profile.test.js) | `npm test` | The profile installer validates every argument before invoking the CLI and builds the argument array (dependency expansion, `#ref` pins, copy mode) | Objective |
+| [`upstream-check.test.js`](upstream-check.test.js) | `npm test` | Against a local git repository: record verification, change detection limited to the imported folder, proposed diffs, integrity failure | Objective |
+| [`skills/tag-financial-statements/`](skills/tag-financial-statements/) | `npm test` | The statement builder against six synthetic fixtures with hand-derived results ([fixtures](fixtures/README.md#finance-fixtures)), plus determinism, traceability, presentation rounding, missing and unsupported inputs; committed example outputs equal the script's output | Objective (exact decimals, exact exception sets) |
+| [`skills/tag-journal-entry-prep/`](skills/tag-journal-entry-prep/) | `npm test` | The entry checker: balance, accounts, open periods, support, approval, not-posted posting request | Objective |
+| [`contracts/`](contracts/capability-contract.test.js) | `npm test` | **Contract checks with mocks**: missing tool, missing policy, refused capability and unauthorized write responses, using [mocks/capability-host.js](mocks/capability-host.js); no shipped script opens a network connection or starts a process. Runtime enforcement is validated in the owning runtimes | Objective, mocked |
+| [`selection/`](selection/selection.test.js) | `npm test` | The harness audience filter keeps authoring skills out of client catalogs; a lexical proxy ranks the expected skill first for 25 positive and negative requests, with authoring skills well behind on business requests | Objective proxy; model behaviour is judged with the [rubric](../docs/evaluation-rubric.md) |
+| Published skills and fixture | `npm run validate` | Every skill under `skills/<category>/` passes the validator and the repository contract; the fixture is valid and hidden | Objective |
+| Catalog | `npm run catalog:check` | `catalog.json` is what generation writes | Objective |
+| Installation ([`scripts/smoke-skills-cli.js`](../scripts/smoke-skills-cli.js)) | `npm run test:install` | With the pinned CLI: discovery lists all 24 skills and hides the fixture; selected installs for codex, claude-code and universal contain exactly the selected skills, byte-for-byte with licences, notices, sidecars and scripts; every skill installs; the consumer lockfile restores unchanged; the profile installer works in copy and symlink modes with dependency expansion; installed scripts run from a copy outside the repository with `python3 -I` and a bare environment | Objective |
 
-`npm run test:smoke` runs the last three in sequence.
+`npm run test:smoke` runs validate, catalog:check and test:install in sequence. CI also runs the skill-script tests on Python 3.10, the declared minimum.
 
-## Planned layout (R05, **Proposed but not implemented**)
-
-```text
-tests/
-├── README.md
-├── validate.test.js         validator unit tests (exists)
-├── fixtures/skills/         CI-only fixture skills, marked metadata.internal: true (exists)
-└── skills/<name>/           tests for the scripts of skills/<name>/scripts/, one directory per skill
-```
-
-- **Script tests.** A skill that ships `scripts/` gets tests under `tests/skills/<name>/`, run by `npm test`. The validator already requires scripts to be executable.
-- **Private repository installation.** `npx skills add theapotheosisgroup/tag-skills --skill <name>` from a disposable consumer project, using the GitHub credentials available to the CI environment. It needs at least one published skill, so it lands with the first skill in R05.
+Not run in CI: `npm run upstream:check` against GitHub (network; run during maintenance), and installation from the private GitHub repository (needs a credential decision).
 
 ## Security invariants this repository owns
 
-The invariants are defined in the foundation prompt, section 11. `tag-skills` holds documentation and scripts only, so it owns one invariant outright and contributes to two whose enforcement belongs to the capability owners.
+The invariants are defined in the foundation prompt, section 11. `tag-skills` holds documentation and scripts only, so it owns one invariant outright and contributes to others whose enforcement belongs to the capability owners.
 
 | Invariant | Role of tag-skills | How it is tested | Status |
 | --- | --- | --- | --- |
-| **SEC-09** No secrets in source, build artifacts, logs or test outputs | Owns it for every published skill file | gitleaks over the full history (`security / secrets`); the validator rejects credential-like files (`.env`, `*.pem`, `*.key`, `credentials.json` and similar) and symbolic links inside a skill | Implemented: runs in CI on every pull request |
-| **SEC-12** Read-only analytical delegation cannot be used to execute financial or ledger writes | Contributes: a skill confers no permission and never writes a ledger directly; it can only ask an MCP capability, which authorizes the call | Enforced and tested by the owning domain's MCP server (tag-backoffice, tag-mcp). Here: review of each skill in R05 that it calls only authoritative MCP tools and contains no direct write path | Proposed but not implemented (R05 gate) |
-| **SEC-05** A token for one MCP audience is rejected by another | Contributes: skills carry no tokens and name no audience credentials | Enforced and tested in tag-mcp and the domain MCP servers | Proposed but not implemented (R05 gate) |
+| **SEC-09** No secrets in source, build artifacts, logs or test outputs | Owns it for every published skill file | gitleaks over the full history (`security / secrets`); the validator rejects credential-like files and symbolic links inside a skill; fixtures are synthetic | Implemented: runs in CI on every pull request |
+| **SEC-12** Read-only analytical delegation cannot be used to execute financial or ledger writes | Contributes: a skill confers no permission and ships no write path; write capabilities require `authorized-write` and review in metadata | Validator rules on side effects; contract test that scripts open no network connection or process; mocked refusal shapes. Enforcement is tested by the owning runtime (tag-mcp, tag-backoffice) | Implemented here as static and mocked checks; runtime enforcement pending |
+| **SEC-05** A token for one MCP audience is rejected by another | Contributes: skills carry no tokens and name no audience credentials | Enforced and tested in tag-mcp and the domain MCP servers | Not applicable here beyond SEC-09 |

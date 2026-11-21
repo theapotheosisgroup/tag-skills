@@ -1,0 +1,1124 @@
+{
+  "lockfileVersion": 1,
+  "sources": {
+    "anthropics/knowledge-work-plugins": {
+      "url": "https://github.com/anthropics/knowledge-work-plugins",
+      "commit": "0e0fcacddcc892eb92a1b7873ff9d68159c47571",
+      "licence": "Apache-2.0",
+      "copyright": "No copyright line in the selected folders; licensed by the repository's contributors under Apache-2.0. The repository-root LICENSE has trailing non-licence text; the selected domain folders' LICENSE files are the clean Apache-2.0 text and are the ones used.",
+      "notices": [
+        "LICENSES/Apache-2.0.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "note": "No NOTICE file at the pinned commit."
+    },
+    "mattpocock/skills": {
+      "url": "https://github.com/mattpocock/skills",
+      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823",
+      "licence": "MIT",
+      "copyright": "Copyright (c) 2026 Matt Pocock",
+      "notices": [
+        "LICENSES/MIT-mattpocock-skills.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ]
+    }
+  },
+  "imports": [
+    {
+      "id": "anthropics/knowledge-work-plugins:finance/skills/financial-statements",
+      "source": "anthropics/knowledge-work-plugins",
+      "commit": "0e0fcacddcc892eb92a1b7873ff9d68159c47571",
+      "path": "finance/skills/financial-statements",
+      "licence": "Apache-2.0",
+      "licenceFile": "finance/LICENSE",
+      "notices": [
+        "LICENSES/Apache-2.0.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "financial-statements",
+      "tagName": "tag-financial-statements",
+      "destination": "skills/finance/tag-financial-statements",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:e7d66dc0387f4243fb899e7aab99cc758a8071afc429ae57abf32b9e8ce53c6e",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "1a9ba1cc85495eef32fa250b8a4c05e4854430af574a290b855f919dbb557dfc"
+        }
+      ],
+      "excludedFiles": [],
+      "dependencyPaths": [
+        {
+          "path": "finance/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        },
+        {
+          "path": "finance/CONNECTORS.md",
+          "sha256": "af6f4e93e4af385fef0946f685216ba57104f785f35b8b596ea624808213624b",
+          "use": "placeholder definitions (~~category) the upstream skill points to; not copied, replaced by TAG capability bindings"
+        }
+      ],
+      "adaptations": [
+        "Renamed `financial-statements` to `tag-financial-statements`; frontmatter rewritten (the non-specification `argument-hint` field dropped).",
+        "Expanded the P&L-led workflow into a linked package: income statement, balance sheet, indirect cash flow statement, retained earnings or changes in equity, draft notes, exception report, traceability.",
+        "Added `scripts/build_statements.py`: exact decimal arithmetic, no plugs, checks for trial-balance equality, mapping coverage, balance sheet, cash reconciliation, movement schedules, equity roll-forward, intercompany and comparatives.",
+        "Made the framework explicit (ASPE or IFRS) with English and French presentation; US GAAP references kept as background only.",
+        "Replaced the `~~erp` and `~~data warehouse` placeholders and the CONNECTORS.md pointer with TAG capability names; renamed the `/flux` command reference to `tag-variance-analysis`.",
+        "Separated preparation from posting, approval, delivery and period locks, which follow platform authorization and review."
+      ]
+    },
+    {
+      "id": "anthropics/knowledge-work-plugins:finance/skills/reconciliation",
+      "source": "anthropics/knowledge-work-plugins",
+      "commit": "0e0fcacddcc892eb92a1b7873ff9d68159c47571",
+      "path": "finance/skills/reconciliation",
+      "licence": "Apache-2.0",
+      "licenceFile": "finance/LICENSE",
+      "notices": [
+        "LICENSES/Apache-2.0.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "reconciliation",
+      "tagName": "tag-reconciliation",
+      "destination": "skills/finance/tag-reconciliation",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:f3fe1d501f0b70ad5f32de02426b99204ff0f53e2b5442f55564407d95f6afaf",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "aa17e90539f4d4d84130c910c7f527236bfaa71977c4c03493c8e8e515ddeea6"
+        }
+      ],
+      "excludedFiles": [],
+      "dependencyPaths": [
+        {
+          "path": "finance/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        },
+        {
+          "path": "finance/CONNECTORS.md",
+          "sha256": "af6f4e93e4af385fef0946f685216ba57104f785f35b8b596ea624808213624b",
+          "use": "placeholder definitions (~~category) the upstream skill points to; not copied, replaced by TAG capability bindings"
+        }
+      ],
+      "adaptations": [
+        "Renamed `reconciliation` to `tag-reconciliation`; frontmatter rewritten (the non-specification `argument-hint` field dropped).",
+        "Scoped the workflow to bank, control-account and subledger, and intercompany reconciliations, with every source tied to a TAG capability or a user-supplied document.",
+        "Made the no-plug rule explicit: unreconciled differences are reported with their amount and block sign-off for the account.",
+        "Routed proposed corrections to `tag-journal-entry-prep`; the skill never posts or clears items.",
+        "Took escalation thresholds and aging buckets from the organization's policy; the upstream dollar thresholds stay illustrative."
+      ]
+    },
+    {
+      "id": "anthropics/knowledge-work-plugins:finance/skills/journal-entry-prep",
+      "source": "anthropics/knowledge-work-plugins",
+      "commit": "0e0fcacddcc892eb92a1b7873ff9d68159c47571",
+      "path": "finance/skills/journal-entry-prep",
+      "licence": "Apache-2.0",
+      "licenceFile": "finance/LICENSE",
+      "notices": [
+        "LICENSES/Apache-2.0.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "journal-entry-prep",
+      "tagName": "tag-journal-entry-prep",
+      "destination": "skills/finance/tag-journal-entry-prep",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:0e7ecd9ea52df0e43ac96ec7d9188275f1156b8d85b953a43ac304c630ebdd10",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "122715fb18246c2f04d31a5f7c07584ecbfc5c0b46ee09b4c0f4557767d7351e"
+        }
+      ],
+      "excludedFiles": [],
+      "dependencyPaths": [
+        {
+          "path": "finance/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        },
+        {
+          "path": "finance/CONNECTORS.md",
+          "sha256": "af6f4e93e4af385fef0946f685216ba57104f785f35b8b596ea624808213624b",
+          "use": "placeholder definitions (~~category) the upstream skill points to; not copied, replaced by TAG capability bindings"
+        }
+      ],
+      "adaptations": [
+        "Renamed `journal-entry-prep` to `tag-journal-entry-prep`; frontmatter rewritten (the non-specification `user-invocable` field dropped; invocation mode is in tag-skill.json).",
+        "Separated preparation from posting: the skill emits a posting request (`not_posted`, requiring `tag.ledger.journal_entry.post`) and never posts, approves or changes period status.",
+        "Added `scripts/check_entries.py`: exact decimal checks for balance, chart accounts, open periods, supporting references and approval state.",
+        "Marked the upstream approval matrix as illustrative; the organization's delegation-of-authority rules govern.",
+        "Bound inputs to TAG capabilities (chart of accounts, transactions, period status, supporting documents through `aletia.search`)."
+      ]
+    },
+    {
+      "id": "anthropics/knowledge-work-plugins:finance/skills/close-management",
+      "source": "anthropics/knowledge-work-plugins",
+      "commit": "0e0fcacddcc892eb92a1b7873ff9d68159c47571",
+      "path": "finance/skills/close-management",
+      "licence": "Apache-2.0",
+      "licenceFile": "finance/LICENSE",
+      "notices": [
+        "LICENSES/Apache-2.0.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "close-management",
+      "tagName": "tag-close-management",
+      "destination": "skills/finance/tag-close-management",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:50355f3f7ed1b99a07b78f72117c6f8c50c31c374043b8ea7a16114dc2f5472b",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "6c2df93bcd15eddf65017445fa44f3eb0b16a755711a5e0602d73ca595e73732"
+        }
+      ],
+      "excludedFiles": [],
+      "dependencyPaths": [
+        {
+          "path": "finance/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        },
+        {
+          "path": "finance/CONNECTORS.md",
+          "sha256": "af6f4e93e4af385fef0946f685216ba57104f785f35b8b596ea624808213624b",
+          "use": "placeholder definitions (~~category) the upstream skill points to; not copied, replaced by TAG capability bindings"
+        }
+      ],
+      "adaptations": [
+        "Renamed `close-management` to `tag-close-management`; frontmatter rewritten (the non-specification `user-invocable` field dropped).",
+        "Bound status tracking to TAG work (`tag.work.status`) and TAG's month-end run (`tag.finance.run_month_end`, Back Office MCP `finance_run_month_end`).",
+        "Added period-lock readiness and made the lock a separately authorized operation (`tag.ledger.period_lock.set`), requested only after sign-off.",
+        "Declared dependencies on `tag-reconciliation`, `tag-journal-entry-prep` and `tag-financial-statements`, which perform the close tasks.",
+        "Kept unresolved items visible with owners; the upstream 5-day calendar is a template, not the organization's policy."
+      ]
+    },
+    {
+      "id": "anthropics/knowledge-work-plugins:finance/skills/variance-analysis",
+      "source": "anthropics/knowledge-work-plugins",
+      "commit": "0e0fcacddcc892eb92a1b7873ff9d68159c47571",
+      "path": "finance/skills/variance-analysis",
+      "licence": "Apache-2.0",
+      "licenceFile": "finance/LICENSE",
+      "notices": [
+        "LICENSES/Apache-2.0.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "variance-analysis",
+      "tagName": "tag-variance-analysis",
+      "destination": "skills/finance/tag-variance-analysis",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:a9f7d66f0cfcda8650b884aefea4579319f5b78205007dcc8fdcc9c8351d4e1d",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "467db7de3fb118550d013409254e2d4a9f87385a661e154655bf3431919b0ba1"
+        }
+      ],
+      "excludedFiles": [],
+      "dependencyPaths": [
+        {
+          "path": "finance/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        },
+        {
+          "path": "finance/CONNECTORS.md",
+          "sha256": "af6f4e93e4af385fef0946f685216ba57104f785f35b8b596ea624808213624b",
+          "use": "placeholder definitions (~~category) the upstream skill points to; not copied, replaced by TAG capability bindings"
+        }
+      ],
+      "adaptations": [
+        "Renamed `variance-analysis` to `tag-variance-analysis`; frontmatter rewritten (the non-specification `argument-hint` field dropped).",
+        "Thresholds come from the organization's configuration (`tag.policy.reporting.read`); the upstream percentages are marked as examples.",
+        "Required every driver to trace to accounts, transactions or documents, with an explicit unexplained remainder so drivers always sum to the variance.",
+        "Bound actuals, budgets, forecasts and detail to TAG capabilities or to identified, versioned files.",
+        "Added review before commentary leaves the finance function."
+      ]
+    },
+    {
+      "id": "anthropics/knowledge-work-plugins:finance/skills/audit-support",
+      "source": "anthropics/knowledge-work-plugins",
+      "commit": "0e0fcacddcc892eb92a1b7873ff9d68159c47571",
+      "path": "finance/skills/audit-support",
+      "licence": "Apache-2.0",
+      "licenceFile": "finance/LICENSE",
+      "notices": [
+        "LICENSES/Apache-2.0.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "audit-support",
+      "tagName": "tag-audit-evidence",
+      "destination": "skills/finance/tag-audit-evidence",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:b6c5f7b554a66ea0eabf5a53f235a85374b9852d94aff0102a1d4b8d636b7d67",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "6e53c9529c42bb92c11d00a58af5119f7383903d9cb3b911625089fec2ff4784"
+        }
+      ],
+      "excludedFiles": [],
+      "dependencyPaths": [
+        {
+          "path": "finance/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        },
+        {
+          "path": "finance/CONNECTORS.md",
+          "sha256": "af6f4e93e4af385fef0946f685216ba57104f785f35b8b596ea624808213624b",
+          "use": "placeholder definitions (~~category) the upstream skill points to; not copied, replaced by TAG capability bindings"
+        }
+      ],
+      "adaptations": [
+        "Renamed `audit-support` to `tag-audit-evidence`; frontmatter rewritten (the non-specification `user-invocable` field dropped).",
+        "Split general evidence support (evidence index, workpapers, sufficiency checks) from SOX 404 testing support, which applies only when the organization confirms it is in scope.",
+        "Added a scope note to the upstream SOX methodology; its percentages and sample sizes are examples, not policy.",
+        "Stated that the skill prepares evidence and does not perform or conclude an assurance engagement or classify deficiencies.",
+        "Bound evidence retrieval to `aletia.search` and ledger capabilities, with hashes and sources recorded through `tag.evidence.attach`."
+      ]
+    },
+    {
+      "id": "anthropics/knowledge-work-plugins:data/skills/sql-queries",
+      "source": "anthropics/knowledge-work-plugins",
+      "commit": "0e0fcacddcc892eb92a1b7873ff9d68159c47571",
+      "path": "data/skills/sql-queries",
+      "licence": "Apache-2.0",
+      "licenceFile": "data/LICENSE",
+      "notices": [
+        "LICENSES/Apache-2.0.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "sql-queries",
+      "tagName": "tag-sql-queries",
+      "destination": "skills/data/tag-sql-queries",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:647bbd6405157a6336af8ed5f1b9b7fc2e4d434107145918277394afb361e0a8",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "dbd5a5e2d563d83ca6d4d033206f285f503296eabff4a35545cdb4cb5302bd9a"
+        }
+      ],
+      "excludedFiles": [],
+      "dependencyPaths": [
+        {
+          "path": "data/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        },
+        {
+          "path": "data/CONNECTORS.md",
+          "sha256": "79de0e9613ef7870e773b6dcdcb7d50f4bff2c0574c14ab5e0aeb29014dcec7b",
+          "use": "placeholder definitions (~~category) the upstream skill points to; not copied, replaced by TAG capability bindings"
+        }
+      ],
+      "adaptations": [
+        "Renamed `sql-queries` to `tag-sql-queries`; frontmatter rewritten (the non-specification `user-invocable` field dropped).",
+        "Restricted the skill to read-only `SELECT` queries through the scoped capability `tag.data.query` over approved schema definitions (`tag.data.schema.read`); removed the Databricks `MERGE` upsert example and storage-maintenance tips from the reference.",
+        "Added a read-only and bound-parameter checklist; user values are never concatenated into SQL.",
+        "Added organization scoping, evidence recording and handling of missing bindings, unapproved columns and refusals."
+      ]
+    },
+    {
+      "id": "anthropics/knowledge-work-plugins:data/skills/explore-data",
+      "source": "anthropics/knowledge-work-plugins",
+      "commit": "0e0fcacddcc892eb92a1b7873ff9d68159c47571",
+      "path": "data/skills/explore-data",
+      "licence": "Apache-2.0",
+      "licenceFile": "data/LICENSE",
+      "notices": [
+        "LICENSES/Apache-2.0.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "explore-data",
+      "tagName": "tag-explore-data",
+      "destination": "skills/data/tag-explore-data",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:10bd14b2fe7993e7b0dab869df4b8aa174c1f3a82d75c26c9674dd2b639380ba",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "af7590fa616360259da712b5ede5f79b817beb854c47a465f95774354988e8a2"
+        }
+      ],
+      "excludedFiles": [],
+      "dependencyPaths": [
+        {
+          "path": "data/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        },
+        {
+          "path": "data/CONNECTORS.md",
+          "sha256": "79de0e9613ef7870e773b6dcdcb7d50f4bff2c0574c14ab5e0aeb29014dcec7b",
+          "use": "placeholder definitions (~~category) the upstream skill points to; not copied, replaced by TAG capability bindings"
+        }
+      ],
+      "adaptations": [
+        "Renamed `explore-data` to `tag-explore-data`; frontmatter rewritten (the non-specification `argument-hint` field dropped); the `/explore-data` command renamed.",
+        "Focused profiling on accounting data: required fields, duplicates, debit/credit sign conventions, period and status, unmapped accounts, currency, intercompany coding, coverage and control totals.",
+        "Replaced the data warehouse and CONNECTORS.md references with the proposed read-only capabilities (`tag.data.query`, `tag.data.schema.read`) used through tag-sql-queries, declared as a dependency.",
+        "Made the skill read-only: findings are reported, never corrected in the source."
+      ]
+    },
+    {
+      "id": "anthropics/knowledge-work-plugins:data/skills/validate-data",
+      "source": "anthropics/knowledge-work-plugins",
+      "commit": "0e0fcacddcc892eb92a1b7873ff9d68159c47571",
+      "path": "data/skills/validate-data",
+      "licence": "Apache-2.0",
+      "licenceFile": "data/LICENSE",
+      "notices": [
+        "LICENSES/Apache-2.0.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "validate-data",
+      "tagName": "tag-validate-data",
+      "destination": "skills/data/tag-validate-data",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:e443bb5b20fc950bca601ba97e7af761d67fa2abc350ea113af49d4c2964bdcf",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "1e424822043480375b80aef9416227b1c8083af749ca536568716265f79ca54b"
+        }
+      ],
+      "excludedFiles": [],
+      "dependencyPaths": [
+        {
+          "path": "data/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        },
+        {
+          "path": "data/CONNECTORS.md",
+          "sha256": "79de0e9613ef7870e773b6dcdcb7d50f4bff2c0574c14ab5e0aeb29014dcec7b",
+          "use": "placeholder definitions (~~category) the upstream skill points to; not copied, replaced by TAG capability bindings"
+        }
+      ],
+      "adaptations": [
+        "Renamed `validate-data` to `tag-validate-data`; frontmatter rewritten (the non-specification `argument-hint` field dropped); the `/validate-data` command renamed.",
+        "Put objective checks first (footing, recomputation, completeness against control figures, grain, aggregation, period, units, sign, comparatives, traceability), each recorded as pass, fail with difference, or not run.",
+        "Added a documented judgement rubric for whether conclusions follow from the evidence.",
+        "Added handling of tag-financial-statements `report.json`, TAG capability bindings (proposed), evidence recording and review routing; removed the CONNECTORS.md pointer."
+      ]
+    },
+    {
+      "id": "anthropics/knowledge-work-plugins:data/skills/build-dashboard",
+      "source": "anthropics/knowledge-work-plugins",
+      "commit": "0e0fcacddcc892eb92a1b7873ff9d68159c47571",
+      "path": "data/skills/build-dashboard",
+      "licence": "Apache-2.0",
+      "licenceFile": "data/LICENSE",
+      "notices": [
+        "LICENSES/Apache-2.0.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "build-dashboard",
+      "tagName": "tag-build-dashboard",
+      "destination": "skills/data/tag-build-dashboard",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:2a955bc892fc288f9908be85d1609b81eacc54d343c5db1323f85a36f9ae3997",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "6f23faa0b266820a23096f76df9d83e6b67597af4fc8c3306b4eba7e9f409f99"
+        }
+      ],
+      "excludedFiles": [],
+      "dependencyPaths": [
+        {
+          "path": "data/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        },
+        {
+          "path": "data/CONNECTORS.md",
+          "sha256": "79de0e9613ef7870e773b6dcdcb7d50f4bff2c0574c14ab5e0aeb29014dcec7b",
+          "use": "placeholder definitions (~~category) the upstream skill points to; not copied, replaced by TAG capability bindings"
+        }
+      ],
+      "adaptations": [
+        "Renamed `build-dashboard` to `tag-build-dashboard`; frontmatter rewritten (the non-specification `argument-hint` field dropped); the `/build-dashboard` command renamed.",
+        "Restricted inputs to verified report data (tag-financial-statements `report.json` or results validated by tag-validate-data, a declared dependency) and declared metric definitions; removed the instruction to generate realistic sample data.",
+        "Made a no-dependency HTML output (inline CSS and SVG) the default; the upstream Chart.js CDN template is kept as an optional, declared runtime dependency.",
+        "Added source traceability, exception display, evidence recording and review routing; replaced the data warehouse and CONNECTORS.md references with TAG capability names."
+      ]
+    },
+    {
+      "id": "anthropics/knowledge-work-plugins:legal/skills/review-contract",
+      "source": "anthropics/knowledge-work-plugins",
+      "commit": "0e0fcacddcc892eb92a1b7873ff9d68159c47571",
+      "path": "legal/skills/review-contract",
+      "licence": "Apache-2.0",
+      "licenceFile": "legal/LICENSE",
+      "notices": [
+        "LICENSES/Apache-2.0.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "review-contract",
+      "tagName": "tag-review-contract",
+      "destination": "skills/legal/tag-review-contract",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:15d30e80585f03cea6136760f0a6ac7b3f04259dbf311d679363b7ef99972cc7",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "3a6413475f51adedbff130f4d5aabbeeacfb2abd323e0338bc91c21937fbfb76"
+        }
+      ],
+      "excludedFiles": [],
+      "dependencyPaths": [
+        {
+          "path": "legal/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        },
+        {
+          "path": "legal/CONNECTORS.md",
+          "sha256": "1f420b2dada7768a536bf9668939ed67b193a0466af1d4617db0e80370e70dc4",
+          "use": "placeholder definitions (~~category) the upstream skill points to; not copied, replaced by TAG capability bindings"
+        }
+      ],
+      "adaptations": [
+        "Renamed `review-contract` to `tag-review-contract`; frontmatter rewritten (the non-specification `argument-hint` field dropped) and the `/review-contract` command reference renamed.",
+        "Playbook comes from the organization's approved, jurisdiction-specific playbook (`tag.policy.legal_playbook.read`, proposed) instead of a local settings file.",
+        "Without an approved playbook the skill stops at a neutral issues list; the upstream fallback to generic commercial standards was removed so defaults cannot silently become Canadian or other legal policy.",
+        "Separated document analysis, review routing (`tag.review.request`), signature requests (`tag.signature.request`) and signing, which the agent never does; the CLM routing step was rewritten as review routing under delegation rules.",
+        "Removed the CONNECTORS.md pointer; added the not-legal-advice statement to the closing reminder."
+      ]
+    },
+    {
+      "id": "anthropics/knowledge-work-plugins:legal/skills/triage-nda",
+      "source": "anthropics/knowledge-work-plugins",
+      "commit": "0e0fcacddcc892eb92a1b7873ff9d68159c47571",
+      "path": "legal/skills/triage-nda",
+      "licence": "Apache-2.0",
+      "licenceFile": "legal/LICENSE",
+      "notices": [
+        "LICENSES/Apache-2.0.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "triage-nda",
+      "tagName": "tag-triage-nda",
+      "destination": "skills/legal/tag-triage-nda",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:e6d5561b62e3f0a30b463918dbf0328e955941b924fb416aae9b03bede9f1166",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "767a8f6759268e003ee882af8dfb56579aca2121b9dc49a2c65c4e77de93f768"
+        }
+      ],
+      "excludedFiles": [],
+      "dependencyPaths": [
+        {
+          "path": "legal/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        },
+        {
+          "path": "legal/CONNECTORS.md",
+          "sha256": "1f420b2dada7768a536bf9668939ed67b193a0466af1d4617db0e80370e70dc4",
+          "use": "placeholder definitions (~~category) the upstream skill points to; not copied, replaced by TAG capability bindings"
+        }
+      ],
+      "adaptations": [
+        "Renamed `triage-nda` to `tag-triage-nda`; frontmatter rewritten (the non-specification `argument-hint` field dropped) and the `/triage-nda` command reference renamed.",
+        "Screening criteria and delegation rules come from the organization's approved NDA playbook (`tag.policy.legal_playbook.read`, proposed) instead of a local settings file.",
+        "Without an approved playbook the NDA is reported unclassified and sent for review; the upstream market-standard defaults are kept as reference only and no longer applied.",
+        "GREEN routing goes to the approver named by the delegation rules instead of straight to signature; the agent never approves or signs.",
+        "Removed the CONNECTORS.md pointer."
+      ]
+    },
+    {
+      "id": "anthropics/knowledge-work-plugins:legal/skills/vendor-check",
+      "source": "anthropics/knowledge-work-plugins",
+      "commit": "0e0fcacddcc892eb92a1b7873ff9d68159c47571",
+      "path": "legal/skills/vendor-check",
+      "licence": "Apache-2.0",
+      "licenceFile": "legal/LICENSE",
+      "notices": [
+        "LICENSES/Apache-2.0.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "vendor-check",
+      "tagName": "tag-vendor-check",
+      "destination": "skills/legal/tag-vendor-check",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:5a3a5a273c78771058970cfdfe3cc15c1aecb92b5e27c167252b0296515d73ca",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "38be57a5e9e959874d2cb78e8493211664bc452e6225cb5bdbb8b12e6f444d2e"
+        }
+      ],
+      "excludedFiles": [],
+      "dependencyPaths": [
+        {
+          "path": "legal/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        },
+        {
+          "path": "legal/CONNECTORS.md",
+          "sha256": "1f420b2dada7768a536bf9668939ed67b193a0466af1d4617db0e80370e70dc4",
+          "use": "placeholder definitions (~~category) the upstream skill points to; not copied, replaced by TAG capability bindings"
+        }
+      ],
+      "adaptations": [
+        "Renamed `vendor-check` to `tag-vendor-check`; frontmatter rewritten (the non-specification `argument-hint` field dropped) and the `/vendor-check` command reference renamed.",
+        "Replaced connected CLM, CRM, email, document and chat systems with TAG sources: the agreement registry (`tag.contracts.registry.read`, proposed) and nexus search (`aletia.search`); CRM noted as having no TAG capability.",
+        "Search planning and combination delegated to `tag-search-strategy` and `tag-knowledge-synthesis`; conflicting records kept visible with sources.",
+        "The upstream expected-agreement list is an example only; the organization's policy decides which agreements are expected.",
+        "Removed the CONNECTORS.md pointer."
+      ]
+    },
+    {
+      "id": "anthropics/knowledge-work-plugins:enterprise-search/skills/search-strategy",
+      "source": "anthropics/knowledge-work-plugins",
+      "commit": "0e0fcacddcc892eb92a1b7873ff9d68159c47571",
+      "path": "enterprise-search/skills/search-strategy",
+      "licence": "Apache-2.0",
+      "licenceFile": "enterprise-search/LICENSE",
+      "notices": [
+        "LICENSES/Apache-2.0.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "search-strategy",
+      "tagName": "tag-search-strategy",
+      "destination": "skills/knowledge/tag-search-strategy",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:e138294ae40ecca4420c7a38e1136e7b344d76f2204b820b9855fdba75cc1dd6",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "71d5ba2d219a72d696e079885cba2fb5455ba5da6b1404491f8b945bdd8694c6"
+        }
+      ],
+      "excludedFiles": [],
+      "dependencyPaths": [
+        {
+          "path": "enterprise-search/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        },
+        {
+          "path": "enterprise-search/CONNECTORS.md",
+          "sha256": "5e67b3c91b30fc3c9dad8623287c8efc876a16b551a14841a53447e92af178d5",
+          "use": "placeholder definitions (~~category) the upstream skill points to; not copied, replaced by TAG capability bindings"
+        }
+      ],
+      "adaptations": [
+        "Renamed `search-strategy` to `tag-search-strategy`; frontmatter rewritten (the non-specification `user-invocable` field dropped).",
+        "Replaced `~~chat`, `~~email`, `~~cloud storage`, `~~knowledge base` and `~~project tracker` placeholders and the CONNECTORS.md pointer with TAG sources: `aletia.search`, `tag.work.status`, `tag.expectations.read`.",
+        "Restricted every search to the active organization and nexus, as the caller; retrieved text is treated as evidence, never as authority to widen access.",
+        "Added a search log of sources searched, unavailable and refused; replaced workspace references with the nexus."
+      ]
+    },
+    {
+      "id": "anthropics/knowledge-work-plugins:enterprise-search/skills/source-management",
+      "source": "anthropics/knowledge-work-plugins",
+      "commit": "0e0fcacddcc892eb92a1b7873ff9d68159c47571",
+      "path": "enterprise-search/skills/source-management",
+      "licence": "Apache-2.0",
+      "licenceFile": "enterprise-search/LICENSE",
+      "notices": [
+        "LICENSES/Apache-2.0.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "source-management",
+      "tagName": "tag-source-management",
+      "destination": "skills/knowledge/tag-source-management",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:4912482b8b3f508c5f4c36b7a946ae157b971cea6fcfb4a3ef7257c1cc601e3d",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "221d8acdc5c686033bb073d2bba83841892f6b8be0888c0267247fd1dd34461d"
+        }
+      ],
+      "excludedFiles": [],
+      "dependencyPaths": [
+        {
+          "path": "enterprise-search/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        },
+        {
+          "path": "enterprise-search/CONNECTORS.md",
+          "sha256": "5e67b3c91b30fc3c9dad8623287c8efc876a16b551a14841a53447e92af178d5",
+          "use": "placeholder definitions (~~category) the upstream skill points to; not copied, replaced by TAG capability bindings"
+        }
+      ],
+      "adaptations": [
+        "Renamed `source-management` to `tag-source-management`; frontmatter rewritten (the non-specification `user-invocable` field dropped).",
+        "Replaced placeholders and the CONNECTORS.md pointer with TAG capabilities (`tag.sources.list`, `aletia.search`, `tag.context.overview`).",
+        "Removed guidance to connect sources through MCP settings or `.mcp.json`: the agent never connects sources or handles credentials (tag-connectors owns provider connections and credentials; aletia owns what a nexus indexes).",
+        "Added gap reasons (no capability, not indexed in the nexus, refused) and labelling of inferred availability."
+      ]
+    },
+    {
+      "id": "anthropics/knowledge-work-plugins:enterprise-search/skills/knowledge-synthesis",
+      "source": "anthropics/knowledge-work-plugins",
+      "commit": "0e0fcacddcc892eb92a1b7873ff9d68159c47571",
+      "path": "enterprise-search/skills/knowledge-synthesis",
+      "licence": "Apache-2.0",
+      "licenceFile": "enterprise-search/LICENSE",
+      "notices": [
+        "LICENSES/Apache-2.0.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "knowledge-synthesis",
+      "tagName": "tag-knowledge-synthesis",
+      "destination": "skills/knowledge/tag-knowledge-synthesis",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:7a66e9e0ba6dad0f94231b3e58e1ae5fc2c752cb66d34e02fd409c24351eaf49",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "8dc66c66ef0004010bbf2d569251163e90a6675b982e0cb99ef26b4dd1c5a0f6"
+        }
+      ],
+      "excludedFiles": [],
+      "dependencyPaths": [
+        {
+          "path": "enterprise-search/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        },
+        {
+          "path": "enterprise-search/CONNECTORS.md",
+          "sha256": "5e67b3c91b30fc3c9dad8623287c8efc876a16b551a14841a53447e92af178d5",
+          "use": "placeholder definitions (~~category) the upstream skill points to; not copied, replaced by TAG capability bindings"
+        }
+      ],
+      "adaptations": [
+        "Renamed `knowledge-synthesis` to `tag-knowledge-synthesis`; frontmatter rewritten (the non-specification `user-invocable` field dropped).",
+        "Replaced `~~chat`, `~~email`, `~~cloud storage` and `~~project tracker` placeholders with TAG sources searched through `aletia.search`.",
+        "Required source identifiers, timestamps and relevance for every claim; unattributed results are listed but never used.",
+        "Conflicting evidence is always kept visible with sources, dates and authority, never resolved silently; added an evidence bundle and a gaps section."
+      ]
+    },
+    {
+      "id": "anthropics/knowledge-work-plugins:productivity/skills/task-management",
+      "source": "anthropics/knowledge-work-plugins",
+      "commit": "0e0fcacddcc892eb92a1b7873ff9d68159c47571",
+      "path": "productivity/skills/task-management",
+      "licence": "Apache-2.0",
+      "licenceFile": "productivity/LICENSE",
+      "notices": [
+        "LICENSES/Apache-2.0.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "task-management",
+      "tagName": "tag-task-management",
+      "destination": "skills/operations/tag-task-management",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:214820987250c33b5242db297699404832cee237600df2693b91c3f1ee88742a",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "db1320873d68caab09cdbc1788e78d81e3b9b7cc6b499e2c4b975f25e873049f"
+        }
+      ],
+      "excludedFiles": [],
+      "dependencyPaths": [
+        {
+          "path": "productivity/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        },
+        {
+          "path": "productivity/CONNECTORS.md",
+          "sha256": "891ab9d7f6fc0b69667db8be16a2eba917721704619298079be6844172a6320f",
+          "use": "placeholder definitions (~~category) the upstream skill points to; not copied, replaced by TAG capability bindings"
+        }
+      ],
+      "adaptations": [
+        "Renamed `task-management` to `tag-task-management`; frontmatter rewritten (the non-specification `user-invocable` field dropped).",
+        "Replaced the `TASKS.md` file as system of record with TAG expectations and work, read through `tag_overview`, `work_status` and the proposed `tag.expectations.read`; a local `TASKS.md` remains only as a personal, non-authoritative scratch list.",
+        "Filing a task became a confirmed `ask_tag` request (`tag.request.ask`) with an idempotency key; deciding obligations stays a separate authorized operation.",
+        "Added a proposed mapping from the upstream task views to expectation and work states, and an explicitly proposed Matter grouping (no Matter model exists yet).",
+        "Removed the instructions to copy the plugin's `dashboard.html` and to run `/productivity:start`, which are outside the selected folder and not shipped."
+      ]
+    },
+    {
+      "id": "mattpocock/skills:skills/engineering/tdd",
+      "source": "mattpocock/skills",
+      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823",
+      "path": "skills/engineering/tdd",
+      "licence": "MIT",
+      "licenceFile": "LICENSE",
+      "notices": [
+        "LICENSES/MIT-mattpocock-skills.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "tdd",
+      "tagName": "tag-tdd",
+      "destination": "skills/engineering/tag-tdd",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:09207778457604cc26b57047a3bb31378f8318085a5fb4e8b6eb38657898e04d",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "5505d25bbaa8fc14a79e4d20163936958992a2995b7f1dd1d6197edc9ed722e0"
+        },
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "ea6f01cf1b8c06a4b0f5b649d74b1b8ce8685e72af1b38d70d877693e092af0b"
+        },
+        {
+          "path": "mocking.md",
+          "sha256": "3ceb807fdf4a47d6a93d4d9a891e5ba6d362a6247bd08adc451feebfc17361ef"
+        },
+        {
+          "path": "tests.md",
+          "sha256": "859f9e592c188fda4fc7277dd180e4ce9c7a2e13f6efe1f6f29eccc9d28c106a"
+        }
+      ],
+      "excludedFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "reason": "Codex UI metadata outside the Agent Skills layout; its invocation policy is carried in tag-skill.json"
+        }
+      ],
+      "dependencyPaths": [
+        {
+          "path": "LICENSE",
+          "sha256": "0e7ac423bf2c6e223b7c5b156f8cf72da49d748e56a1641402c31f22ad07dbb5",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        }
+      ],
+      "adaptations": [
+        "Renamed `tdd` to `tag-tdd`; frontmatter rewritten with a TAG-specific description.",
+        "Moved tests.md and mocking.md into references/ and updated links.",
+        "Added context, procedure with completion criteria, output and missing-input sections; pointed at the repository's AGENTS.md and TAG's TESTING standard (synthetic data, PASS/FAIL/BLOCKED reporting).",
+        "Replaced the upstream skill names `codebase-design` and `code-review` with `tag-codebase-design` and `tag-code-review`.",
+        "`agents/openai.yaml` (Codex UI metadata) was not copied; its invocation policy is carried in `tag-skill.json`."
+      ]
+    },
+    {
+      "id": "mattpocock/skills:skills/engineering/diagnosing-bugs",
+      "source": "mattpocock/skills",
+      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823",
+      "path": "skills/engineering/diagnosing-bugs",
+      "licence": "MIT",
+      "licenceFile": "LICENSE",
+      "notices": [
+        "LICENSES/MIT-mattpocock-skills.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "diagnosing-bugs",
+      "tagName": "tag-diagnosing-bugs",
+      "destination": "skills/engineering/tag-diagnosing-bugs",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:3314cd62e50cf688d13abdc4eb4cedcbcfdfe6f053fe3331f4a79928a0fe3c7f",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "849198df88cdb65fd0d97236604c1fca7ff2f22d2f705f9724a800d0266b118d"
+        },
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "3e430dbe4334a87597488c060cb3dc3786bb00c9182877d6f5ec41f62490e90b"
+        },
+        {
+          "path": "scripts/hitl-loop.template.sh",
+          "sha256": "35103539fc36873eea36074769ad454f9379d6fc8b2dc0e26ce987fd3bfe5503"
+        }
+      ],
+      "excludedFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "reason": "Codex UI metadata outside the Agent Skills layout; its invocation policy is carried in tag-skill.json"
+        }
+      ],
+      "dependencyPaths": [
+        {
+          "path": "LICENSE",
+          "sha256": "0e7ac423bf2c6e223b7c5b156f8cf72da49d748e56a1641402c31f22ad07dbb5",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        }
+      ],
+      "adaptations": [
+        "Renamed `diagnosing-bugs` to `tag-diagnosing-bugs`; frontmatter rewritten.",
+        "Added context, output and missing-input sections; forbade reproducing against a client's live ledger or credentials and widening access to get a repro.",
+        "Linked scripts/hitl-loop.template.sh with its relative path and declared bash as a runtime dependency.",
+        "`agents/openai.yaml` (Codex UI metadata) was not copied; its invocation policy is carried in `tag-skill.json`."
+      ]
+    },
+    {
+      "id": "mattpocock/skills:skills/engineering/codebase-design",
+      "source": "mattpocock/skills",
+      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823",
+      "path": "skills/engineering/codebase-design",
+      "licence": "MIT",
+      "licenceFile": "LICENSE",
+      "notices": [
+        "LICENSES/MIT-mattpocock-skills.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "codebase-design",
+      "tagName": "tag-codebase-design",
+      "destination": "skills/engineering/tag-codebase-design",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:66b6f0d1cbc584ae17931ee414f8812d11738de55c8097cb8673bc01cb29ca1a",
+      "files": [
+        {
+          "path": "DEEPENING.md",
+          "sha256": "f3dd099ce99289bd213914d8ee3e2429b78309c3957ca4583f7659551b1d53c1"
+        },
+        {
+          "path": "DESIGN-IT-TWICE.md",
+          "sha256": "c222ab5a82e0405672eb9062d62496139a08828e45d07fc5f18e4952c10fac1a"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "2c20617f87ec8af6a434859f381b2f061a69b530444e74eb39e78bb016a6d1e2"
+        },
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "edebc9e4fcfe102114012575eaa9600b9b5fd08c311664f389c36e7bc717740f"
+        }
+      ],
+      "excludedFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "reason": "Codex UI metadata outside the Agent Skills layout; its invocation policy is carried in tag-skill.json"
+        }
+      ],
+      "dependencyPaths": [
+        {
+          "path": "LICENSE",
+          "sha256": "0e7ac423bf2c6e223b7c5b156f8cf72da49d748e56a1641402c31f22ad07dbb5",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        }
+      ],
+      "adaptations": [
+        "Renamed `codebase-design` to `tag-codebase-design`; frontmatter rewritten.",
+        "Moved DEEPENING.md and DESIGN-IT-TWICE.md into references/ and fixed links.",
+        "Treated TAG repository boundaries as seams that a design must not cross except through published contracts.",
+        "Allowed sequential design alternatives where the host cannot delegate to sub-agents.",
+        "Added context, procedure, output and missing-input sections.",
+        "`agents/openai.yaml` (Codex UI metadata) was not copied; its invocation policy is carried in `tag-skill.json`."
+      ]
+    },
+    {
+      "id": "mattpocock/skills:skills/engineering/code-review",
+      "source": "mattpocock/skills",
+      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823",
+      "path": "skills/engineering/code-review",
+      "licence": "MIT",
+      "licenceFile": "LICENSE",
+      "notices": [
+        "LICENSES/MIT-mattpocock-skills.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "code-review",
+      "tagName": "tag-code-review",
+      "destination": "skills/engineering/tag-code-review",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:5cf1a4aca73fc2fc8eaeab0dbddf280b0a4e355d2243fab96abf549414789702",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "9c921a8d88138a41401d8897ca1bb852088ab1b7b605cdd04edc13e3e8aab6dd"
+        },
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "8229ca854e11dc8e6aef2131ee03f31fb1561cf905fab9ccc325180cf3331352"
+        }
+      ],
+      "excludedFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "reason": "Codex UI metadata outside the Agent Skills layout; its invocation policy is carried in tag-skill.json"
+        }
+      ],
+      "dependencyPaths": [
+        {
+          "path": "LICENSE",
+          "sha256": "0e7ac423bf2c6e223b7c5b156f8cf72da49d748e56a1641402c31f22ad07dbb5",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        }
+      ],
+      "adaptations": [
+        "Renamed `code-review` to `tag-code-review`; frontmatter rewritten.",
+        "Replaced the `/setup-matt-pocock-skills` tracker document with the repository's own forge, read through the host's GitHub tools; never file issues in an upstream repository.",
+        "Allowed sequential reviews where the host lacks delegation, keeping the Standards and Spec reviews separate and reported side by side.",
+        "Pointed the Standards axis at AGENTS.md, CONTRIBUTING.md, ARCHITECTURE.md, ADRs and the linked organization standards.",
+        "Added context, completion criterion and missing-input sections; private reporting of security findings; the review never approves or merges.",
+        "`agents/openai.yaml` (Codex UI metadata) was not copied; its invocation policy is carried in `tag-skill.json`."
+      ]
+    },
+    {
+      "id": "mattpocock/skills:skills/engineering/domain-modeling",
+      "source": "mattpocock/skills",
+      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823",
+      "path": "skills/engineering/domain-modeling",
+      "licence": "MIT",
+      "licenceFile": "LICENSE",
+      "notices": [
+        "LICENSES/MIT-mattpocock-skills.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "domain-modeling",
+      "tagName": "tag-domain-modeling",
+      "destination": "skills/engineering/tag-domain-modeling",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:c25c0fbd89c5df79a01e7c820e2a7b2ae894f6c44206a50b0cb90e0db5613eb9",
+      "files": [
+        {
+          "path": "ADR-FORMAT.md",
+          "sha256": "944c92aa790e8fbdc9199640b170979abb8a34ba8d0fe18c2a01a63bce140ca0"
+        },
+        {
+          "path": "GLOSSARY-FORMAT.md",
+          "sha256": "21dcc40cdec8e151a829b98ab1517c1867bc444e3665134a98c6983411996801"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "7b925d7b1e341a2eeae33ad68a8a8c0ab889a38ddd22a7598e4c240e5a7556a3"
+        },
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "f6bf2aa996c6e6f53fdd0708e18a0d16a56aed8322cca59fedbe3c0d2c75f06b"
+        }
+      ],
+      "excludedFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "reason": "Codex UI metadata outside the Agent Skills layout; its invocation policy is carried in tag-skill.json"
+        }
+      ],
+      "dependencyPaths": [
+        {
+          "path": "LICENSE",
+          "sha256": "0e7ac423bf2c6e223b7c5b156f8cf72da49d748e56a1641402c31f22ad07dbb5",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        }
+      ],
+      "adaptations": [
+        "Renamed `domain-modeling` to `tag-domain-modeling`; frontmatter rewritten.",
+        "Added references/TAG-TERMS.md with working definitions of organization, entity, person, agent, nexus, delegation, mandate, Expectation and Matter, each naming its owning repository; Matter marked proposed.",
+        "Required organizations never to be called practice, firm or workspace.",
+        "Preferred the repository's existing ADR format (TAG's Status, Date, Deciders, Context, Decision, Consequences, Alternatives) over the upstream minimal format.",
+        "Moved GLOSSARY-FORMAT.md and ADR-FORMAT.md into references/ and fixed links; added context, procedure, output and missing-input sections.",
+        "`agents/openai.yaml` (Codex UI metadata) was not copied; its invocation policy is carried in `tag-skill.json`."
+      ]
+    },
+    {
+      "id": "mattpocock/skills:skills/productivity/writing-for-agents",
+      "source": "mattpocock/skills",
+      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823",
+      "path": "skills/productivity/writing-for-agents",
+      "licence": "MIT",
+      "licenceFile": "LICENSE",
+      "notices": [
+        "LICENSES/MIT-mattpocock-skills.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "writing-for-agents",
+      "tagName": "tag-writing-for-agents",
+      "destination": "skills/productivity/tag-writing-for-agents",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:78c41feba8e14079c320faa34e76395bcd0a74739580999e7cbad8988fefe533",
+      "files": [
+        {
+          "path": "SKILL-MECHANICS.md",
+          "sha256": "c768e6307c7c10728c401c213f2c4ba71c542127eeb7ad2956aabd15a0fa0059"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "551adca942227b44192edba88acd4e8db911f0121ce58ad16944ccf6a896a74a"
+        },
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "eacb24b2a618cfb81dacb0416f4fdd75ddf3a8060f8ddb99aae1b1e301907e4b"
+        }
+      ],
+      "excludedFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "reason": "Codex UI metadata outside the Agent Skills layout; its invocation policy is carried in tag-skill.json"
+        }
+      ],
+      "dependencyPaths": [
+        {
+          "path": "LICENSE",
+          "sha256": "0e7ac423bf2c6e223b7c5b156f8cf72da49d748e56a1641402c31f22ad07dbb5",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        }
+      ],
+      "adaptations": [
+        "Renamed `writing-for-agents` to `tag-writing-for-agents`; frontmatter rewritten.",
+        "Kept SKILL-MECHANICS.md in references/ and fixed links; added a note that tag-skills records invocation in tag-skill.json because client-specific frontmatter fields are rejected.",
+        "Added a procedure that requires explicit triggers, completion criteria and failure branches, and points at the tag-skills packaging contract (SKILL.md, tag-skill.json, LICENSE, NOTICE.md, category layout).",
+        "`agents/openai.yaml` (Codex UI metadata) was not copied; its invocation policy is carried in `tag-skill.json`."
+      ]
+    },
+    {
+      "id": "mattpocock/skills:skills/productivity/handoff",
+      "source": "mattpocock/skills",
+      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823",
+      "path": "skills/productivity/handoff",
+      "licence": "MIT",
+      "licenceFile": "LICENSE",
+      "notices": [
+        "LICENSES/MIT-mattpocock-skills.txt",
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "originalName": "handoff",
+      "tagName": "tag-handoff",
+      "destination": "skills/productivity/tag-handoff",
+      "importDate": "2026-11-20",
+      "sourceHash": "sha256:ec3e8c462e35745d5349384c25b2ee761d6b681004121499f90d9df2e50da5ce",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "sha256": "4cbb043950dad2ffd3662ff1a5a0b51ae676004b5cae10e3787e8ee7a4ee69d3"
+        },
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "5c479fd562c691851690e8b18c8501045bef0943c10743d636b2fae26add1d28"
+        }
+      ],
+      "excludedFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "reason": "Codex UI metadata outside the Agent Skills layout; its invocation policy is carried in tag-skill.json"
+        }
+      ],
+      "dependencyPaths": [
+        {
+          "path": "LICENSE",
+          "sha256": "0e7ac423bf2c6e223b7c5b156f8cf72da49d748e56a1641402c31f22ad07dbb5",
+          "use": "licence text, copied unmodified to the skill's LICENSE"
+        }
+      ],
+      "adaptations": [
+        "Renamed `handoff` to `tag-handoff`; the `argument-hint` and `disable-model-invocation` frontmatter fields dropped; user invocation recorded as `invocation: user` in tag-skill.json.",
+        "Required sections for decisions, completed work with evidence references, pending items, unresolved assumptions and permission context.",
+        "Stated that a handoff conveys context only: it creates no delegation grant and is not an A2A implementation.",
+        "Extended redaction to credentials, personal information and client records.",
+        "`agents/openai.yaml` (Codex UI metadata) was not copied; its invocation policy is carried in `tag-skill.json`."
+      ]
+    }
+  ],
+  "blocked": [
+    {
+      "id": "samuelclk/dinoclaw_guides:financial-statements",
+      "source": "https://github.com/samuelclk/dinoclaw_guides",
+      "path": "financial-statements",
+      "reason": "Excluded from the initial fork set: the repository root exposed no licence when the brief was reviewed (2026-11-20). Reconsider only after applicable permission is established.",
+      "status": "excluded"
+    }
+  ]
+}

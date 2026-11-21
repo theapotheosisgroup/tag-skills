@@ -1,0 +1,37 @@
+{
+  "name": "tag-writing-for-agents",
+  "version": "0.1.0",
+  "domain": "productivity",
+  "priority": "authoring",
+  "audiences": ["engineering"],
+  "invocation": "model",
+  "capabilities": [],
+  "inputs": [
+    {
+      "name": "purpose, invoker and branches of the document",
+      "required": true,
+      "source": "user or issue"
+    },
+    {
+      "name": "packaging contract",
+      "required": true,
+      "source": "repository README, CONTRIBUTING.md and validator"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "agent-facing document",
+      "format": "markdown (SKILL.md, AGENTS.md or reference file), validated"
+    }
+  ],
+  "dependencies": {
+    "skills": [],
+    "runtime": []
+  },
+  "sideEffects": "none",
+  "review": {
+    "required": true,
+    "conditions": ["Changes go through the repository's pull request review; the skill never merges or deploys."]
+  },
+  "provenance": ["mattpocock/skills:skills/productivity/writing-for-agents"]
+}

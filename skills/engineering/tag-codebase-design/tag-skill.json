@@ -1,0 +1,42 @@
+{
+  "name": "tag-codebase-design",
+  "version": "0.1.0",
+  "domain": "engineering",
+  "priority": "authoring",
+  "audiences": ["engineering"],
+  "invocation": "model",
+  "capabilities": [],
+  "inputs": [
+    {
+      "name": "code under design and its callers",
+      "required": true,
+      "source": "local checkout"
+    },
+    {
+      "name": "repository boundaries",
+      "required": true,
+      "source": "ARCHITECTURE.md, AGENTS.md invariants and ADRs"
+    },
+    {
+      "name": "domain glossary",
+      "required": false,
+      "source": "GLOSSARY.md"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "design proposal or restructured code",
+      "format": "markdown or source files"
+    }
+  ],
+  "dependencies": {
+    "skills": [],
+    "runtime": []
+  },
+  "sideEffects": "none",
+  "review": {
+    "required": true,
+    "conditions": ["Changes go through the repository's pull request review; the skill never merges or deploys."]
+  },
+  "provenance": ["mattpocock/skills:skills/engineering/codebase-design"]
+}

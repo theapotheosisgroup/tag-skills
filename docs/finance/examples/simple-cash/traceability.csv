@@ -1,0 +1,5 @@
+account,account_name,balance,line,statement,adjustments
+1000,Cash,1300.00,cash,balance_sheet,
+3000,Share capital,-1000.00,share_capital,balance_sheet,
+4000,Service revenue,-500.00,revenue,income_statement,
+5000,Operating expenses,200.00,operating_expenses,income_statement,
