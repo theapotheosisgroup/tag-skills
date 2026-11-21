@@ -75,7 +75,7 @@ npm run install:profile -- --profile controller --ref v0.1.0 --agent universal -
 | `finance-core` | The first financial-reporting workflow: statements, reconciliation, journal entry preparation, close management and variance analysis. | 5 |
 | `legal` | The three legal skills. Their knowledge dependencies are added from tag-skill.json. | 5 |
 
-Dependencies are expanded from this checkout, so a remote install is pinned to a matching revision. Without `--ref` it installs `theapotheosisgroup/tag-skills#<this checkout's HEAD commit>` (all 40 characters) and refuses unless that commit is already on the remote: push it, pass `--ref`, or install from the checkout itself with `--source <path>`. `--dry-run` shows the pinned source.
+Dependencies are expanded from this checkout, so a remote install is pinned to a matching revision. Without `--ref` it installs `theapotheosisgroup/tag-skills#<this checkout's HEAD commit>` (all 40 characters) and refuses unless that commit is already on the remote: push it, pass `--ref`, or install from the checkout itself with `--source <path>`. The check uses your existing Git credentials over HTTPS, then SSH, and never prompts; an unreachable or unauthenticated remote is refused with its cause. `--dry-run` shows the pinned source without contacting the remote (`remote_verified: false`).
 
 Options: `--source` (default `theapotheosisgroup/tag-skills`, or a local path, installed as it is), `--ref` (tag, commit or branch; the checkout must be at that revision so dependency metadata matches, unless `--allow-ref-mismatch`), `--agent` (repeatable; default `universal`), `--dir` (default: current directory), `--mode copy|symlink` (default `symlink`), `--dry-run`. Profiles are defined in [profiles/](profiles/).
 

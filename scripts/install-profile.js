@@ -12,7 +12,8 @@
 // mode symlink (the CLI's default). Dependency metadata comes from this checkout, so a remote install
 // is always pinned to a revision that matches it: without --ref, to this checkout's HEAD commit
 // (<owner>/<repo>#<40-character sha>), which must already be on the remote (push it, pass --ref,
-// or install from --source <local path>); with --ref, the checkout must be at that revision (or
+// or install from --source <local path>). The remote is checked over HTTPS, then SSH, never
+// prompting for credentials; --dry-run skips that check and says so. With --ref, the checkout must be at that revision (or
 // pass --allow-ref-mismatch knowingly). A local path source is installed as it is.
 //
 // Validation runs before the CLI is invoked, and the CLI is run with an argument array (no shell).
@@ -96,26 +97,67 @@ export function planInstall(options, repository) {
   return { skills, args, warnings };
 }
 
-/** @param {string} source  a validated <owner>/<repo> */
-export const remoteUrl = (source) => `https://github.com/${source}.git`;
+/**
+ * Remote URLs tried in order, as the pinned Skills CLI does for a private repository.
+ * @param {string} source  a validated <owner>/<repo>
+ */
+export const remoteUrls = (source) => [`https://github.com/${source}.git`, `git@github.com:${source}.git`];
+
+const NON_INTERACTIVE_GIT = {
+  GIT_TERMINAL_PROMPT: "0",
+  GCM_INTERACTIVE: "never",
+  GIT_SSH_COMMAND: "ssh -o BatchMode=yes",
+};
 
 /**
- * Whether a commit is reachable from a branch or tag of the remote repository. The remote tips are
- * listed with git ls-remote; ancestry is checked against the objects in `cwd`, so a tip this
- * checkout has not fetched counts as not containing the commit.
+ * Lists the commits at the remote's branch and tag tips, without prompting for credentials.
  * @param {string} url
- * @param {string} commit
- * @param {string} [cwd]
+ * @param {string} cwd
+ * @returns {Promise<string[]>}
  */
-export async function remoteHasCommit(url, commit, cwd = repo) {
-  const { stdout } = await run("git", ["ls-remote", "--heads", "--tags", url], { cwd });
-  const tips = new Set(
-    stdout
-      .split("\n")
-      .map((line) => line.split("\t")[0])
-      .filter(Boolean),
-  );
-  if (tips.has(commit)) return true;
+export async function listRemoteTips(url, cwd) {
+  const { stdout } = await run("git", ["ls-remote", "--heads", "--tags", url], {
+    cwd,
+    env: { ...process.env, ...NON_INTERACTIVE_GIT },
+  });
+  return stdout
+    .split("\n")
+    .map((line) => line.split("\t")[0])
+    .filter(Boolean);
+}
+
+/** The remote could not be reached or authenticated over any URL. */
+export class RemoteUnreachableError extends Error {}
+
+/**
+ * Whether a commit is reachable from a branch or tag of the remote repository. The first URL that
+ * answers is used; ancestry is checked against the objects in `cwd`, so a tip this checkout has not
+ * fetched counts as not containing the commit.
+ * @param {string[]} urls
+ * @param {string} commit
+ * @param {{ cwd?: string, listTips?: (url: string, cwd: string) => Promise<string[]> }} [options]
+ * @throws {RemoteUnreachableError} when no URL answers
+ */
+export async function remoteHasCommit(urls, commit, { cwd = repo, listTips = listRemoteTips } = {}) {
+  /** @type {string[] | undefined} */
+  let tips;
+  /** @type {string[]} */
+  const failures = [];
+  for (const url of urls) {
+    try {
+      tips = await listTips(url, cwd);
+      break;
+    } catch (error) {
+      const detail = /** @type {{ stderr?: string, message?: string }} */ (error);
+      const reason = String(detail.stderr || detail.message || error)
+        .trim()
+        .split("\n")
+        .pop();
+      failures.push(`${url}: ${reason}`);
+    }
+  }
+  if (tips === undefined) throw new RemoteUnreachableError(failures.join("; "));
+  if (tips.includes(commit)) return true;
   for (const tip of tips) {
     try {
       await run("git", ["merge-base", "--is-ancestor", commit, tip], { cwd });
@@ -142,9 +184,12 @@ async function localCommit(ref) {
 
 /**
  * @param {string[]} argv
- * @param {{ remoteHasCommit?: (url: string, commit: string) => Promise<boolean> }} [deps]
+ * @param {{ remoteHasCommit?: (source: string, commit: string) => Promise<boolean> }} [deps]
  */
-export async function main(argv, { remoteHasCommit: onRemote = remoteHasCommit } = {}) {
+export async function main(
+  argv,
+  { remoteHasCommit: onRemote = (source, commit) => remoteHasCommit(remoteUrls(source), commit) } = {},
+) {
   const { values } = parseArgs({
     args: argv,
     options: {
@@ -192,15 +237,29 @@ export async function main(argv, { remoteHasCommit: onRemote = remoteHasCommit }
       console.error(`warning: ${message}`);
     }
   }
-  if (pinToHead && options.commit && !(await onRemote(remoteUrl(options.source), options.commit))) {
-    throw new Error(
-      `this checkout's HEAD commit ${options.commit} is not on ${options.source}, so the install cannot be pinned ` +
-        "to the revision its dependency metadata came from; push the commit (or git fetch if it is already " +
-        "pushed), pass --ref <ref>, or install from a local checkout with --source <path>",
-    );
+  if (pinToHead && options.commit && !values["dry-run"]) {
+    const remedies =
+      "push the commit (or git fetch if it is already pushed), pass --ref <ref>, " +
+      "or install from a local checkout with --source <path>";
+    let found;
+    try {
+      found = await onRemote(options.source, options.commit);
+    } catch (error) {
+      throw new Error(
+        `could not verify that this checkout's HEAD commit ${options.commit} is on ${options.source}: the remote ` +
+          `could not be reached or authenticated (${error instanceof Error ? error.message : String(error)}); ${remedies}`,
+        { cause: error },
+      );
+    }
+    if (!found) {
+      throw new Error(
+        `this checkout's HEAD commit ${options.commit} is not on ${options.source}, so the install cannot be pinned ` +
+          `to the revision its dependency metadata came from; ${remedies}`,
+      );
+    }
   }
   if (values["dry-run"]) {
-    const pin = pinToHead ? { commit: options.commit, from: "this checkout's HEAD" } : null;
+    const pin = pinToHead ? { commit: options.commit, from: "this checkout's HEAD", remote_verified: false } : null;
     console.log(
       JSON.stringify(
         { dir: options.dir, source: plan.args[1], pin, skills: plan.skills, command: ["skills", ...plan.args] },

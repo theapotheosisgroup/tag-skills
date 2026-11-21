@@ -9,7 +9,14 @@ import { dirname, join } from "node:path";
 import { describe, test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { DEFAULT_SOURCE, main, planInstall, remoteHasCommit, remoteUrl } from "../scripts/install-profile.js";
+import {
+  DEFAULT_SOURCE,
+  listRemoteTips,
+  main,
+  planInstall,
+  remoteHasCommit,
+  RemoteUnreachableError,
+} from "../scripts/install-profile.js";
 import { loadRepository } from "../scripts/lib/repository.js";
 
 const run = promisify(execFile);
@@ -97,10 +104,10 @@ describe("planInstall", () => {
 /**
  * Runs main() with console output captured.
  * @param {string[]} argv
- * @param {(url: string, commit: string) => Promise<boolean>} onRemote
+ * @param {(source: string, commit: string) => Promise<boolean>} onRemote
  */
 async function runMain(argv, onRemote) {
-  /** @type {{ url: string, commit: string }[]} */
+  /** @type {{ source: string, commit: string }[]} */
   const checks = [];
   const log = console.log;
   /** @type {string[]} */
@@ -108,9 +115,9 @@ async function runMain(argv, onRemote) {
   console.log = (/** @type {unknown} */ line) => lines.push(String(line));
   try {
     const code = await main(argv, {
-      remoteHasCommit: async (url, commit) => {
-        checks.push({ url, commit });
-        return onRemote(url, commit);
+      remoteHasCommit: async (source, commit) => {
+        checks.push({ source, commit });
+        return onRemote(source, commit);
       },
     });
     return { code, checks, output: lines.join("\n") };
@@ -119,24 +126,46 @@ async function runMain(argv, onRemote) {
   }
 }
 
+const missingDir = join(tmpdir(), "tag-install-no-such-dir", String(process.pid));
+const remedies = (/** @type {string} */ message) =>
+  /push the commit/.test(message) && /--ref/.test(message) && /--source <path>/.test(message);
+
 describe("main", () => {
-  test("by default pins the remote install to this checkout's HEAD commit once it is on the remote", async () => {
-    const result = await runMain(["--profile", "legal", "--dry-run"], async () => true);
+  test("by default pins the remote install to this checkout's HEAD commit; --dry-run says it is unverified", async () => {
+    const result = await runMain(["--profile", "legal", "--dry-run"], async () => false);
     assert.equal(result.code, 0);
-    assert.deepEqual(result.checks, [{ url: remoteUrl(DEFAULT_SOURCE), commit: HEAD }]);
+    assert.deepEqual(result.checks, []);
     const plan = JSON.parse(result.output);
     assert.equal(plan.source, `${DEFAULT_SOURCE}#${HEAD}`);
     assert.equal(plan.command[2], `${DEFAULT_SOURCE}#${HEAD}`);
-    assert.deepEqual(plan.pin, { commit: HEAD, from: "this checkout's HEAD" });
+    assert.deepEqual(plan.pin, { commit: HEAD, from: "this checkout's HEAD", remote_verified: false });
+  });
+  test("an install checks the HEAD commit on the remote before going further", async () => {
+    const result = runMain(["--profile", "legal", "--dir", missingDir], async () => true);
+    await assert.rejects(result, /is not a directory/);
   });
   test("refuses when this checkout's HEAD commit is not on the remote", async () => {
+    /** @type {{ source: string, commit: string }[]} */
+    const checks = [];
     await assert.rejects(
-      runMain(["--profile", "legal", "--dry-run"], async () => false),
+      runMain(["--profile", "legal", "--dir", missingDir], async (source, commit) => {
+        checks.push({ source, commit });
+        return false;
+      }),
       (/** @type {Error} */ error) =>
-        error.message.includes(`HEAD commit ${HEAD} is not on ${DEFAULT_SOURCE}`) &&
-        /push the commit/.test(error.message) &&
-        /--ref/.test(error.message) &&
-        /--source <path>/.test(error.message),
+        error.message.includes(`HEAD commit ${HEAD} is not on ${DEFAULT_SOURCE}`) && remedies(error.message),
+    );
+    assert.deepEqual(checks, [{ source: DEFAULT_SOURCE, commit: HEAD }]);
+  });
+  test("refuses with the cause when the remote cannot be reached or authenticated", async () => {
+    await assert.rejects(
+      runMain(["--profile", "legal", "--dir", missingDir], async () => {
+        throw new RemoteUnreachableError("ssh: Permission denied (publickey)");
+      }),
+      (/** @type {Error} */ error) =>
+        /could not be reached or authenticated/.test(error.message) &&
+        error.message.includes("Permission denied (publickey)") &&
+        remedies(error.message),
     );
   });
   test("--ref uses #ref, keeps the checkout check and skips the HEAD pin", async () => {
@@ -158,28 +187,51 @@ describe("main", () => {
   });
 });
 
-describe("remoteHasCommit", () => {
-  test("finds commits reachable from the remote's branches and refuses unpushed ones", async () => {
-    const work = await mkdtemp(join(tmpdir(), "tag-install-remote-"));
-    const local = join(work, "local");
-    const bare = join(work, "remote.git");
-    const git = (/** @type {string[]} */ ...args) =>
-      run("git", ["-c", "user.name=t", "-c", "user.email=t@example.invalid", ...args], { cwd: local });
-    await run("git", ["init", "--quiet", local]);
-    await writeFile(join(local, "a.txt"), "a");
-    await git("add", "a.txt");
-    await git("commit", "--quiet", "-m", "first");
-    const first = (await git("rev-parse", "HEAD")).stdout.trim();
-    await writeFile(join(local, "a.txt"), "b");
-    await git("commit", "--quiet", "-am", "second");
-    const second = (await git("rev-parse", "HEAD")).stdout.trim();
-    await run("git", ["clone", "--quiet", "--bare", local, bare]);
-    await writeFile(join(local, "a.txt"), "c");
-    await git("commit", "--quiet", "-am", "unpushed");
-    const unpushed = (await git("rev-parse", "HEAD")).stdout.trim();
+describe("remoteHasCommit", async () => {
+  const work = await mkdtemp(join(tmpdir(), "tag-install-remote-"));
+  const local = join(work, "local");
+  const bare = join(work, "remote.git");
+  const git = (/** @type {string[]} */ ...args) =>
+    run("git", ["-c", "user.name=t", "-c", "user.email=t@example.invalid", ...args], { cwd: local });
+  await run("git", ["init", "--quiet", local]);
+  await writeFile(join(local, "a.txt"), "a");
+  await git("add", "a.txt");
+  await git("commit", "--quiet", "-m", "first");
+  const first = (await git("rev-parse", "HEAD")).stdout.trim();
+  await writeFile(join(local, "a.txt"), "b");
+  await git("commit", "--quiet", "-am", "second");
+  const second = (await git("rev-parse", "HEAD")).stdout.trim();
+  await run("git", ["clone", "--quiet", "--bare", local, bare]);
+  await writeFile(join(local, "a.txt"), "c");
+  await git("commit", "--quiet", "-am", "unpushed");
+  const unpushed = (await git("rev-parse", "HEAD")).stdout.trim();
+  const missing = join(work, "missing.git");
 
-    assert.equal(await remoteHasCommit(bare, second, local), true);
-    assert.equal(await remoteHasCommit(bare, first, local), true);
-    assert.equal(await remoteHasCommit(bare, unpushed, local), false);
+  test("finds commits reachable from the remote's branches and refuses unpushed ones", async () => {
+    assert.equal(await remoteHasCommit([bare], second, { cwd: local }), true);
+    assert.equal(await remoteHasCommit([bare], first, { cwd: local }), true);
+    assert.equal(await remoteHasCommit([bare], unpushed, { cwd: local }), false);
+  });
+  test("falls back to the next URL when the first cannot be read", async () => {
+    /** @type {string[]} */
+    const tried = [];
+    const listTips = async (/** @type {string} */ url, /** @type {string} */ cwd) => {
+      tried.push(url);
+      if (url.startsWith("https://"))
+        throw Object.assign(new Error("failed"), { stderr: "fatal: Authentication failed" });
+      return listRemoteTips(bare, cwd);
+    };
+    const urls = ["https://github.com/o/r.git", "git@github.com:o/r.git"];
+    assert.equal(await remoteHasCommit(urls, second, { cwd: local, listTips }), true);
+    assert.deepEqual(tried, urls);
+  });
+  test("reports an unreachable remote, with each URL's cause, instead of 'not on the remote'", async () => {
+    await assert.rejects(
+      remoteHasCommit([missing, join(work, "also-missing.git")], second, { cwd: local }),
+      (/** @type {Error} */ error) =>
+        error instanceof RemoteUnreachableError &&
+        error.message.includes(missing) &&
+        error.message.includes("also-missing.git"),
+    );
   });
 });
