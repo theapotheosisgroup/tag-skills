@@ -35,7 +35,7 @@ npm run install:profile -- --profile legal --dir /path/to/project --agent claude
 npm run install:profile -- --skill tag-close-management --dry-run   # shows the expanded list, the pinned source and the CLI command
 ```
 
-The installer reads dependencies from your checkout, so it pins the remote install to the revision they came from. By default that is the checkout's HEAD commit (`theapotheosisgroup/tag-skills#<40-character sha>`), and it refuses if the commit is not on the remote yet: push it, pass `--ref <tag | commit | branch>` from a checkout at that revision, or install from the checkout with `--source <path>`. The check tries HTTPS, then SSH, with your existing credentials and never prompts; if neither reaches the repository, the installer says why. `--dry-run` works offline and reports the pin as not verified.
+The installer reads dependencies from your checkout, so it pins the remote install to the revision they came from. By default that is the checkout's HEAD commit (`theapotheosisgroup/tag-skills#<40-character sha>`), and it refuses if the commit is not on the remote yet: push it, pass `--ref <tag | commit | branch>` from a checkout at that revision, or install from the checkout with `--source <path>`. The check tries HTTPS, then SSH, with your existing credentials and never prompts; if neither reaches the repository, the installer says why. Uncommitted changes under `skills/` or `profiles/` also block a remote install: commit and push them, or use `--source <path>`. `--dry-run` works offline, reports the pin as not verified and lists any uncommitted metadata.
 
 Profiles: `finance-core`, `controller`, `backoffice`, `legal`, `authoring` ([README](../README.md#profiles)).
 

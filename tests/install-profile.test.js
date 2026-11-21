@@ -105,8 +105,9 @@ describe("planInstall", () => {
  * Runs main() with console output captured.
  * @param {string[]} argv
  * @param {(source: string, commit: string) => Promise<boolean>} onRemote
+ * @param {string[]} [uncommitted]  paths the injected status check reports under skills/ and profiles/
  */
-async function runMain(argv, onRemote) {
+async function runMain(argv, onRemote, uncommitted = []) {
   /** @type {{ source: string, commit: string }[]} */
   const checks = [];
   const log = console.log;
@@ -119,6 +120,7 @@ async function runMain(argv, onRemote) {
         checks.push({ source, commit });
         return onRemote(source, commit);
       },
+      uncommittedMetadata: async () => uncommitted,
     });
     return { code, checks, output: lines.join("\n") };
   } finally {
@@ -139,10 +141,55 @@ describe("main", () => {
     assert.equal(plan.source, `${DEFAULT_SOURCE}#${HEAD}`);
     assert.equal(plan.command[2], `${DEFAULT_SOURCE}#${HEAD}`);
     assert.deepEqual(plan.pin, { commit: HEAD, from: "this checkout's HEAD", remote_verified: false });
+    assert.deepEqual(plan.metadata_uncommitted, []);
   });
   test("an install checks the HEAD commit on the remote before going further", async () => {
-    const result = runMain(["--profile", "legal", "--dir", missingDir], async () => true);
+    /** @type {{ source: string, commit: string }[]} */
+    const checks = [];
+    const result = runMain(["--profile", "legal", "--dir", missingDir], async (source, commit) => {
+      checks.push({ source, commit });
+      return true;
+    });
     await assert.rejects(result, /is not a directory/);
+    assert.deepEqual(checks, [{ source: DEFAULT_SOURCE, commit: HEAD }]);
+  });
+  test("refuses a remote install when skills/ or profiles/ have uncommitted changes", async () => {
+    const dirty = ["profiles/legal.json"];
+    await assert.rejects(
+      runMain(["--profile", "legal", "--dir", missingDir], async () => true, dirty),
+      (/** @type {Error} */ error) =>
+        error.message.includes("uncommitted changes (profiles/legal.json)") &&
+        /commit and push/.test(error.message) &&
+        /--source <path>/.test(error.message) &&
+        !/--allow-ref-mismatch/.test(error.message),
+    );
+    await assert.rejects(
+      runMain(["--profile", "legal", "--allow-ref-mismatch", "--dir", missingDir], async () => true, dirty),
+      /uncommitted changes/,
+    );
+    await assert.rejects(
+      runMain(["--profile", "legal", "--ref", HEAD, "--dir", missingDir], async () => true, dirty),
+      /uncommitted changes.*--allow-ref-mismatch/,
+    );
+    await assert.rejects(
+      runMain(
+        ["--profile", "legal", "--ref", HEAD, "--allow-ref-mismatch", "--dir", missingDir],
+        async () => true,
+        dirty,
+      ),
+      /is not a directory/,
+    );
+  });
+  test("--dry-run with uncommitted metadata proceeds and reports it", async () => {
+    const result = await runMain(["--profile", "legal", "--dry-run"], async () => true, [
+      "skills/legal/x/tag-skill.json",
+    ]);
+    assert.equal(result.code, 0);
+    assert.deepEqual(JSON.parse(result.output).metadata_uncommitted, ["skills/legal/x/tag-skill.json"]);
+  });
+  test("a local path source ignores uncommitted metadata", async () => {
+    const result = await runMain(["--profile", "legal", "--source", repo, "--dry-run"], async () => true, ["x"]);
+    assert.deepEqual(JSON.parse(result.output).metadata_uncommitted, []);
   });
   test("refuses when this checkout's HEAD commit is not on the remote", async () => {
     /** @type {{ source: string, commit: string }[]} */

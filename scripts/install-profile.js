@@ -13,8 +13,10 @@
 // is always pinned to a revision that matches it: without --ref, to this checkout's HEAD commit
 // (<owner>/<repo>#<40-character sha>), which must already be on the remote (push it, pass --ref,
 // or install from --source <local path>). The remote is checked over HTTPS, then SSH, never
-// prompting for credentials; --dry-run skips that check and says so. With --ref, the checkout must be at that revision (or
-// pass --allow-ref-mismatch knowingly). A local path source is installed as it is.
+// prompting for credentials; --dry-run skips that check and says so. With --ref, the checkout must
+// be at that revision (or pass --allow-ref-mismatch knowingly). A remote install is refused while
+// skills/ or profiles/ have uncommitted changes (with --ref, unless --allow-ref-mismatch); --dry-run
+// lists them instead. A local path source is installed as it is.
 //
 // Validation runs before the CLI is invoked, and the CLI is run with an argument array (no shell).
 // Existing Git, SSH or GitHub credentials are used by the CLI as they are; nothing here reads,
@@ -170,6 +172,18 @@ export async function remoteHasCommit(urls, commit, { cwd = repo, listTips = lis
 }
 
 /**
+ * Paths under skills/ and profiles/ with uncommitted changes in this checkout.
+ * @returns {Promise<string[]>}
+ */
+export async function uncommittedMetadata() {
+  const { stdout } = await run("git", ["status", "--porcelain", "--", "skills", "profiles"], { cwd: repo });
+  return stdout
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => line.slice(3));
+}
+
+/**
  * Resolves a ref to a commit in this checkout, or null when it is unknown here.
  * @param {string} ref
  */
@@ -184,11 +198,17 @@ async function localCommit(ref) {
 
 /**
  * @param {string[]} argv
- * @param {{ remoteHasCommit?: (source: string, commit: string) => Promise<boolean> }} [deps]
+ * @param {{
+ *   remoteHasCommit?: (source: string, commit: string) => Promise<boolean>,
+ *   uncommittedMetadata?: () => Promise<string[]>,
+ * }} [deps]
  */
 export async function main(
   argv,
-  { remoteHasCommit: onRemote = (source, commit) => remoteHasCommit(remoteUrls(source), commit) } = {},
+  {
+    remoteHasCommit: onRemote = (source, commit) => remoteHasCommit(remoteUrls(source), commit),
+    uncommittedMetadata: listUncommitted = uncommittedMetadata,
+  } = {},
 ) {
   const { values } = parseArgs({
     args: argv,
@@ -237,6 +257,18 @@ export async function main(
       console.error(`warning: ${message}`);
     }
   }
+  const uncommitted = isLocalSource(options.source) ? [] : await listUncommitted();
+  if (uncommitted.length > 0) {
+    const message =
+      `skills/ or profiles/ have uncommitted changes (${uncommitted.join(", ")}), so the dependency metadata ` +
+      "read from this checkout may not match the revision that will be installed";
+    if (values["dry-run"] || (options.ref !== undefined && values["allow-ref-mismatch"])) {
+      console.error(`warning: ${message}`);
+    } else {
+      const bypass = options.ref !== undefined ? ", or pass --allow-ref-mismatch" : "";
+      throw new Error(`${message}; commit and push them, or install from this checkout with --source <path>${bypass}`);
+    }
+  }
   if (pinToHead && options.commit && !values["dry-run"]) {
     const remedies =
       "push the commit (or git fetch if it is already pushed), pass --ref <ref>, " +
@@ -262,7 +294,14 @@ export async function main(
     const pin = pinToHead ? { commit: options.commit, from: "this checkout's HEAD", remote_verified: false } : null;
     console.log(
       JSON.stringify(
-        { dir: options.dir, source: plan.args[1], pin, skills: plan.skills, command: ["skills", ...plan.args] },
+        {
+          dir: options.dir,
+          source: plan.args[1],
+          pin,
+          metadata_uncommitted: uncommitted,
+          skills: plan.skills,
+          command: ["skills", ...plan.args],
+        },
         null,
         2,
       ),
