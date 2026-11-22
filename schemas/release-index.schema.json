@@ -115,7 +115,7 @@
           "type": "boolean"
         },
         "previous": {
-          "description": "The published version this one supersedes (the highest lower version), or null for a package's first release.",
+          "description": "The published version this one is compared with: for a stable version the highest lower stable version (falling back to the highest lower version), for a pre-release the highest lower version; null for a package's first release.",
           "anyOf": [
             {
               "$ref": "#/$defs/semver"
