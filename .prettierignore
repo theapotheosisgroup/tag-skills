@@ -7,3 +7,7 @@ catalog.json
 upstreams.lock.json
 # Generated finance example outputs: compared byte-for-byte with the script by tests/skills/finance-financial-statements/examples.test.js.
 docs/finance/examples/
+# Vendored third-party schemas: kept byte-for-byte as published (hash-checked by the package check).
+schemas/vendor/
+# Release build output.
+dist/

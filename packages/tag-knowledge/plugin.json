@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "tag-knowledge",
+  "version": "0.1.0",
+  "description": "TAG's shared knowledge skills, used by every pillar: search strategy, source management and knowledge synthesis over the records the caller may access.",
+  "author": { "name": "The Apotheosis Group", "url": "https://github.com/theapotheosisgroup" },
+  "homepage": "https://github.com/theapotheosisgroup/tag-skills/tree/develop/packages/tag-knowledge",
+  "repository": "https://github.com/theapotheosisgroup/tag-skills",
+  "keywords": ["tag", "back-office", "knowledge", "search", "agent-skills"],
+  "extensions": {
+    "com.theapotheosisgroup.tag-skills": {
+      "skills": [
+        { "name": "governance-knowledge-synthesis", "tier": "foundation" },
+        { "name": "governance-search-strategy", "tier": "foundation" },
+        { "name": "governance-source-management", "tier": "foundation" }
+      ]
+    }
+  }
+}

@@ -10,5 +10,5 @@
     "MD060": false,
   },
   // CLAUDE.md is the two-line @AGENTS.md import pointer, which has no heading by design.
-  "ignores": ["**/node_modules/**", "CLAUDE.md"],
+  "ignores": ["**/node_modules/**", "dist/**", "CLAUDE.md"],
 }

@@ -1,10 +1,10 @@
 # tag-skills
 
-TAG's library of installable **Agent Skills**: portable workflow instructions, templates and small scripts that teach an agent how to do TAG back-office work through TAG's authorized capabilities. Distributed from this Git repository with the [Vercel Skills CLI](https://github.com/vercel-labs/skills); no npm package is published.
+TAG's library of installable **Agent Skills**: portable workflow instructions, templates and small scripts that teach an agent how to do TAG back-office work through TAG's authorized capabilities. Distributed from this Git repository with the [Vercel Skills CLI](https://github.com/vercel-labs/skills), and released as versioned [Agent Plugins 1.0.0](https://agent-plugins.org/specification) packages on GitHub releases ([packages](#packages-and-releases)); no npm package is published.
 
 - **Repository status:** **Active development**. The 16-skill back-office catalog is implemented; live capability bindings are pending in other repositories ([integration](docs/integration/README.md)).
 - **Visibility:** private ([organization repository catalogue](https://github.com/theapotheosisgroup/.github#repository-catalogue)).
-- **Standards:** [theapotheosisgroup/.github](https://github.com/theapotheosisgroup/.github/tree/main/standards), in particular [AGENTS-AND-SKILLS](https://github.com/theapotheosisgroup/.github/blob/main/standards/AGENTS-AND-SKILLS.md#skills). Repository exceptions are recorded in [ADR 0003](docs/adr/0003-categories-and-tag-skill-metadata.md) and [ADR 0004](docs/adr/0004-pillar-categories-and-prefixes.md).
+- **Standards:** [theapotheosisgroup/.github](https://github.com/theapotheosisgroup/.github/tree/main/standards), in particular [AGENTS-AND-SKILLS](https://github.com/theapotheosisgroup/.github/blob/main/standards/AGENTS-AND-SKILLS.md#skills). Repository exceptions are recorded in [ADR 0003](docs/adr/0003-categories-and-tag-skill-metadata.md), [ADR 0004](docs/adr/0004-pillar-categories-and-prefixes.md) and [ADR 0005](docs/adr/0005-agent-plugins-packages-and-releases.md).
 
 ## Catalog
 
@@ -73,6 +73,18 @@ Dependencies are expanded from this checkout, so a remote install is pinned to a
 
 Options: `--source` (default `theapotheosisgroup/tag-skills`, or a local path, installed as it is), `--ref` (tag, commit or branch; the checkout must be at that revision so dependency metadata matches, unless `--allow-ref-mismatch`), `--agent` (repeatable; default `universal`), `--dir` (default: current directory), `--mode copy|symlink` (default `symlink`), `--dry-run`. Profiles are defined in [profiles/](profiles/).
 
+## Packages and releases
+
+Skills ship to organizations and to TAG's own agents as versioned packages in the [Agent Plugins 1.0.0](https://agent-plugins.org/specification) format, one per pillar plus the shared knowledge skills ([ADR 0005](docs/adr/0005-agent-plugins-packages-and-releases.md)). Each package records the lowest plan tier (Foundation, Structure, Turnkey) of every skill it ships; the tier table, versioning rules and release steps are in [packages/README.md](packages/README.md).
+
+| Package | Skills | Requires |
+| --- | --- | --- |
+| `tag-finance` | The 9 `finance-` skills | |
+| `tag-governance` | governance-task-management, governance-triage-nda, governance-vendor-check, governance-review-contract | `tag-knowledge` |
+| `tag-knowledge` | governance-search-strategy, governance-source-management, governance-knowledge-synthesis (used by every pillar) | |
+
+A version is released when its `plugin.json` version changes on `develop`: [`.github/workflows/release.yml`](.github/workflows/release.yml) publishes a GitHub release `<package>@<version>` with a reproducible archive and updates the [release index](https://github.com/theapotheosisgroup/tag-skills/releases/download/skills-index/index.json) that harness updaters poll ([package updates](docs/integration/harness-consumption.md#package-updates)). Pull requests run the same build as a dry run and publish nothing.
+
 ## Contract
 
 1. **Format.** Each skill passes [`scripts/validate-skills.js`](scripts/validate-skills.js): Agent Skills frontmatter limited to specification fields, a unique name equal to its folder and prefixed with its pillar (`finance-`, `people-`, `governance-`), a description that says what the skill does and when to use it, links that resolve inside the skill.
@@ -97,6 +109,8 @@ Component status uses the [organization labels](https://github.com/theapotheosis
 | finance-financial-statements script and fixtures | **Implemented but not deployed** | Six synthetic fixtures with hand-derived results; [operating example](docs/finance/README.md) |
 | Validator, catalog, profiles, profile installer, upstream check | **Implemented but not deployed** | Development tooling; runs in CI except `upstream:check` (network) |
 | Capability bindings | **Proposed but not implemented** | Seven capabilities map to existing tools (not exercised from here); the rest are proposed. [Dependencies](docs/integration/README.md#dependencies-on-other-repositories) |
+| Skill packages and release workflow | **Implemented but not deployed** | Three Agent Plugins 1.0.0 packages at `0.1.0`; the dry run runs on every pull request, the first publish happens when this lands on `develop` |
+| Harness package updater | **Proposed but not implemented** | tag-harness polls the release index ([package updates](docs/integration/harness-consumption.md#package-updates)) |
 | Harness consumption | **Proposed but not implemented** | TrueForge needs a runtime bundle because this repository is private ([harness consumption](docs/integration/harness-consumption.md)) |
 | Private-repository installation test | **Proposed but not implemented** | Needs a merged default branch and a CI credential decision |
 | Planned R05 skills from tag-backoffice | **Proposed but not implemented** | Sources and blockers: [PROVENANCE](docs/PROVENANCE.md#planned-sources-r05-from-the-r00-inventory) |
@@ -113,9 +127,11 @@ npm run lint              # ESLint
 npm run typecheck         # TypeScript over the JSDoc-typed JavaScript
 npm run validate          # skills, sidecars, profiles, provenance, licences, the fixture
 npm run catalog:generate  # rewrite catalog.json; `npm run catalog:check` verifies it
+npm run packages:check    # packages/*/plugin.json: Agent Plugins 1.0.0 schema, membership, tiers, changelogs
+npm run release:dry-run   # build and verify the package archives and release index in dist/release (publishes nothing)
 npm test                  # unit, contract, fixture, selection and script tests
 npm run test:install      # discovery and installation with the pinned CLI
-npm run test:smoke        # validate + catalog:check + test:install (CI's contract step)
+npm run test:smoke        # validate + catalog:check + packages:check + test:install (CI's contract step)
 npm run upstream:check    # compare forks with upstream (network)
 ```
 
@@ -127,8 +143,9 @@ Start with [CONTRIBUTING.md](CONTRIBUTING.md) (forking and updating skills, nami
 
 ## Release and rollback
 
-- **Release.** A skill change is released when its pull request merges into `main`. Repository releases are `vMAJOR.MINOR.PATCH` tags with a [CHANGELOG.md](CHANGELOG.md) entry, per [RELEASES](https://github.com/theapotheosisgroup/.github/blob/main/standards/RELEASES.md); the first (`v0.1.0`) is **Proposed but not implemented**. Runtime bundles pin a tag or full SHA.
-- **Rollback.** Revert the pull request on `develop` or pin consumers to the previous tag; consumers reinstall. A skill deploys nothing and holds no state.
+- **Package release.** Bumping a package's `plugin.json` version and merging to `develop` publishes `<package>@<version>` and updates the release index ([packages/README.md](packages/README.md#releasing)). Published versions never change.
+- **Repository release.** A skill change is released when its pull request merges. Repository releases are `vMAJOR.MINOR.PATCH` tags with a [CHANGELOG.md](CHANGELOG.md) entry, per [RELEASES](https://github.com/theapotheosisgroup/.github/blob/main/standards/RELEASES.md); the first (`v0.1.0`) is **Proposed but not implemented**. Runtime bundles pin a tag or full SHA.
+- **Rollback.** Pin consumers to the previous package version (or repository tag), or revert on `develop` and release a new version; consumers reinstall. A skill deploys nothing and holds no state.
 
 ## Continuous integration
 
@@ -136,8 +153,9 @@ Start with [CONTRIBUTING.md](CONTRIBUTING.md) (forking and updating skills, nami
 
 | Check | What it runs |
 | --- | --- |
-| `node / node` | The organization's [reusable Node.js workflow](https://github.com/theapotheosisgroup/.github/blob/main/.github/workflows/reusable-node-ci.yml): lockfile install, format, lint, type check, `npm test` (unit, contract, finance fixture, selection and script tests, using the runner's Python 3), and `test:smoke` (validation, catalog check, Skills CLI discovery and installation). The build step is off: there is nothing to build. |
+| `node / node` | The organization's [reusable Node.js workflow](https://github.com/theapotheosisgroup/.github/blob/main/.github/workflows/reusable-node-ci.yml): lockfile install, format, lint, type check, `npm test` (unit, contract, finance fixture, selection and script tests, using the runner's Python 3), and `test:smoke` (validation, catalog check, package check, Skills CLI discovery and installation). The build step is off: there is nothing to build. |
 | `python-minimum` | The skill-script tests on Python 3.10, the minimum the scripts declare |
+| `release / dry-run` | [`release.yml`](.github/workflows/release.yml) on pull requests: builds every new package version against the published release index, enforces the versioning rules and verifies the archives; publishes nothing. On a push to `develop`, `release / publish` publishes the new versions instead |
 | `markdown` | markdownlint over every Markdown file |
 | `links` | lychee, offline: relative links and anchors |
 | `codeowners` | GitHub's CODEOWNERS validation at the pull request head |

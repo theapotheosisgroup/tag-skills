@@ -1,0 +1,20 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "tag-governance",
+  "version": "0.1.0",
+  "description": "TAG's Governance pillar skills: task management, NDA triage, vendor checks and contract review. The knowledge skills they build on ship in tag-knowledge.",
+  "author": { "name": "The Apotheosis Group", "url": "https://github.com/theapotheosisgroup" },
+  "homepage": "https://github.com/theapotheosisgroup/tag-skills/tree/develop/packages/tag-governance",
+  "repository": "https://github.com/theapotheosisgroup/tag-skills",
+  "keywords": ["tag", "back-office", "governance", "legal", "agent-skills"],
+  "extensions": {
+    "com.theapotheosisgroup.tag-skills": {
+      "skills": [
+        { "name": "governance-task-management", "tier": "foundation" },
+        { "name": "governance-triage-nda", "tier": "structure" },
+        { "name": "governance-vendor-check", "tier": "structure" },
+        { "name": "governance-review-contract", "tier": "turnkey" }
+      ]
+    }
+  }
+}

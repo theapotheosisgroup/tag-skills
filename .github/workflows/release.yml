@@ -1,0 +1,148 @@
+# Skill package releases (ADR 0005, docs/adr/0005-agent-plugins-packages-and-releases.md).
+#
+# Every pull request and manual run is a dry run: it builds every new package version against the
+# published release index, enforces the versioning rules and verifies the archives, and publishes
+# nothing. A push to develop runs the same build and then publishes each new version as a GitHub
+# release tagged <package>@<version> (archive, release notes, index snapshot) and replaces
+# index.json on the rolling `skills-index` release, which updaters poll. A version already in the
+# index is never rebuilt or republished. No secret other than the job's GITHUB_TOKEN is used.
+name: release
+
+on:
+  pull_request:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  # Publishing runs one at a time and is never cancelled mid-release; dry runs cancel superseded runs.
+  group: ${{ github.workflow }}-${{ github.event_name == 'push' && 'publish' || github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # Pull requests and manual runs: build and verify, publish nothing.
+  dry-run:
+    name: dry-run
+    if: github.event_name != 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install from lockfile
+        run: npm ci
+
+      - name: Fetch the published release index
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: .github/scripts/fetch-release-index.sh "$REPO" previous-index.json
+
+      - name: Build and verify (dry run)
+        run: |
+          set -euo pipefail
+          node scripts/release.js build --previous-index previous-index.json --out dist/release
+          node scripts/release.js verify --out dist/release
+          {
+            echo "## Release dry run"
+            echo
+            echo "Would publish (nothing is published from a pull request):"
+            echo
+            jq -r '.releases[] | "- `\(.tag)`: `\(.archive)` sha256 `\(.sha256)`"' dist/release/plan.json
+            jq -r 'if (.releases | length) == 0 then "- nothing: every package version is already published" else empty end' dist/release/plan.json
+            jq -r '.pending[] | "- pending: `\(.package)@\(.version)` \(.message)"' dist/release/plan.json
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Pushes to develop: check, build, verify, then publish the new versions.
+  publish:
+    name: publish
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install from lockfile
+        run: npm ci
+
+      # The release must not depend on ci.yml finishing first, so it repeats the checks that decide
+      # whether the skills are publishable.
+      - name: Validate skills, catalog and packages
+        run: |
+          set -euo pipefail
+          npm run validate
+          npm run catalog:check
+          npm run packages:check
+          npm test
+
+      - name: Fetch the published release index
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: .github/scripts/fetch-release-index.sh "$REPO" previous-index.json
+
+      - name: Build and verify
+        run: |
+          set -euo pipefail
+          node scripts/release.js build --previous-index previous-index.json --out dist/release
+          node scripts/release.js verify --out dist/release
+
+      - name: Publish new package versions and the index
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          cd dist/release
+          if [[ "$(jq '.releases | length' plan.json)" == "0" ]]; then
+            echo "Nothing to publish: every package version is already in the index."
+            exit 0
+          fi
+          # Refuse to touch a tag that exists without an index entry (a half-finished earlier run);
+          # that needs a maintainer (docs/maintenance.md#releases).
+          for tag in $(jq -r '.releases[].tag' plan.json); do
+            if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+              echo "::error::tag $tag exists but $tag is not in the release index; see docs/maintenance.md#releases"
+              exit 1
+            fi
+          done
+          jq -c '.releases[]' plan.json | while read -r release; do
+            tag="$(jq -r '.tag' <<<"$release")"
+            flags=(--repo "$REPO" --target "$SHA" --latest=false --title "$(jq -r '.title' <<<"$release")" --notes-file "$(jq -r '.notes' <<<"$release")")
+            if [[ "$(jq -r '.prerelease' <<<"$release")" == "true" ]]; then flags+=(--prerelease); fi
+            gh release create "$tag" "${flags[@]}" "$(jq -r '.archive' <<<"$release")" index.json
+            echo "published $tag"
+          done
+          if ! gh release view skills-index --repo "$REPO" >/dev/null 2>&1; then
+            gh release create skills-index --repo "$REPO" --target "$SHA" --latest=false \
+              --title "Skill package release index" \
+              --notes "index.json lists every published TAG skill package version, its archive checksum and skills per tier (schemas/release-index.schema.json). It is replaced on every package release."
+          fi
+          gh release upload skills-index index.json --repo "$REPO" --clobber
+          echo "updated skills-index/index.json"
