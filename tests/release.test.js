@@ -552,6 +552,57 @@ describe("release index and archives", () => {
     }
   });
 
+  test("a stable release never requires a pre-release of another package", async () => {
+    const root = await copyRepo();
+    try {
+      const initial = (await plan(root, emptyIndex())).index;
+      const search = join(root, "skills", "governance", "governance-search-strategy", "SKILL.md");
+      await writeFile(search, `${await readFile(search, "utf8")}\n`);
+      await setSkillVersion(root, "skills/governance/governance-search-strategy", "0.2.0");
+      await editManifest(root, "tag-knowledge", (m) => (m.version = "0.2.0-rc.1"));
+      await addChangelogSection(root, "tag-knowledge", "0.2.0-rc.1", "### Changed\n\n- Search strategy rework.");
+      const rc = await plan(root, initial, LATER);
+      assert.deepEqual(rc.errors, []);
+      assert.deepEqual((await plan(root, rc.index, LATER)).pending, []);
+
+      const nda = join(root, "skills", "governance", "governance-triage-nda", "SKILL.md");
+      await writeFile(nda, `${await readFile(nda, "utf8")}\n`);
+      await setSkillVersion(root, "skills/governance/governance-triage-nda", "0.1.1");
+      await editManifest(root, "tag-governance", (m) => (m.version = "0.1.1"));
+      await addChangelogSection(root, "tag-governance", "0.1.1", "### Fixed\n\n- NDA triage wording.");
+      const hotfix = await plan(root, rc.index, LATER);
+      assert.deepEqual(hotfix.errors, []);
+      const entry = hotfix.releases[0].entry;
+      assert.equal(entry.tag, "tag-governance@0.1.1");
+      assert.equal(entry.breaking, false);
+      assert.deepEqual(entry.requires, { "tag-knowledge": "^0.1.0" });
+
+      // Refused when the stable tag-knowledge lacks a skill the hotfix needs.
+      const index = structuredClone(rc.index);
+      const floor = index.packages
+        .find((/** @type {any} */ p) => p.name === "tag-knowledge")
+        .versions.find((/** @type {any} */ v) => v.version === "0.1.0");
+      floor.skills = floor.skills.filter((/** @type {any} */ s) => s.name !== "governance-search-strategy");
+      const metaPath = join(root, "skills", "governance", "governance-triage-nda", "tag-skill.json");
+      const meta = JSON.parse(await readFile(metaPath, "utf8"));
+      meta.dependencies.skills = ["governance-search-strategy"];
+      await writeFile(metaPath, `${JSON.stringify(meta, null, 2)}\n`);
+      await writeFile(nda, `${await readFile(nda, "utf8")}\nRequires the governance-search-strategy skill.\n`);
+      const refused = await plan(root, index, LATER);
+      assert.ok(
+        refused.errors.some(
+          (e) =>
+            e.includes("tag-governance@0.1.1 is stable but needs tag-knowledge@0.2.0-rc.1") &&
+            e.includes("lacks governance-search-strategy") &&
+            e.includes("release tag-knowledge stable first"),
+        ),
+        refused.errors.join("\n"),
+      );
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   test("satisfiesCaret follows the caret's compatible line", () => {
     assert.ok(satisfiesCaret("0.1.1", "^0.1.0"));
     assert.ok(!satisfiesCaret("0.2.0", "^0.1.0"));

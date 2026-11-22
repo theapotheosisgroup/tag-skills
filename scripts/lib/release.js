@@ -351,8 +351,11 @@ export async function planReleases(packages, repository, previousIndex, context)
 
   for (const pkg of packages) {
     const history = published.get(pkg.name)?.versions ?? [];
+    const stable = !parseSemver(pkg.version).pre.length;
     /** @type {[string, string, string[]][]} */
     const deps = [];
+    /** @type {string[]} */
+    const depErrors = [];
     for (const dep of packageDependencies(pkg, owners, bySkill)) {
       const target = packages.find((p) => p.name === dep);
       if (!target) continue;
@@ -363,7 +366,23 @@ export async function planReleases(packages, repository, previousIndex, context)
       const needed = pkg.skills
         .flatMap((s) => bySkill.get(s.name)?.meta?.dependencies.skills ?? [])
         .filter((name) => owners.get(name)?.pkg.name === dep);
-      deps.push([dep, target.version, needed]);
+      let version = target.version;
+      if (stable && parseSemver(target.version).pre.length) {
+        const base = latest(
+          (published.get(dep)?.versions ?? []).filter((/** @type {any} */ v) => !parseSemver(v.version).pre.length),
+        );
+        const shipped = new Set((base?.skills ?? []).map((/** @type {any} */ s) => s.name));
+        const missing = needed.filter((name) => !shipped.has(name));
+        if (base && missing.length === 0) version = base.version;
+        else {
+          depErrors.push(
+            `${pkg.name}@${pkg.version} is stable but needs ${dep}@${target.version}, a pre-release` +
+              (base ? ` (${dep}@${base.version} lacks ${missing.join(", ")})` : "") +
+              `; release ${dep} stable first`,
+          );
+        }
+      }
+      deps.push([dep, version, needed]);
     }
     const skills = await skillFacts(pkg, repository);
     /** @param {any} baseline */
@@ -395,7 +414,7 @@ export async function planReleases(packages, repository, previousIndex, context)
       continue;
     }
 
-    const stable = !parseSemver(pkg.version).pre.length;
+    errors.push(...depErrors);
     const comparable = stable ? history.filter((/** @type {any} */ v) => !parseSemver(v.version).pre.length) : history;
     const higher = comparable.filter((/** @type {any} */ v) => compareSemver(v.version, pkg.version) > 0);
     if (stable && higher.length > 0) {
