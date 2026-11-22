@@ -499,6 +499,59 @@ describe("release index and archives", () => {
     }
   });
 
+  test("a dependent that starts needing a skill missing from its range's floor raises the range", async () => {
+    const root = await copyRepo();
+    try {
+      const initial = (await plan(root, emptyIndex())).index;
+      const search = join(root, "skills", "governance", "governance-search-strategy", "SKILL.md");
+      await writeFile(search, `${await readFile(search, "utf8")}\n`);
+      await setSkillVersion(root, "skills/governance/governance-search-strategy", "0.1.1");
+      await editManifest(root, "tag-knowledge", (m) => (m.version = "0.1.1"));
+      await addChangelogSection(root, "tag-knowledge", "0.1.1", "### Added\n\n- governance-search-strategy.");
+      const knowledge = await plan(root, initial, LATER);
+      assert.deepEqual(knowledge.errors, []);
+      // As if tag-knowledge 0.1.0 did not ship governance-search-strategy yet.
+      const index = structuredClone(knowledge.index);
+      const floor = index.packages
+        .find((/** @type {any} */ p) => p.name === "tag-knowledge")
+        .versions.find((/** @type {any} */ v) => v.version === "0.1.0");
+      floor.skills = floor.skills.filter((/** @type {any} */ s) => s.name !== "governance-search-strategy");
+
+      const metaPath = join(root, "skills", "governance", "governance-triage-nda", "tag-skill.json");
+      const meta = JSON.parse(await readFile(metaPath, "utf8"));
+      meta.version = "0.1.1";
+      meta.dependencies.skills = ["governance-search-strategy"];
+      await writeFile(metaPath, `${JSON.stringify(meta, null, 2)}\n`);
+      const nda = join(root, "skills", "governance", "governance-triage-nda", "SKILL.md");
+      await writeFile(nda, `${await readFile(nda, "utf8")}\nRequires the governance-search-strategy skill.\n`);
+      await editManifest(root, "tag-governance", (m) => (m.version = "0.1.1"));
+      await addChangelogSection(root, "tag-governance", "0.1.1", "### Changed\n\n- NDA triage uses search strategy.");
+
+      const kept = await plan(root, knowledge.index, LATER);
+      assert.deepEqual(kept.errors, []);
+      assert.deepEqual(kept.releases[0].entry.requires, { "tag-knowledge": "^0.1.0" });
+
+      const refused = await plan(root, index, LATER);
+      assert.ok(
+        refused.errors.some(
+          (e) =>
+            e.includes("too small for a breaking change") && e.includes("requires tag-knowledge ^0.1.1 (was ^0.1.0)"),
+        ),
+        refused.errors.join("\n"),
+      );
+
+      await editManifest(root, "tag-governance", (m) => (m.version = "0.2.0"));
+      await addChangelogSection(root, "tag-governance", "0.2.0", "### Changed\n\n- NDA triage uses search strategy.");
+      const released = await plan(root, index, LATER);
+      assert.deepEqual(released.errors, []);
+      const entry = released.releases[0].entry;
+      assert.deepEqual(entry.requires, { "tag-knowledge": "^0.1.1" });
+      assert.equal(entry.breaking, true);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   test("satisfiesCaret follows the caret's compatible line", () => {
     assert.ok(satisfiesCaret("0.1.1", "^0.1.0"));
     assert.ok(!satisfiesCaret("0.2.0", "^0.1.0"));

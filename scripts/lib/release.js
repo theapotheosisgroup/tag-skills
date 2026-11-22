@@ -351,7 +351,7 @@ export async function planReleases(packages, repository, previousIndex, context)
 
   for (const pkg of packages) {
     const history = published.get(pkg.name)?.versions ?? [];
-    /** @type {[string, string][]} */
+    /** @type {[string, string, string[]][]} */
     const deps = [];
     for (const dep of packageDependencies(pkg, owners, bySkill)) {
       const target = packages.find((p) => p.name === dep);
@@ -360,16 +360,24 @@ export async function planReleases(packages, repository, previousIndex, context)
       if (!depPublished && !releasing.has(dep)) {
         errors.push(`${pkg.name} needs ${dep}@${target.version}, which is neither published nor being released`);
       }
-      deps.push([dep, target.version]);
+      const needed = pkg.skills
+        .flatMap((s) => bySkill.get(s.name)?.meta?.dependencies.skills ?? [])
+        .filter((name) => owners.get(name)?.pkg.name === dep);
+      deps.push([dep, target.version, needed]);
     }
     const skills = await skillFacts(pkg, repository);
     /** @param {any} baseline */
     const currentAgainst = (baseline) => {
       /** @type {Record<string, string>} */
       const requires = {};
-      for (const [dep, version] of deps) {
+      for (const [dep, version, needed] of deps) {
         const kept = baseline?.requires?.[dep];
-        requires[dep] = kept && satisfiesCaret(version, kept) ? kept : `^${version}`;
+        const floor =
+          kept && satisfiesCaret(version, kept)
+            ? published.get(dep)?.versions.find((/** @type {any} */ v) => `^${v.version}` === kept)
+            : undefined;
+        const shipped = new Set((floor?.skills ?? []).map((/** @type {any} */ s) => s.name));
+        requires[dep] = floor && needed.every((name) => shipped.has(name)) ? kept : `^${version}`;
       }
       return { skills, requires, agentPlugins: AGENT_PLUGINS_VERSION };
     };
