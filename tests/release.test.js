@@ -416,7 +416,7 @@ describe("versioning rules", () => {
     assert.equal(level({}), "fix");
     assert.equal(level({ version: "1.1.0" }), "feature");
     assert.equal(level({ version: "2.0.0" }), "breaking");
-    assert.equal(level({ tier: "structure" }), "breaking");
+    assert.equal(level({ tier: "structure" }), "fix");
     assert.equal(level({ sideEffects: "authorized-write" }), "breaking");
     assert.equal(level({ invocation: "user" }), "breaking");
     assert.equal(level({ requiredCapabilities: ["tag.a", "tag.b"] }), "breaking");
@@ -542,24 +542,20 @@ describe("release index and archives", () => {
     const root = await copyRepo();
     try {
       const initial = (await plan(root, emptyIndex())).index;
-      await editManifest(root, "tag-finance", (m) => {
-        for (const s of m.extensions[NAMESPACE].skills) if (s.name === "finance-variance-analysis") s.tier = "turnkey";
-        m.version = "0.1.2";
-      });
-      await addChangelogSection(root, "tag-finance", "0.1.2", "### Changed\n\n- Variance analysis moves to Turnkey.");
+      await setSkillVersion(root, "skills/finance/finance-variance-analysis", "0.2.0");
+      await editManifest(root, "tag-finance", (m) => (m.version = "0.1.2"));
+      await addChangelogSection(root, "tag-finance", "0.1.2", "### Changed\n\n- Variance analysis 0.2.0.");
       const refused = await plan(root, initial, LATER);
       assert.ok(
-        refused.errors.some((e) => e.includes("too small for a breaking change") && e.includes("structure to turnkey")),
+        refused.errors.some((e) => e.includes("too small for a breaking change") && e.includes("0.1.0 -> 0.2.0")),
       );
 
       await editManifest(root, "tag-finance", (m) => (m.version = "0.2.0"));
-      await addChangelogSection(root, "tag-finance", "0.2.0", "### Changed\n\n- Variance analysis moves to Turnkey.");
+      await addChangelogSection(root, "tag-finance", "0.2.0", "### Changed\n\n- Variance analysis 0.2.0.");
       const released = await plan(root, initial, LATER);
       assert.deepEqual(released.errors, []);
       assert.equal(released.releases[0].entry.breaking, true);
-      assert.deepEqual(released.releases[0].entry.changes, [
-        "breaking: finance-variance-analysis moved from structure to turnkey",
-      ]);
+      assert.deepEqual(released.releases[0].entry.changes, ["breaking: finance-variance-analysis 0.1.0 -> 0.2.0"]);
     } finally {
       await rm(root, { recursive: true, force: true });
     }
@@ -571,34 +567,27 @@ describe("release index and archives", () => {
     try {
       const original = await readFile(manifestPath, "utf8");
       const initial = (await plan(root, emptyIndex())).index;
-      const raiseTier = (/** @type {any} */ m) => {
-        for (const s of m.extensions[NAMESPACE].skills) if (s.name === "finance-variance-analysis") s.tier = "turnkey";
-      };
-      await editManifest(root, "tag-finance", (m) => {
-        raiseTier(m);
-        m.version = "0.2.0-rc.1";
-      });
-      await addChangelogSection(
-        root,
-        "tag-finance",
-        "0.2.0-rc.1",
-        "### Changed\n\n- Variance analysis moves to Turnkey.",
-      );
+      const skillMetaPath = join(root, "skills", "finance", "finance-variance-analysis", "tag-skill.json");
+      const originalSkillMeta = await readFile(skillMetaPath, "utf8");
+      await setSkillVersion(root, "skills/finance/finance-variance-analysis", "0.2.0");
+      await editManifest(root, "tag-finance", (m) => (m.version = "0.2.0-rc.1"));
+      await addChangelogSection(root, "tag-finance", "0.2.0-rc.1", "### Changed\n\n- Variance analysis 0.2.0.");
       const rc = await plan(root, initial, LATER);
       assert.deepEqual(rc.errors, []);
       assert.equal(rc.releases[0].entry.previous, "0.1.1");
 
       await editManifest(root, "tag-finance", (m) => (m.version = "0.2.0"));
-      await addChangelogSection(root, "tag-finance", "0.2.0", "### Changed\n\n- Variance analysis moves to Turnkey.");
+      await addChangelogSection(root, "tag-finance", "0.2.0", "### Changed\n\n- Variance analysis 0.2.0.");
       const stable = await plan(root, rc.index, LATER);
       assert.deepEqual(stable.errors, []);
       const entry = stable.releases[0].entry;
       assert.equal(entry.previous, "0.1.1");
       assert.equal(entry.breaking, true);
-      assert.deepEqual(entry.changes, ["breaking: finance-variance-analysis moved from structure to turnkey"]);
+      assert.deepEqual(entry.changes, ["breaking: finance-variance-analysis 0.1.0 -> 0.2.0"]);
 
       // A hotfix on the stable line ships while the next line is in pre-release.
       await writeFile(manifestPath, original);
+      await writeFile(skillMetaPath, originalSkillMeta);
       await editManifest(root, "tag-finance", (m) => (m.version = "0.1.2"));
       await addChangelogSection(root, "tag-finance", "0.1.2", "### Fixed\n\n- Package metadata.");
       const hotfix = await plan(root, rc.index, LATER);

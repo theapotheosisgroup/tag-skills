@@ -51,9 +51,9 @@ Packages follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Whil
 
 | Level | The package changes like this |
 | --- | --- |
-| Breaking | An MCP server is removed or its URL changes; a skill is removed or moved to another package; a skill's tier is raised; a skill's own version has a breaking bump; a skill's side effects escalate (`none` < `read` < `draft` < `authorized-write`); a skill's invocation changes from `model` to `user`; a skill newly requires a capability or input, or drops an output; the package newly requires another package, or a range of it that excludes the previously required versions; the package targets a new Agent Plugins version |
-| Feature | An MCP server is added; a skill is added; a skill's tier is lowered; a skill adds an output or a dependency; a skill's own version has a minor bump (from 1.0.0); invocation changes from `user` to `model` |
-| Fix | Any other change to a skill's files, with a patch bump of its own version |
+| Breaking | An MCP server is removed or its URL changes; a skill is removed or moved to another package; a skill's own version has a breaking bump; a skill's side effects escalate (`none` < `read` < `draft` < `authorized-write`); a skill's invocation changes from `model` to `user`; a skill newly requires a capability or input, or drops an output; the package newly requires another package, or a range of it that excludes the previously required versions; the package targets a new Agent Plugins version |
+| Feature | An MCP server is added; a skill is added; a skill adds an output or a dependency; a skill's own version has a minor bump (from 1.0.0); invocation changes from `user` to `model` |
+| Fix | A skill's tier changes (tiers gate nothing); any other change to a skill's files, with a patch bump of its own version |
 
 A **skill's own version** (`tag-skill.json`) follows the same rule for that skill: bump it as breaking when a client of the skill would have to change, for example a changed data-format identifier (`tag.journal-entry-prep.batch/v1` to `v2`), a removed procedure step an agent relied on, or narrower triggering that stops selecting it for requests it used to handle. A skill whose files changed since its package's previous release must bump its version.
 

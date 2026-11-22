@@ -20,7 +20,6 @@ import {
   skillOwners,
   renderMcp,
   skillsByTier,
-  tierRank,
 } from "./packages.js";
 import { tarGzip } from "./tar.js";
 
@@ -219,10 +218,8 @@ export function diffPackage(previous, current) {
       add("feature", `added skill ${name} (${now.tier})`);
       continue;
     }
-    if (old.tier !== now.tier) {
-      const raised = tierRank(now.tier) > tierRank(old.tier);
-      add(raised ? "breaking" : "feature", `${name} moved from ${old.tier} to ${now.tier}`);
-    }
+    // Tiers are descriptive plan metadata and gate nothing (ADR 0006), so moving one is a fix.
+    if (old.tier !== now.tier) add("fix", `${name} moved from ${old.tier} to ${now.tier}`);
     const order = compareSemver(now.version, old.version);
     if (order < 0) errors.push(`${name} version went down from ${old.version} to ${now.version}`);
     else if (order === 0 && old.contentHash !== now.contentHash) {
