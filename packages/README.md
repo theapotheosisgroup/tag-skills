@@ -29,13 +29,13 @@ Packages follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Whil
 
 | Level | The package changes like this |
 | --- | --- |
-| Breaking | A skill is removed or moved to another package; a skill's tier is raised; a skill's own version has a breaking bump; a skill's side effects escalate (`none` < `read` < `draft` < `authorized-write`); a skill's invocation changes from `model` to `user`; a skill newly requires a capability or input, or drops an output; the package newly requires another package or a different range of it; the package targets a new Agent Plugins version |
+| Breaking | A skill is removed or moved to another package; a skill's tier is raised; a skill's own version has a breaking bump; a skill's side effects escalate (`none` < `read` < `draft` < `authorized-write`); a skill's invocation changes from `model` to `user`; a skill newly requires a capability or input, or drops an output; the package newly requires another package, or a range of it that excludes the previously required versions; the package targets a new Agent Plugins version |
 | Feature | A skill is added; a skill's tier is lowered; a skill adds an output or a dependency; a skill's own version has a minor bump (from 1.0.0); invocation changes from `user` to `model` |
 | Fix | Any other change to a skill's files, with a patch bump of its own version |
 
 A **skill's own version** (`tag-skill.json`) follows the same rule for that skill: bump it as breaking when a client of the skill would have to change, for example a changed data-format identifier (`tag.journal-entry-prep.batch/v1` to `v2`), a removed procedure step an agent relied on, or narrower triggering that stops selecting it for requests it used to handle. A skill whose files changed since its package's previous release must bump its version.
 
-`node scripts/release.js build` detects the changes in the table by comparing each package with its previous published version in the release index, and refuses a package bump that is too small for them. It cannot judge wording; reviewers check that the skill's own bump is honest.
+`node scripts/release.js build` detects the changes in the table by comparing each package with its previous published version in the release index, and refuses a package bump that is too small for them. A stable version is compared with the highest lower stable version (a pre-release with the highest lower version of any kind), and may be released below a published pre-release, so a hotfix on the stable line can ship while the next line is in pre-release. A required package's range is `^` its version when first required, and stays unchanged while the required package's current version still satisfies it, so a compatible release of `tag-knowledge` never forces a release of `tag-governance`. It cannot judge wording; reviewers check that the skill's own bump is honest.
 
 ## Releasing
 

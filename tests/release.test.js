@@ -27,6 +27,7 @@ import {
   emptyIndex,
   mergeIndex,
   planReleases,
+  satisfiesCaret,
   serializeIndex,
   versionLevel,
 } from "../scripts/lib/release.js";
@@ -412,6 +413,101 @@ describe("release index and archives", () => {
     } finally {
       await rm(root, { recursive: true, force: true });
     }
+  });
+
+  test("a stable release is compared with the previous stable version, not a pre-release", async () => {
+    const root = await copyRepo();
+    const manifestPath = join(root, "packages", "tag-finance", "plugin.json");
+    try {
+      const original = await readFile(manifestPath, "utf8");
+      const initial = (await plan(root, emptyIndex())).index;
+      const raiseTier = (/** @type {any} */ m) => {
+        for (const s of m.extensions[NAMESPACE].skills) if (s.name === "finance-variance-analysis") s.tier = "turnkey";
+      };
+      await editManifest(root, "tag-finance", (m) => {
+        raiseTier(m);
+        m.version = "0.2.0-rc.1";
+      });
+      await addChangelogSection(
+        root,
+        "tag-finance",
+        "0.2.0-rc.1",
+        "### Changed\n\n- Variance analysis moves to Turnkey.",
+      );
+      const rc = await plan(root, initial, LATER);
+      assert.deepEqual(rc.errors, []);
+      assert.equal(rc.releases[0].entry.previous, "0.1.0");
+
+      await editManifest(root, "tag-finance", (m) => (m.version = "0.2.0"));
+      await addChangelogSection(root, "tag-finance", "0.2.0", "### Changed\n\n- Variance analysis moves to Turnkey.");
+      const stable = await plan(root, rc.index, LATER);
+      assert.deepEqual(stable.errors, []);
+      const entry = stable.releases[0].entry;
+      assert.equal(entry.previous, "0.1.0");
+      assert.equal(entry.breaking, true);
+      assert.deepEqual(entry.changes, ["breaking: finance-variance-analysis moved from structure to turnkey"]);
+
+      // A hotfix on the stable line ships while the next line is in pre-release.
+      await writeFile(manifestPath, original);
+      await editManifest(root, "tag-finance", (m) => (m.version = "0.1.1"));
+      await addChangelogSection(root, "tag-finance", "0.1.1", "### Fixed\n\n- Package metadata.");
+      const hotfix = await plan(root, rc.index, LATER);
+      assert.deepEqual(hotfix.errors, []);
+      assert.deepEqual(
+        hotfix.releases.map((r) => [r.entry.tag, r.entry.previous, r.entry.breaking]),
+        [["tag-finance@0.1.1", "0.1.0", false]],
+      );
+      const finance = hotfix.index.packages.find((/** @type {any} */ p) => p.name === "tag-finance");
+      assert.equal(finance.channels.stable, "0.1.1");
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  test("a compatible release of a required package keeps the dependent's range", async () => {
+    const root = await copyRepo();
+    try {
+      const initial = (await plan(root, emptyIndex())).index;
+      const touch = async (/** @type {string} */ skill) => {
+        const path = join(root, "skills", "governance", skill, "SKILL.md");
+        await writeFile(path, `${await readFile(path, "utf8")}\n`);
+        await setSkillVersion(root, `skills/governance/${skill}`, "0.1.1");
+      };
+      await touch("governance-search-strategy");
+      await editManifest(root, "tag-knowledge", (m) => (m.version = "0.1.1"));
+      await addChangelogSection(root, "tag-knowledge", "0.1.1", "### Fixed\n\n- Search strategy wording.");
+      const knowledge = await plan(root, initial, LATER);
+      assert.deepEqual(knowledge.errors, []);
+      assert.deepEqual(
+        knowledge.releases.map((r) => r.entry.tag),
+        ["tag-knowledge@0.1.1"],
+      );
+      assert.deepEqual((await plan(root, knowledge.index, LATER)).pending, []);
+
+      await touch("governance-triage-nda");
+      await editManifest(root, "tag-governance", (m) => (m.version = "0.1.1"));
+      await addChangelogSection(root, "tag-governance", "0.1.1", "### Fixed\n\n- NDA triage wording.");
+      const governance = await plan(root, knowledge.index, LATER);
+      assert.deepEqual(governance.errors, []);
+      const entry = governance.releases[0].entry;
+      assert.equal(entry.tag, "tag-governance@0.1.1");
+      assert.equal(entry.breaking, false);
+      assert.deepEqual(entry.requires, { "tag-knowledge": "^0.1.0" });
+      assert.deepEqual(entry.changes, ["fix: governance-triage-nda 0.1.0 -> 0.1.1"]);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
+  test("satisfiesCaret follows the caret's compatible line", () => {
+    assert.ok(satisfiesCaret("0.1.1", "^0.1.0"));
+    assert.ok(!satisfiesCaret("0.2.0", "^0.1.0"));
+    assert.ok(!satisfiesCaret("0.1.0", "^0.1.1"));
+    assert.ok(satisfiesCaret("1.4.0", "^1.0.0"));
+    assert.ok(!satisfiesCaret("2.0.0", "^1.0.0"));
+    assert.ok(!satisfiesCaret("0.0.2", "^0.0.1"));
+    assert.ok(!satisfiesCaret("0.1.1-rc.1", "^0.1.0"));
+    assert.ok(satisfiesCaret("0.2.0-rc.2", "^0.2.0-rc.1"));
   });
 
   test("the CLI builds reproducibly and verifies its archives with the system tar", async () => {

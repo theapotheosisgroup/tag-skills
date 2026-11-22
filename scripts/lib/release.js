@@ -102,6 +102,29 @@ export function bumpCovers(level, previous, next) {
   return true;
 }
 
+/**
+ * Whether `version` satisfies the caret range `^floor`: at least the floor, on the floor's
+ * compatible line (same major from 1.0.0, same minor below it, same patch below 0.1.0), and a
+ * pre-release only of the floor's own major.minor.patch.
+ * @param {string} version @param {string} range
+ */
+export function satisfiesCaret(version, range) {
+  if (!range.startsWith("^")) return false;
+  const floor = parseSemver(range.slice(1));
+  const v = parseSemver(version);
+  if (compareSemver(version, range.slice(1)) < 0) return false;
+  const sameTuple = v.major === floor.major && v.minor === floor.minor && v.patch === floor.patch;
+  if (v.pre.length > 0 && !sameTuple) return false;
+  if (v.major !== floor.major) return false;
+  if (floor.major > 0) return true;
+  if (v.minor !== floor.minor) return false;
+  return floor.minor > 0 || v.patch === floor.patch;
+}
+
+/** @param {any[]} versions @returns {any} */
+const latest = (versions) =>
+  versions.length > 0 ? versions.reduce((a, b) => (compareSemver(a.version, b.version) > 0 ? a : b)) : null;
+
 /** @param {Level[]} levels @returns {Level | null} */
 const highest = (levels) =>
   levels.reduce(
@@ -328,8 +351,8 @@ export async function planReleases(packages, repository, previousIndex, context)
 
   for (const pkg of packages) {
     const history = published.get(pkg.name)?.versions ?? [];
-    /** @type {Record<string, string>} */
-    const requires = {};
+    /** @type {[string, string][]} */
+    const deps = [];
     for (const dep of packageDependencies(pkg, owners, bySkill)) {
       const target = packages.find((p) => p.name === dep);
       if (!target) continue;
@@ -337,14 +360,23 @@ export async function planReleases(packages, repository, previousIndex, context)
       if (!depPublished && !releasing.has(dep)) {
         errors.push(`${pkg.name} needs ${dep}@${target.version}, which is neither published nor being released`);
       }
-      requires[dep] = `^${target.version}`;
+      deps.push([dep, target.version]);
     }
     const skills = await skillFacts(pkg, repository);
-    const current = { skills, requires, agentPlugins: AGENT_PLUGINS_VERSION };
+    /** @param {any} baseline */
+    const currentAgainst = (baseline) => {
+      /** @type {Record<string, string>} */
+      const requires = {};
+      for (const [dep, version] of deps) {
+        const kept = baseline?.requires?.[dep];
+        requires[dep] = kept && satisfiesCaret(version, kept) ? kept : `^${version}`;
+      }
+      return { skills, requires, agentPlugins: AGENT_PLUGINS_VERSION };
+    };
 
     const existing = history.find((/** @type {any} */ v) => v.version === pkg.version);
     if (existing) {
-      const diff = diffPackage(existing, current);
+      const diff = diffPackage(existing, currentAgainst(existing));
       if (diff.changes.length > 0 || diff.errors.length > 0) {
         pending.push({
           package: pkg.name,
@@ -355,18 +387,17 @@ export async function planReleases(packages, repository, previousIndex, context)
       continue;
     }
 
-    const lower = history.filter((/** @type {any} */ v) => compareSemver(v.version, pkg.version) < 0);
-    const higher = history.filter((/** @type {any} */ v) => compareSemver(v.version, pkg.version) > 0);
-    if (higher.length > 0 && !parseSemver(pkg.version).pre.length) {
-      errors.push(`${pkg.name}@${pkg.version} is lower than the published ${higher[0].version}`);
+    const stable = !parseSemver(pkg.version).pre.length;
+    const comparable = stable ? history.filter((/** @type {any} */ v) => !parseSemver(v.version).pre.length) : history;
+    const higher = comparable.filter((/** @type {any} */ v) => compareSemver(v.version, pkg.version) > 0);
+    if (stable && higher.length > 0) {
+      errors.push(`${pkg.name}@${pkg.version} is lower than the published ${latest(higher).version}`);
       continue;
     }
-    const previous =
-      lower.length > 0
-        ? lower.reduce((/** @type {any} */ a, /** @type {any} */ b) =>
-            compareSemver(a.version, b.version) > 0 ? a : b,
-          )
-        : null;
+    const below = (/** @type {any[]} */ versions) =>
+      versions.filter((/** @type {any} */ v) => compareSemver(v.version, pkg.version) < 0);
+    const previous = latest(below(comparable)) ?? latest(below(history));
+    const current = currentAgainst(previous);
     let breaking = false;
     let changes = ["initial release"];
     if (previous) {
@@ -406,7 +437,7 @@ export async function planReleases(packages, repository, previousIndex, context)
         sha256: sha256(archive),
         size: archive.length,
       },
-      requires,
+      requires: current.requires,
       skills,
       tiers: skillsByTier(pkg.skills),
       changelog,
