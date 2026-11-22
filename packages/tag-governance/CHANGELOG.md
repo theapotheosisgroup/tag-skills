@@ -4,6 +4,12 @@ All notable changes to the `tag-governance` package. The format follows [Keep a 
 
 ## [Unreleased]
 
+## [0.1.1]
+
+### Added
+
+- `mcp.json` declares the TAG MCP (`tag`) and the Aletia MCP (`aletia`), remote Streamable HTTP servers the client authorizes with OAuth through the TAG login, so loading the package wires up the tools the skills name. The main archive targets production; `tag-governance-0.1.1.develop.tar.gz` targets develop. No skill changed.
+
 ## [0.1.0]
 
 ### Added

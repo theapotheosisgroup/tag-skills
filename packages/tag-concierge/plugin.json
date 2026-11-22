@@ -1,0 +1,22 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "tag-concierge",
+  "version": "0.1.0",
+  "description": "TAG's Concierge agent, the organization's back-office assistant: its instructions skill, the task and knowledge skills it uses, and the TAG and Aletia MCP servers (OAuth through the TAG login). Loads on its own.",
+  "author": { "name": "The Apotheosis Group", "url": "https://github.com/theapotheosisgroup" },
+  "homepage": "https://github.com/theapotheosisgroup/tag-skills/tree/develop/packages/tag-concierge",
+  "repository": "https://github.com/theapotheosisgroup/tag-skills",
+  "keywords": ["tag", "back-office", "agent", "concierge", "agent-skills", "mcp"],
+  "extensions": {
+    "com.theapotheosisgroup.tag-skills": {
+      "agent": "governance-concierge",
+      "skills": [
+        { "name": "governance-concierge", "tier": "foundation" },
+        { "name": "governance-task-management", "tier": "foundation", "from": "tag-governance" },
+        { "name": "governance-knowledge-synthesis", "tier": "foundation", "from": "tag-knowledge" },
+        { "name": "governance-search-strategy", "tier": "foundation", "from": "tag-knowledge" },
+        { "name": "governance-source-management", "tier": "foundation", "from": "tag-knowledge" }
+      ]
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # 0005. Versioned skill packages in the Agent Plugins 1.0.0 format, released on GitHub
 
-- **Status:** Accepted
+- **Status:** Accepted; the "No `mcp.json`" decision and the one-package-per-skill rule are superseded by [ADR 0006](0006-mcp-servers-and-agent-packages.md)
 - **Date:** 2026-11-22
 - **Deciders:** the mission lead (skill updates and versioning, 2026-11-22: approved plan), the tag-skills maintainers (CODEOWNERS)
 

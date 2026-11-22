@@ -3,7 +3,7 @@
 // installed from package-lock.json; no network install). `npm run test:install`.
 //
 //  1. Discovery from the repository root lists every published skill under skills/<pillar>/ (all
-//     16) and never the test fixture, which is hidden by `metadata.internal: true`.
+//     18) and never the test fixture, which is hidden by `metadata.internal: true`.
 //  2. Discovery of tests/fixtures with INSTALL_INTERNAL_SKILLS=1 lists the fixture.
 //  3. For codex, claude-code and universal, a selected-skill install into a fresh consumer project
 //     puts exactly the selected skills where that client reads them, every file byte-for-byte equal
@@ -32,7 +32,7 @@ const repo = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const cli = join(repo, "node_modules", ".bin", "skills");
 const fixturesRoot = join(repo, "tests", "fixtures");
 const FIXTURE = "tag-test-fixture";
-const EXPECTED_SKILLS = 16;
+const EXPECTED_SKILLS = 18;
 
 /** Project-level skill directory per client, as the pinned Skills CLI installs them. */
 const CLIENTS = { codex: ".agents/skills", "claude-code": ".claude/skills", universal: ".agents/skills" };

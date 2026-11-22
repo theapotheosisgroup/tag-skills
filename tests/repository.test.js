@@ -59,7 +59,11 @@ const FINANCE = [
   "finance-validate-data",
   "finance-variance-analysis",
 ];
+/** TAG-original skills: the agent instructions of the agent packages (ADR 0006). No upstream. */
+const ORIGINAL = ["governance-concierge", "governance-due-diligence"];
 const GOVERNANCE = [
+  "governance-concierge",
+  "governance-due-diligence",
   "governance-knowledge-synthesis",
   "governance-review-contract",
   "governance-search-strategy",
@@ -83,18 +87,24 @@ const REMOVED = [
 ];
 
 describe("committed repository", () => {
-  test("ships exactly the 16 back-office forks, each prefixed with its pillar", async () => {
+  test("ships exactly the 16 back-office forks and the 2 TAG-original agent skills, each prefixed with its pillar", async () => {
     const { skills } = await loadRepository(repo);
     assert.deepEqual(skills.map((s) => s.name).sort(), ALL);
+    assert.equal(ALL.filter((name) => !ORIGINAL.includes(name)).length, 16);
     for (const skill of skills) assert.ok(skill.name.startsWith(`${skill.category}-`), skill.name);
   });
   test("passes every repository-level check", async () => {
     const { findings } = await checkRepository(repo);
     assert.deepEqual(findings, []);
   });
-  test("every skill is recorded in upstreams.lock.json and carries LICENSE and NOTICE.md", async () => {
+  test("every forked skill is recorded in upstreams.lock.json; original skills have no provenance", async () => {
     const { skills, lock } = await loadRepository(repo);
     for (const skill of skills) {
+      if (ORIGINAL.includes(skill.name)) {
+        assert.deepEqual(skill.meta?.provenance, [], `${skill.name} is TAG-original`);
+        assert.ok(!lock.imports.some((/** @type {{ tagName: string }} */ i) => i.tagName === skill.name));
+        continue;
+      }
       const entry = lock.imports.find((/** @type {{ tagName: string }} */ i) => i.tagName === skill.name);
       assert.ok(entry, `${skill.name} has no import record`);
       assert.deepEqual(skill.meta?.provenance, [entry.id]);
@@ -217,11 +227,11 @@ describe("catalog", () => {
     assert.equal(first, second);
     assert.equal(first, await readFile(join(repo, "catalog.json"), "utf8"));
   });
-  test("the catalog matches its schema and lists 16 skills and 3 profiles", async () => {
+  test("the catalog matches its schema and lists 18 skills and 3 profiles", async () => {
     const catalog = JSON.parse(await readFile(join(repo, "catalog.json"), "utf8"));
     const schemas = await loadSchemas(repo);
     assert.ok(schemas.catalog(catalog), JSON.stringify(schemas.catalog.errors));
-    assert.equal(catalog.skills.length, 16);
+    assert.equal(catalog.skills.length, 18);
     assert.deepEqual(
       catalog.profiles.map((/** @type {{ name: string }} */ p) => p.name),
       ["backoffice", "finance", "governance"],

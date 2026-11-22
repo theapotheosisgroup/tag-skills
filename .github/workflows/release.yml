@@ -3,7 +3,7 @@
 # Every pull request and manual run is a dry run: it builds every new package version against the
 # published release index, enforces the versioning rules and verifies the archives, and publishes
 # nothing. A push to develop runs the same build and then publishes each new version as a GitHub
-# release tagged <package>@<version> (archive, release notes, index snapshot) and replaces
+# release tagged <package>@<version> (archives, release notes, index snapshot) and replaces
 # index.json on the rolling `skills-index` release, which updaters poll. A version already in the
 # index is never rebuilt or republished. No secret other than the job's GITHUB_TOKEN is used.
 name: release
@@ -61,7 +61,7 @@ jobs:
             echo
             echo "Would publish (nothing is published from a pull request):"
             echo
-            jq -r '.releases[] | "- `\(.tag)`: `\(.archive)` sha256 `\(.sha256)`"' dist/release/plan.json
+            jq -r '.releases[] | "- `\(.tag)`: `\(.assets | join("`, `"))` (main archive sha256 `\(.sha256)`)"' dist/release/plan.json
             jq -r 'if (.releases | length) == 0 then "- nothing: every package version is already published" else empty end' dist/release/plan.json
             jq -r '.pending[] | "- pending: `\(.package)@\(.version)` \(.message)"' dist/release/plan.json
           } >> "$GITHUB_STEP_SUMMARY"
@@ -136,7 +136,8 @@ jobs:
             tag="$(jq -r '.tag' <<<"$release")"
             flags=(--repo "$REPO" --target "$SHA" --latest=false --title "$(jq -r '.title' <<<"$release")" --notes-file "$(jq -r '.notes' <<<"$release")")
             if [[ "$(jq -r '.prerelease' <<<"$release")" == "true" ]]; then flags+=(--prerelease); fi
-            gh release create "$tag" "${flags[@]}" "$(jq -r '.archive' <<<"$release")" index.json
+            mapfile -t assets < <(jq -r '.assets[]' <<<"$release")
+            gh release create "$tag" "${flags[@]}" "${assets[@]}" index.json
             echo "published $tag"
           done
           if ! gh release view skills-index --repo "$REPO" >/dev/null 2>&1; then

@@ -2,9 +2,9 @@
 
 TAG's library of installable **Agent Skills**: portable workflow instructions, templates and small scripts that teach an agent how to do TAG back-office work through TAG's authorized capabilities. Distributed from this Git repository with the [Vercel Skills CLI](https://github.com/vercel-labs/skills), and released as versioned [Agent Plugins 1.0.0](https://agent-plugins.org/specification) packages on GitHub releases ([packages](#packages-and-releases)); no npm package is published.
 
-- **Repository status:** **Active development**. The 16-skill back-office catalog is implemented; live capability bindings are pending in other repositories ([integration](docs/integration/README.md)).
+- **Repository status:** **Active development**. The 18-skill back-office catalog (16 forks and the instructions of two TAG agents) is implemented; live capability bindings are pending in other repositories ([integration](docs/integration/README.md)).
 - **Visibility:** private ([organization repository catalogue](https://github.com/theapotheosisgroup/.github#repository-catalogue)).
-- **Standards:** [theapotheosisgroup/.github](https://github.com/theapotheosisgroup/.github/tree/main/standards), in particular [AGENTS-AND-SKILLS](https://github.com/theapotheosisgroup/.github/blob/main/standards/AGENTS-AND-SKILLS.md#skills). Repository exceptions are recorded in [ADR 0003](docs/adr/0003-categories-and-tag-skill-metadata.md), [ADR 0004](docs/adr/0004-pillar-categories-and-prefixes.md) and [ADR 0005](docs/adr/0005-agent-plugins-packages-and-releases.md).
+- **Standards:** [theapotheosisgroup/.github](https://github.com/theapotheosisgroup/.github/tree/main/standards), in particular [AGENTS-AND-SKILLS](https://github.com/theapotheosisgroup/.github/blob/main/standards/AGENTS-AND-SKILLS.md#skills). Repository exceptions are recorded in [ADR 0003](docs/adr/0003-categories-and-tag-skill-metadata.md), [ADR 0004](docs/adr/0004-pillar-categories-and-prefixes.md), [ADR 0005](docs/adr/0005-agent-plugins-packages-and-releases.md) and [ADR 0006](docs/adr/0006-mcp-servers-and-agent-packages.md).
 
 ## Catalog
 
@@ -23,6 +23,8 @@ The catalog is back-office G&A work only, grouped by TAG's service pillars: **Fi
 | finance | [`finance-build-dashboard`](skills/finance/finance-build-dashboard/SKILL.md) | P1 | draft | Management dashboards from verified report data and declared metric definitions |
 | finance | [`finance-explore-data`](skills/finance/finance-explore-data/SKILL.md) | P1 | draft | Profile accounting data: missing fields, duplicates, sign issues, coverage gaps |
 | finance | [`finance-validate-data`](skills/finance/finance-validate-data/SKILL.md) | P1 | draft | Check calculations, completeness, aggregation and whether conclusions follow |
+| governance | [`governance-concierge`](skills/governance/governance-concierge/SKILL.md) | P1 | authorized-write | The Concierge agent's instructions: answer from the records the person may see, report how requests and TAG work stand, find and send documents, file confirmed requests |
+| governance | [`governance-due-diligence`](skills/governance/governance-due-diligence/SKILL.md) | P1 | authorized-write | The due-diligence agent's instructions: raise and drive a data room's request list, or find and file the documents that answer it |
 | governance | [`governance-review-contract`](skills/governance/governance-review-contract/SKILL.md) | P1 | authorized-write | Review against the organization's approved, jurisdiction-specific playbook; routing and signature requests kept separate |
 | governance | [`governance-triage-nda`](skills/governance/governance-triage-nda/SKILL.md) | P1 | read | Classify NDA deviations and route under the organization's delegation rules |
 | governance | [`governance-vendor-check`](skills/governance/governance-vendor-check/SKILL.md) | P1 | read | Supplier agreement status, dates, obligations and supporting records |
@@ -31,7 +33,7 @@ The catalog is back-office G&A work only, grouped by TAG's service pillars: **Fi
 | governance | [`governance-source-management`](skills/governance/governance-source-management/SKILL.md) | P1 | read | Available sources, freshness, authority and missing integrations |
 | governance | [`governance-task-management`](skills/governance/governance-task-management/SKILL.md) | P1 | authorized-write | Work tracked as TAG expectations and work items; Matter mapping proposed |
 
-Side effects: `none` (guidance only), `read` (reads organization data through capabilities), `draft` (also writes drafts or files, never a business record), `authorized-write` (may invoke a write capability, which the runtime authorizes and review governs). Every skill is forked from a pinned upstream commit; see [Provenance](#provenance).
+Side effects: `none` (guidance only), `read` (reads organization data through capabilities), `draft` (also writes drafts or files, never a business record), `authorized-write` (may invoke a write capability, which the runtime authorizes and review governs). Every skill except the two agent instructions (TAG-original) is forked from a pinned upstream commit; see [Provenance](#provenance).
 
 ## Quick start (consumers)
 
@@ -63,9 +65,9 @@ npm run install:profile -- --profile backoffice --ref v0.1.0 --agent universal -
 
 | Profile | Contents | Skills after expansion |
 | --- | --- | --- |
-| `backoffice` | The whole back-office G&A catalog: the finance and governance profiles (and people, once it has skills). | 16 |
+| `backoffice` | The whole back-office G&A catalog: the finance and governance profiles (and people, once it has skills). | 18 |
 | `finance` | The Finance pillar: statements, reconciliation, journal entry preparation, close management, variance analysis, audit evidence, and accounting data exploration, validation and dashboards. | 9 |
-| `governance` | The Governance pillar: contract review, NDA triage, vendor checks, the knowledge skills (search strategy, source management, knowledge synthesis) and task management. | 7 |
+| `governance` | The Governance pillar: contract review, NDA triage, vendor checks, the knowledge skills (search strategy, source management, knowledge synthesis), task management, and the Concierge and due-diligence agent instructions. | 9 |
 
 The earlier profiles map as follows: `finance-core` and `controller` → `finance` (a superset), `legal` → `governance` (a superset), `backoffice` → `backoffice` (now the whole catalog). `authoring` was removed with the engineering and productivity skills.
 
@@ -82,6 +84,10 @@ Skills ship to organizations and to TAG's own agents as versioned packages in th
 | `tag-finance` | The 9 `finance-` skills | |
 | `tag-governance` | governance-task-management, governance-triage-nda, governance-vendor-check, governance-review-contract | `tag-knowledge` |
 | `tag-knowledge` | governance-search-strategy, governance-source-management, governance-knowledge-synthesis (used by every pillar) | |
+| `tag-concierge` (agent) | governance-concierge, with the task and knowledge skills it uses | |
+| `tag-due-diligence` (agent) | governance-due-diligence, with the task and knowledge skills it uses | |
+
+Every package ships the same `mcp.json`, declaring the two MCP servers people use: the **TAG MCP** (`tag`, back-office tools) and the **Aletia MCP** (`aletia`, nexuses, people, requests, documents, sends), remote Streamable HTTP servers the client authorizes with OAuth through the TAG login. Agent Plugins 1.0 allows no variable in a server URL, so each release has one archive per environment: `<package>-<version>.tar.gz` for production and `<package>-<version>.develop.tar.gz` for develop. An **agent package** is an agent built from skills: its instructions skill, every skill it uses (bundled from their home packages, so it loads on its own) and the `mcp.json` ([ADR 0006](docs/adr/0006-mcp-servers-and-agent-packages.md)). How to load one in ChatGPT, Claude or the TAG harness: [loading a TAG agent](docs/INSTALLING.md#loading-a-tag-agent-chatgpt-claude-or-the-harness).
 
 A version is released when its `plugin.json` version changes on `develop`: [`.github/workflows/release.yml`](.github/workflows/release.yml) publishes a GitHub release `<package>@<version>` with a reproducible archive and updates the [release index](https://github.com/theapotheosisgroup/tag-skills/releases/download/skills-index/index.json) that harness updaters poll ([package updates](docs/integration/harness-consumption.md#package-updates)). Pull requests run the same build as a dry run and publish nothing.
 
@@ -105,11 +111,12 @@ Component status uses the [organization labels](https://github.com/theapotheosis
 
 | Component | Status | Notes |
 | --- | --- | --- |
-| 16 forked skills ([catalog](#catalog)) | **Implemented but not deployed** | Installable from this repository; no release tag yet |
+| 16 forked skills and 2 agent-instructions skills ([catalog](#catalog)) | **Implemented but not deployed** | Installable from this repository; no release tag yet |
 | finance-financial-statements script and fixtures | **Implemented but not deployed** | Six synthetic fixtures with hand-derived results; [operating example](docs/finance/README.md) |
 | Validator, catalog, profiles, profile installer, upstream check | **Implemented but not deployed** | Development tooling; runs in CI except `upstream:check` (network) |
-| Capability bindings | **Proposed but not implemented** | Seven capabilities map to existing tools (not exercised from here); the rest are proposed. [Dependencies](docs/integration/README.md#dependencies-on-other-repositories) |
-| Skill packages and release workflow | **Implemented but not deployed** | Three Agent Plugins 1.0.0 packages at `0.1.0`; the dry run runs on every pull request, the first publish happens when this lands on `develop` |
+| Capability bindings | **Proposed but not implemented** | Fourteen capabilities map to existing TAG MCP and Aletia MCP tools (not exercised from here); the rest are proposed. [Dependencies](docs/integration/README.md#dependencies-on-other-repositories) |
+| Skill packages and release workflow | **Implemented but not deployed** | Five Agent Plugins 1.0.0 packages: the three pillar packages (`0.1.0` published, `0.1.1` adds `mcp.json`) and the two agent packages (`0.1.0`); the dry run runs on every pull request and merging to `develop` publishes |
+| Package `mcp.json` (TAG MCP and Aletia MCP) | **Implemented but not deployed** | Declared per environment; the MCP host is not answering yet in develop or production (tag-platform host map), so loading a package wires the servers but they connect only once deployed |
 | Harness package updater | **Proposed but not implemented** | tag-harness polls the release index ([package updates](docs/integration/harness-consumption.md#package-updates)) |
 | Harness consumption | **Proposed but not implemented** | TrueForge needs a runtime bundle because this repository is private ([harness consumption](docs/integration/harness-consumption.md)) |
 | Private-repository installation test | **Proposed but not implemented** | Needs a merged default branch and a CI credential decision |
@@ -127,7 +134,7 @@ npm run lint              # ESLint
 npm run typecheck         # TypeScript over the JSDoc-typed JavaScript
 npm run validate          # skills, sidecars, profiles, provenance, licences, the fixture
 npm run catalog:generate  # rewrite catalog.json; `npm run catalog:check` verifies it
-npm run packages:check    # packages/*/plugin.json: Agent Plugins 1.0.0 schema, membership, tiers, changelogs
+npm run packages:check    # packages/*/plugin.json and packages/mcp.json: Agent Plugins 1.0.0 schemas, membership, bundles, tiers, changelogs
 npm run release:dry-run   # build and verify the package archives and release index in dist/release (publishes nothing)
 npm test                  # unit, contract, fixture, selection and script tests
 npm run test:install      # discovery and installation with the pinned CLI

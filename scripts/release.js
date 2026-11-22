@@ -2,15 +2,17 @@
 // Skill package releases (ADR 0005). Builds and checks; never publishes.
 //
 //   node scripts/release.js check
-//       Validate packages/*/plugin.json against the pinned Agent Plugins 1.0.0 schema, TAG's
-//       extension schema and the repository (each skill in exactly one package, tiers, changelogs).
+//       Validate packages/*/plugin.json and packages/mcp.json against the pinned Agent Plugins 1.0.0
+//       schemas, TAG's extension schema and the repository (each skill in exactly one home package,
+//       agent bundles, tiers, changelogs).
 //   node scripts/release.js build [--previous-index FILE] [--out DIR] [--commit SHA] [--date ISO]
 //       Work out which package versions are new against the previous index, enforce the versioning
-//       rules, and write each new version's archive and release notes, the merged index.json and
-//       plan.json into DIR (default dist/release). --commit and --date default to HEAD's.
+//       rules, and write each new version's archives (production, plus one per other environment,
+//       differing only in mcp.json) and release notes, the merged index.json and plan.json into DIR
+//       (default dist/release). --commit and --date default to HEAD's.
 //   node scripts/release.js verify [--out DIR]
 //       Extract every archive in DIR with the system tar and check it is a conforming plugin whose
-//       checksum and skills match index.json.
+//       checksum, skills and MCP servers match index.json.
 //
 // The release workflow (.github/workflows/release.yml) runs build and verify on every pull
 // request as a dry run, and publishes plan.json's releases only on a push to develop.
@@ -23,7 +25,14 @@ import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { hashDirectory, sha256 } from "./lib/hash.js";
-import { checkPackages, loadPackageSchemas, schemaErrors } from "./lib/packages.js";
+import {
+  DEFAULT_ENVIRONMENT,
+  MCP_ENVIRONMENTS,
+  checkPackages,
+  loadMcp,
+  loadPackageSchemas,
+  schemaErrors,
+} from "./lib/packages.js";
 import { checkRepository } from "./lib/repository.js";
 import { emptyIndex, mergeIndex, planReleases, serializeIndex } from "./lib/release.js";
 import { validateRoot } from "./lib/validate.js";
@@ -118,7 +127,12 @@ if (command === "build") {
     process.exit(1);
   }
   const ctx = context();
-  const { releases, pending, errors } = await planReleases(packages, repository, previous, ctx);
+  const mcp = await loadMcp(root, schemas);
+  if (!mcp.bytes) throw new Error("packages/mcp.json is invalid; run the package check");
+  const { releases, pending, errors } = await planReleases(packages, repository, previous, ctx, {
+    bytes: mcp.bytes,
+    servers: mcp.servers,
+  });
   for (const p of pending) console.log(`pending: ${p.package}@${p.version} ${p.message}`);
   if (errors.length > 0) {
     for (const e of errors) console.error(`error: ${e}`);
@@ -131,9 +145,10 @@ if (command === "build") {
   }
   await prepareOut();
   const plan = { commit: ctx.commit, publishedAt: ctx.publishedAt, releases: /** @type {any[]} */ ([]), pending };
-  for (const { pkg, entry, archive, notes } of releases) {
+  for (const { pkg, entry, archive, environments, notes } of releases) {
     const notesName = `${pkg.name}-${pkg.version}.notes.md`;
     await writeFile(join(out, entry.archive.name), archive);
+    for (const extra of environments) await writeFile(join(out, extra.name), extra.archive);
     await writeFile(join(out, notesName), notes);
     plan.releases.push({
       package: pkg.name,
@@ -143,6 +158,7 @@ if (command === "build") {
       prerelease: entry.prerelease,
       archive: entry.archive.name,
       sha256: entry.archive.sha256,
+      assets: [entry.archive.name, ...environments.map((e) => e.name)],
       notes: notesName,
     });
     console.log(
@@ -158,6 +174,67 @@ if (command === "build") {
 
 // verify
 const schemas = await loadPackageSchemas(root);
+
+/**
+ * Checks one archive of a release: checksum, a single plugin directory with a conforming manifest,
+ * the index's skills byte for byte, and an mcp.json naming the index's servers on the archive's
+ * environment origin.
+ * @param {any} release @param {any} entry @param {string} environment @param {any} archive
+ * @returns {Promise<string[]>}
+ */
+async function verifyArchive(release, entry, environment, archive) {
+  /** @type {string[]} */
+  const found = [];
+  const bytes = await readFile(join(out, archive.name));
+  if (sha256(bytes) !== archive.sha256 || bytes.length !== archive.size) {
+    found.push(`${archive.name}: checksum or size differs from index.json`);
+  }
+  const work = await mkdtemp(join(tmpdir(), "tag-release-"));
+  try {
+    execFileSync("tar", ["-xzf", join(out, archive.name), "-C", work]);
+    const top = await readdir(work);
+    if (top.length !== 1 || top[0] !== release.package) {
+      return [...found, `${archive.name}: must hold exactly one top-level directory ${release.package}/`];
+    }
+    const pluginRoot = join(work, release.package);
+    const manifest = JSON.parse(await readFile(join(pluginRoot, "plugin.json"), "utf8"));
+    if (!schemas.plugin(manifest))
+      found.push(`${archive.name}: plugin.json: ${schemaErrors(schemas.plugin).join("; ")}`);
+    if (manifest.name !== release.package || manifest.version !== release.version) {
+      found.push(`${archive.name}: plugin.json names ${manifest.name}@${manifest.version}`);
+    }
+    const mcp = JSON.parse(await readFile(join(pluginRoot, "mcp.json"), "utf8"));
+    if (!schemas.mcp(mcp)) found.push(`${archive.name}: mcp.json: ${schemaErrors(schemas.mcp).join("; ")}`);
+    const origin = MCP_ENVIRONMENTS[/** @type {keyof typeof MCP_ENVIRONMENTS} */ (environment)];
+    /** @type {Record<string, string>} */
+    const expectedServers = {};
+    for (const [name, url] of Object.entries(entry.mcpServers ?? {})) {
+      expectedServers[name] = `${origin}${new URL(url).pathname}`;
+    }
+    /** @type {Record<string, string>} */
+    const servers = {};
+    for (const [name, server] of Object.entries(mcp.mcpServers ?? {})) servers[name] = /** @type {any} */ (server).url;
+    if (JSON.stringify(servers) !== JSON.stringify(expectedServers)) {
+      found.push(
+        `${archive.name}: mcp.json servers ${JSON.stringify(servers)} are not ${environment}'s ${JSON.stringify(expectedServers)}`,
+      );
+    }
+    const children = (await readdir(join(pluginRoot, "skills"))).sort();
+    const expected = entry.skills.map((/** @type {any} */ s) => s.name);
+    if (JSON.stringify(children) !== JSON.stringify(expected)) {
+      found.push(`${archive.name}: skills/ holds ${children.join(", ")}, the index lists ${expected.join(", ")}`);
+    }
+    const { findings } = await validateRoot(join(pluginRoot, "skills"), { layout: "flat" });
+    for (const f of findings) found.push(`${archive.name}: ${relative(work, f.path)}: ${f.message}`);
+    for (const skill of entry.skills) {
+      const { hash } = await hashDirectory(join(pluginRoot, "skills", skill.name));
+      if (hash !== skill.contentHash) found.push(`${archive.name}: ${skill.name} content differs from index.json`);
+    }
+    return found;
+  } finally {
+    await rm(work, { recursive: true, force: true });
+  }
+}
 const plan = JSON.parse(await readFile(join(out, "plan.json"), "utf8"));
 const index = JSON.parse(await readFile(join(out, "index.json"), "utf8"));
 /** @type {string[]} */
@@ -171,40 +248,19 @@ for (const release of plan.releases) {
     problems.push(`${release.tag}: not in index.json`);
     continue;
   }
-  const bytes = await readFile(join(out, release.archive));
-  if (sha256(bytes) !== entry.archive.sha256 || bytes.length !== entry.archive.size) {
-    problems.push(`${release.archive}: checksum or size differs from index.json`);
+  const archives = [
+    [DEFAULT_ENVIRONMENT, entry.archive],
+    ...Object.entries(entry.environments ?? {}).sort(([a], [b]) => (a < b ? -1 : 1)),
+  ];
+  const listed = archives.map(([, a]) => a.name);
+  if (JSON.stringify(release.assets) !== JSON.stringify(listed)) {
+    problems.push(`${release.tag}: plan.json assets ${release.assets} differ from index.json ${listed}`);
   }
-  const work = await mkdtemp(join(tmpdir(), "tag-release-"));
-  try {
-    execFileSync("tar", ["-xzf", join(out, release.archive), "-C", work]);
-    const top = await readdir(work);
-    if (top.length !== 1 || top[0] !== release.package) {
-      problems.push(`${release.archive}: must hold exactly one top-level directory ${release.package}/`);
-      continue;
-    }
-    const pluginRoot = join(work, release.package);
-    const manifest = JSON.parse(await readFile(join(pluginRoot, "plugin.json"), "utf8"));
-    if (!schemas.plugin(manifest))
-      problems.push(`${release.archive}: plugin.json: ${schemaErrors(schemas.plugin).join("; ")}`);
-    if (manifest.name !== release.package || manifest.version !== release.version) {
-      problems.push(`${release.archive}: plugin.json names ${manifest.name}@${manifest.version}`);
-    }
-    const children = (await readdir(join(pluginRoot, "skills"))).sort();
-    const expected = entry.skills.map((/** @type {any} */ s) => s.name);
-    if (JSON.stringify(children) !== JSON.stringify(expected)) {
-      problems.push(`${release.archive}: skills/ holds ${children.join(", ")}, the index lists ${expected.join(", ")}`);
-    }
-    const { findings } = await validateRoot(join(pluginRoot, "skills"), { layout: "flat" });
-    for (const f of findings) problems.push(`${release.archive}: ${relative(work, f.path)}: ${f.message}`);
-    for (const skill of entry.skills) {
-      const { hash } = await hashDirectory(join(pluginRoot, "skills", skill.name));
-      if (hash !== skill.contentHash)
-        problems.push(`${release.archive}: ${skill.name} content differs from index.json`);
-    }
-    console.log(`verified ${release.archive}: ${children.length} skill(s), sha256:${entry.archive.sha256}`);
-  } finally {
-    await rm(work, { recursive: true, force: true });
+  for (const [environment, archive] of archives) {
+    const problem = await verifyArchive(release, entry, environment, archive);
+    if (problem.length === 0)
+      console.log(`verified ${archive.name}: ${entry.skills.length} skill(s), sha256:${archive.sha256}`);
+    problems.push(...problem);
   }
 }
 for (const p of problems) console.error(p);

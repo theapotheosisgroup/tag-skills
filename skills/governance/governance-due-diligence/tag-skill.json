@@ -1,0 +1,81 @@
+{
+  "name": "governance-due-diligence",
+  "version": "0.1.0",
+  "domain": "governance",
+  "priority": "P1",
+  "audiences": ["tag-operations", "client-finance", "client-legal"],
+  "invocation": "model",
+  "capabilities": [
+    { "name": "aletia.nexus.read", "required": true, "use": "The data room's parties, people and the person's role." },
+    {
+      "name": "aletia.lens.read",
+      "required": true,
+      "use": "The request list with documents filed, by status or gaps."
+    },
+    { "name": "aletia.arc.read", "required": false, "use": "One request's history, claims and extracted facts." },
+    { "name": "aletia.search", "required": false, "use": "Documents and records already in the nexus." },
+    { "name": "aletia.people.read", "required": false, "use": "Who in the nexus can be asked." },
+    { "name": "aletia.sends.read", "required": false, "use": "Requests asked of the person by name." },
+    { "name": "aletia.expect.write", "required": false, "use": "Raise or refine requests, after confirmation." },
+    { "name": "aletia.supply.write", "required": false, "use": "File documents against requests, after confirmation." },
+    {
+      "name": "aletia.mark.write",
+      "required": false,
+      "use": "Follow up, answer, or record the person's accept, reject or waive decision."
+    }
+  ],
+  "inputs": [
+    {
+      "name": "the signed-in person, their party and role in the data-room nexus",
+      "required": true,
+      "source": "the client's OAuth sign-in through the TAG login; aletia.nexus.read"
+    },
+    {
+      "name": "transaction scope (requesting side)",
+      "required": false,
+      "source": "the person, with references/request-list.md as a starting point"
+    },
+    {
+      "name": "documents to search (responding side)",
+      "required": false,
+      "source": "files the person attaches, a drive connected in their client, aletia.search"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "request list",
+      "format": "markdown",
+      "description": "Requests with identifier, category, owed by, due date, state and documents filed."
+    },
+    {
+      "name": "match table",
+      "format": "markdown",
+      "description": "Each request with candidate documents, why each answers it, and gaps."
+    },
+    {
+      "name": "confirmed writes",
+      "format": "text",
+      "description": "Raised, filed or marked items and their identifiers."
+    }
+  ],
+  "dependencies": {
+    "skills": [
+      "governance-task-management",
+      "governance-search-strategy",
+      "governance-knowledge-synthesis",
+      "governance-source-management"
+    ],
+    "runtime": []
+  },
+  "sideEffects": "authorized-write",
+  "review": {
+    "required": true,
+    "conditions": [
+      "The person confirms every request list, filing, answer or mark before aletia.expect.write, aletia.supply.write or aletia.mark.write is called.",
+      "Accepting, rejecting, waiving or closing a request is the requesting side's decision; the skill records it only when that person makes it.",
+      "No document is filed that the person has not seen; documents holding more than was asked are flagged before filing.",
+      "Access is aletia's decision on every call; the skill never filters, grants or works around a refusal."
+    ]
+  },
+  "provenance": []
+}

@@ -2,11 +2,17 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/theapotheosisgroup/tag-skills/schemas/tag-package.schema.json",
   "title": "TAG package extension (plugin.json extensions[\"com.theapotheosisgroup.tag-skills\"])",
-  "description": "TAG's client-owned data in an Agent Plugins 1.0.0 manifest: which skills the package ships and the lowest plan tier each belongs to. Tiers are cumulative: foundation < structure < turnkey. It grants no access.",
+  "description": "TAG's client-owned data in an Agent Plugins 1.0.0 manifest: which skills the package ships, the lowest plan tier each belongs to, and, for an agent package, its agent-instructions skill. Tiers are cumulative: foundation < structure < turnkey. It grants no access: entitlement is aletia's check.",
   "type": "object",
   "additionalProperties": false,
   "required": ["skills"],
   "properties": {
+    "agent": {
+      "description": "Set only for an agent package: the agent-instructions skill, one of the package's own skills. An agent package bundles every skill its skills depend on, so it loads on its own.",
+      "type": "string",
+      "pattern": "^(?:finance|people|governance)-[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 64
+    },
     "skills": {
       "type": "array",
       "minItems": 1,
@@ -23,6 +29,11 @@
           "tier": {
             "description": "The lowest plan tier that includes the skill; every higher tier includes it too.",
             "enum": ["foundation", "structure", "turnkey"]
+          },
+          "from": {
+            "description": "Set when an agent package bundles a skill whose home is another package: that package's name. Absent for the package's own skills.",
+            "type": "string",
+            "pattern": "^tag-[a-z0-9]+(?:-[a-z0-9]+)*$"
           }
         }
       }

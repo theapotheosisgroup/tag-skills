@@ -1,0 +1,7 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "aletia": { "type": "streamable-http", "url": "https://mcp.tag.company/aletia" },
+    "tag": { "type": "streamable-http", "url": "https://mcp.tag.company/tag" }
+  }
+}
