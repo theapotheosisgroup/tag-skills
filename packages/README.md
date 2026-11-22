@@ -24,7 +24,7 @@ Tiers are cumulative: Structure includes every Foundation skill, Turnkey every s
 | `tag-concierge` (agent) | governance-concierge, governance-knowledge-synthesis, governance-search-strategy, governance-source-management, governance-task-management | | |
 | `tag-due-diligence` (agent) | governance-due-diligence, governance-knowledge-synthesis, governance-search-strategy, governance-source-management, governance-task-management | | |
 
-A tier is plan metadata: a package grants and checks nothing. Whether a person or an organization may use something is aletia's check, on every tool call.
+A tier is descriptive plan metadata and gates nothing: every skill is installable and available, and neither a package nor a harness or client filters skills by tier. Whether a person or an organization may use something is aletia's check, on every tool call.
 
 `tag-people` will exist once the People pillar has a skill ([roadmap](../docs/roadmap.md#people-pillar-proposed-not-implemented)).
 
@@ -43,7 +43,7 @@ The archives differ only in `mcp.json`. Adding an environment is one entry in `M
 
 ## Agent packages
 
-A TAG agent is a package built from skills: an agent-instructions skill (named by `"agent"` in TAG's extension), every skill it uses, and `mcp.json`. Agent Plugins 1.0 has no portable agent component, so the instructions travel as a skill that every client loads. Every skill has exactly one **home** package; an agent package also **bundles** the skills it uses from their homes (`"from": "<home package>"`), at the home tier or higher, and ships every skill its skills depend on, so it loads on its own and requires no other package. A change to a bundled skill is pending in every package that ships it, so release the home package and the agent packages together. How to load an agent in ChatGPT, Claude or the TAG harness: [loading a TAG agent](../docs/INSTALLING.md#loading-a-tag-agent-chatgpt-claude-or-the-harness).
+A TAG agent is a package built from skills: an agent-instructions skill (named by `"agent"` in TAG's extension), every skill it uses, and `mcp.json`. Agent Plugins 1.0 has no portable agent component, so the instructions travel as a skill that every client loads. Every skill has exactly one **home** package; an agent package also **bundles** the skills it uses from their homes (`"from": "<home package>"`), at the home tier or higher, and ships every skill its skills depend on, so it loads on its own and requires no other package. A change to a bundled skill is pending in every package that ships it, and the release build refuses to release the home package with a changed bundled skill unless every package bundling it releases in the same build. How to load an agent in ChatGPT, Claude or the TAG harness: [loading a TAG agent](../docs/INSTALLING.md#loading-a-tag-agent-chatgpt-claude-or-the-harness).
 
 ## Versioning
 

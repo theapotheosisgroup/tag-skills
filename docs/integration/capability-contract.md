@@ -16,6 +16,13 @@ Skills name **logical capabilities**, not servers or URLs. [capabilities.json](c
 | `tag.finance.process_documents` | mapped | write | tag-mcp / tag-backoffice | Back Office MCP `finance_process_documents` |
 | `aletia.nexus.read` | mapped | read | aletia | Aletia MCP `nexus` |
 | `aletia.search` | mapped | read | aletia | Aletia MCP `search` |
+| `aletia.lens.read` | mapped | read | aletia | Aletia MCP `lens` |
+| `aletia.arc.read` | mapped | read | aletia | Aletia MCP `arc` |
+| `aletia.people.read` | mapped | read | aletia | Aletia MCP `people` |
+| `aletia.sends.read` | mapped | read | aletia | Aletia MCP `sends` |
+| `aletia.expect.write` | mapped | write | aletia | Aletia MCP `expect`; requires review |
+| `aletia.supply.write` | mapped | write | aletia | Aletia MCP `supply`; requires review |
+| `aletia.mark.write` | mapped | write | aletia | Aletia MCP `mark`; requires review |
 | `tag.ledger.trial_balance.read` | proposed | read | tag-connectors via tag-mcp | |
 | `tag.ledger.chart_of_accounts.read` | proposed | read | tag-connectors via tag-mcp | |
 | `tag.ledger.transactions.read` | proposed | read | tag-connectors via tag-mcp | |
@@ -34,7 +41,7 @@ Skills name **logical capabilities**, not servers or URLs. [capabilities.json](c
 | `tag.signature.request` | proposed | write | to be decided | Requesting a signature is not signing |
 | `tag.communication.send` | proposed | write | tag-connectors | External delivery; requires review |
 
-The mapped bindings come from tag-backoffice `docs/mcp/tag-backoffice-mcp.md` at `d29c60451306d3c4abf1d6c1df0bbd2be353f096` (develop).
+The mapped bindings come from tag-backoffice `docs/mcp/tag-backoffice-mcp.md` at `d29c60451306d3c4abf1d6c1df0bbd2be353f096` (develop), except `aletia.lens.read`, `aletia.arc.read`, `aletia.people.read`, `aletia.sends.read`, `aletia.expect.write`, `aletia.supply.write` and `aletia.mark.write`, which come from aletia `docs/aletia-mcp.md` at `b83876e54a38311794f39adf5897dac8a9c0195f` (develop).
 
 ## Rules the validator enforces
 

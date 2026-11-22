@@ -347,7 +347,8 @@ const assetUrl = (tag, name) => `https://github.com/${REPOSITORY}/releases/downl
  * A package is released when its manifest version is not yet in the previous index. Its changes
  * against the previous published version must be covered by the version bump. A package whose
  * version is already published but whose content changed has pending changes: they ship once the
- * version is bumped.
+ * version is bumped. A package that bundles a skill its home package releases changed must release in
+ * the same build.
  * @param {Package[]} packages  Checked packages (checkPackages reported no findings).
  * @param {Repository} repository
  * @param {any} previousIndex
@@ -427,6 +428,17 @@ export async function planReleases(packages, repository, previousIndex, context,
 
     const existing = history.find((/** @type {any} */ v) => v.version === pkg.version);
     if (existing) {
+      const shippedHashes = new Map(existing.skills.map((/** @type {any} */ s) => [s.name, s.contentHash]));
+      for (const bundled of pkg.skills) {
+        if (!bundled.from || !releasing.has(bundled.from)) continue;
+        const now = skills.find((s) => s.name === bundled.name);
+        if (now && shippedHashes.get(bundled.name) !== now.contentHash) {
+          errors.push(
+            `${pkg.name}@${pkg.version} bundles ${bundled.name}, which ${bundled.from} releases changed; ` +
+              `release ${pkg.name} in the same build`,
+          );
+        }
+      }
       const diff = diffPackage(existing, currentAgainst(existing));
       if (diff.changes.length > 0 || diff.errors.length > 0) {
         pending.push({

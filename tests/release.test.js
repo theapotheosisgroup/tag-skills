@@ -71,6 +71,17 @@ async function addChangelogSection(root, name, version, body) {
   await writeFile(path, text.replace("## [Unreleased]\n", `## [Unreleased]\n\n## [${version}]\n\n${body}\n`));
 }
 
+/**
+ * Bumps both agent packages, which bundle every tag-knowledge skill and governance-task-management.
+ * @param {string} root @param {string} version @param {string} body
+ */
+async function releaseAgents(root, version, body) {
+  for (const name of ["tag-concierge", "tag-due-diligence"]) {
+    await editManifest(root, name, (m) => (m.version = version));
+    await addChangelogSection(root, name, version, body);
+  }
+}
+
 /** @param {string} root @param {string} skillPath @param {string} version */
 async function setSkillVersion(root, skillPath, version) {
   const path = join(root, skillPath, "tag-skill.json");
@@ -615,17 +626,20 @@ describe("release index and archives", () => {
       await touch("governance-search-strategy");
       await editManifest(root, "tag-knowledge", (m) => (m.version = "0.1.2"));
       await addChangelogSection(root, "tag-knowledge", "0.1.2", "### Fixed\n\n- Search strategy wording.");
+      // The agent packages bundle governance-search-strategy, so they must release with tag-knowledge.
+      const alone = await plan(root, initial, LATER);
+      assert.deepEqual(alone.errors, [
+        "tag-concierge@0.1.0 bundles governance-search-strategy, which tag-knowledge releases changed; release tag-concierge in the same build",
+        "tag-due-diligence@0.1.0 bundles governance-search-strategy, which tag-knowledge releases changed; release tag-due-diligence in the same build",
+      ]);
+      await releaseAgents(root, "0.1.1", "### Fixed\n\n- Search strategy wording.");
       const knowledge = await plan(root, initial, LATER);
       assert.deepEqual(knowledge.errors, []);
       assert.deepEqual(
         knowledge.releases.map((r) => r.entry.tag),
-        ["tag-knowledge@0.1.2"],
+        ["tag-concierge@0.1.1", "tag-due-diligence@0.1.1", "tag-knowledge@0.1.2"],
       );
-      // The agent packages bundle governance-search-strategy, so its change is pending there too.
-      assert.deepEqual(
-        (await plan(root, knowledge.index, LATER)).pending.map((p) => p.package),
-        ["tag-concierge", "tag-due-diligence"],
-      );
+      assert.deepEqual((await plan(root, knowledge.index, LATER)).pending, []);
 
       await touch("governance-triage-nda");
       await editManifest(root, "tag-governance", (m) => (m.version = "0.1.2"));
@@ -651,6 +665,7 @@ describe("release index and archives", () => {
       await setSkillVersion(root, "skills/governance/governance-search-strategy", "0.1.1");
       await editManifest(root, "tag-knowledge", (m) => (m.version = "0.1.2"));
       await addChangelogSection(root, "tag-knowledge", "0.1.2", "### Added\n\n- governance-search-strategy.");
+      await releaseAgents(root, "0.1.1", "### Fixed\n\n- Search strategy wording.");
       const knowledge = await plan(root, initial, LATER);
       assert.deepEqual(knowledge.errors, []);
       // As if tag-knowledge 0.1.1 did not ship governance-search-strategy yet.
@@ -704,12 +719,10 @@ describe("release index and archives", () => {
       await setSkillVersion(root, "skills/governance/governance-search-strategy", "0.2.0");
       await editManifest(root, "tag-knowledge", (m) => (m.version = "0.2.0-rc.1"));
       await addChangelogSection(root, "tag-knowledge", "0.2.0-rc.1", "### Changed\n\n- Search strategy rework.");
+      await releaseAgents(root, "0.2.0-rc.1", "### Changed\n\n- Search strategy rework.");
       const rc = await plan(root, initial, LATER);
       assert.deepEqual(rc.errors, []);
-      assert.deepEqual(
-        (await plan(root, rc.index, LATER)).pending.map((p) => p.package),
-        ["tag-concierge", "tag-due-diligence"],
-      );
+      assert.deepEqual((await plan(root, rc.index, LATER)).pending, []);
 
       const nda = join(root, "skills", "governance", "governance-triage-nda", "SKILL.md");
       await writeFile(nda, `${await readFile(nda, "utf8")}\n`);

@@ -28,7 +28,7 @@
       }
     },
     "tiers": {
-      "description": "Plan tiers from lowest to highest; each includes the ones before it.",
+      "description": "Plan tiers from lowest to highest; each includes the ones before it. Descriptive only: tiers gate nothing.",
       "type": "array",
       "items": {
         "type": "string"
@@ -230,7 +230,7 @@
           }
         },
         "tiers": {
-          "description": "Tier name to the package's skills available at that tier (cumulative).",
+          "description": "Tier name to the package's skills included in that plan tier (cumulative). Descriptive only: it gates nothing, every skill is available, and access is aletia's check.",
           "type": "object",
           "additionalProperties": {
             "type": "array",

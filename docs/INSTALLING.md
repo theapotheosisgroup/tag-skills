@@ -64,7 +64,7 @@ tar -xzf tag-due-diligence-0.1.0.develop.tar.gz    # the plugin directory tag-du
 
 **The TAG harness.** The harness is one more client, not a requirement: with ChatGPT or Claude it is not involved. It installs a package per organization from the release index ([package updates](integration/harness-consumption.md#package-updates)), loads the agent's instructions skill into the TrueForge agent, and attaches the signed-in person's own tool rows for the TAG MCP and Aletia MCP (or the package's `mcp.json`). The updater and the agent wiring are **Proposed but not implemented** in tag-harness.
 
-Whatever the client, aletia decides on every call what the signed-in person may see or do; a package grants nothing, and its tier is plan metadata.
+Whatever the client, aletia decides on every call what the signed-in person may see or do; a package grants nothing, every skill in it is available, and its tier is descriptive plan metadata that gates nothing.
 
 ## Profiles and dependencies
 
