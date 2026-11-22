@@ -89,6 +89,93 @@
       }
     },
     {
+      "name": "aletia.lens.read",
+      "status": "mapped",
+      "owner": "aletia",
+      "kind": "read",
+      "description": "View a nexus's expectations with the documents filed against them, through a saved lens or an ad-hoc filter (status, obligor, party, tags, gaps), as the caller.",
+      "binding": {
+        "server": "Aletia MCP (external server routed by tag-mcp)",
+        "tool": "lens",
+        "reference": "aletia develop@b83876e54a38311794f39adf5897dac8a9c0195f docs/aletia-mcp.md"
+      }
+    },
+    {
+      "name": "aletia.arc.read",
+      "status": "mapped",
+      "owner": "aletia",
+      "kind": "read",
+      "description": "One arc as the caller: its mark chain, facts extracted from its documents, claims that a document answers a request, and where each request stands.",
+      "binding": {
+        "server": "Aletia MCP (external server routed by tag-mcp)",
+        "tool": "arc",
+        "reference": "aletia develop@b83876e54a38311794f39adf5897dac8a9c0195f docs/aletia-mcp.md"
+      }
+    },
+    {
+      "name": "aletia.people.read",
+      "status": "mapped",
+      "owner": "aletia",
+      "kind": "read",
+      "description": "The people the caller shares an organization or a nexus with, their parties and roles, and whether a document can be sent to them; the agents their organizations authorized.",
+      "binding": {
+        "server": "Aletia MCP (external server routed by tag-mcp)",
+        "tool": "people",
+        "reference": "aletia develop@b83876e54a38311794f39adf5897dac8a9c0195f docs/aletia-mcp.md"
+      }
+    },
+    {
+      "name": "aletia.sends.read",
+      "status": "mapped",
+      "owner": "aletia",
+      "kind": "read",
+      "description": "Documents sent to or by the caller, and the requests asked of the caller by name or by the caller of someone.",
+      "binding": {
+        "server": "Aletia MCP (external server routed by tag-mcp)",
+        "tool": "sends",
+        "reference": "aletia develop@b83876e54a38311794f39adf5897dac8a9c0195f docs/aletia-mcp.md"
+      }
+    },
+    {
+      "name": "aletia.expect.write",
+      "status": "mapped",
+      "owner": "aletia",
+      "kind": "write",
+      "description": "Raise expectations (requests) in a nexus as the caller, or refine an open one the caller raised; who owes it, priority, category and due date are fixed when raised.",
+      "binding": {
+        "server": "Aletia MCP (external server routed by tag-mcp)",
+        "tool": "expect",
+        "reference": "aletia develop@b83876e54a38311794f39adf5897dac8a9c0195f docs/aletia-mcp.md"
+      },
+      "requiresReview": true
+    },
+    {
+      "name": "aletia.supply.write",
+      "status": "mapped",
+      "owner": "aletia",
+      "kind": "write",
+      "description": "Put documents into a nexus as the caller, optionally filing each against the request it answers or sending it to a person or the whole nexus with a message.",
+      "binding": {
+        "server": "Aletia MCP (external server routed by tag-mcp)",
+        "tool": "supply",
+        "reference": "aletia develop@b83876e54a38311794f39adf5897dac8a9c0195f docs/aletia-mcp.md"
+      },
+      "requiresReview": true
+    },
+    {
+      "name": "aletia.mark.write",
+      "status": "mapped",
+      "owner": "aletia",
+      "kind": "write",
+      "description": "Comment, ask a follow-up, answer, accept, reject a claim, waive, reopen or close a request as the caller; the ledger's closure authority applies.",
+      "binding": {
+        "server": "Aletia MCP (external server routed by tag-mcp)",
+        "tool": "mark",
+        "reference": "aletia develop@b83876e54a38311794f39adf5897dac8a9c0195f docs/aletia-mcp.md"
+      },
+      "requiresReview": true
+    },
+    {
       "name": "tag.ledger.trial_balance.read",
       "status": "proposed",
       "owner": "tag-connectors (provider adapter) via tag-mcp",

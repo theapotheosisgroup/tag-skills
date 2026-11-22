@@ -85,6 +85,21 @@
       "request": "What is still open and overdue, and who is it waiting on? Follow up the expectations for this month",
       "audience": "client-finance",
       "expect": "governance-task-management"
+    },
+    {
+      "request": "Hi, I'm new here - what does TAG have open for us, and can you ask TAG to help with our back office?",
+      "audience": "client-finance",
+      "expect": "governance-concierge"
+    },
+    {
+      "request": "Set up a due-diligence data room and raise the request list for the acquisition target",
+      "audience": "client-legal",
+      "expect": "governance-due-diligence"
+    },
+    {
+      "request": "We received diligence requests from the buyer: find the documents in my drive and file each against its request",
+      "audience": "client-finance",
+      "expect": "governance-due-diligence"
     }
   ]
 }

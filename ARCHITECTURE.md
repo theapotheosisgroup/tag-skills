@@ -4,9 +4,9 @@
 
 ```mermaid
 flowchart LR
-  repo["tag-skills<br/>skills/&lt;pillar&gt;/&lt;pillar&gt;-&lt;name&gt;/"] -- "npx skills add<br/>(or a runtime bundle)" --> client["Agent client or TAG harness<br/>(Claude Code, Codex, TrueForge)"]
+  repo["tag-skills<br/>skills/&lt;pillar&gt;/&lt;pillar&gt;-&lt;name&gt;/"] -- "npx skills add<br/>(or a runtime bundle)" --> client["Agent client or TAG harness<br/>(ChatGPT, Claude, Codex, TrueForge)"]
   repo -- "release workflow:<br/>package@version archives + index.json" --> releases["GitHub releases<br/>(Agent Plugins 1.0.0 packages)"]
-  releases -- "harness updater polls the index" --> client
+  releases -- "load a package (skills + mcp.json);<br/>harness updater polls the index" --> client
   client -- "capability call with the run's own<br/>authorized connection and context" --> mcp["TAG MCP surface (tag-mcp),<br/>Aletia MCP"]
   mcp -- "authority decided by aletia;<br/>data via tag-connectors" --> domain["Owning domain<br/>(tag-backoffice, aletia)"]
 ```
@@ -18,6 +18,7 @@ The skill only tells the client which logical capability to call and how ([capab
 - Published back-office G&A skills under `skills/<pillar>/<pillar>-<name>/` (pillars: finance, people, governance), in the Agent Skills format, with TAG metadata (`tag-skill.json`) and upstream licence and notice files.
 - Reporting templates and portable helper scripts inside skills (for example the statement builder in finance-financial-statements), with their evaluations.
 - Skill packages (`packages/<name>/plugin.json` in the Agent Plugins 1.0.0 format, with tiers and a changelog), the package versioning rules, the release workflow and the release index format ([ADR 0005](docs/adr/0005-agent-plugins-packages-and-releases.md)).
+- The packages' `mcp.json` (where the TAG MCP and Aletia MCP answer in each environment, never how to authorize) and the agent packages: a TAG agent as its instructions skill plus the skills it uses, loadable in ChatGPT, Claude or the harness ([ADR 0006](docs/adr/0006-mcp-servers-and-agent-packages.md)).
 - Profiles, the generated catalog, the upstream import record (`upstreams.lock.json`) and the logical capability registry (`docs/integration/capabilities.json`), as contracts.
 - The validator, the Skills CLI discovery and installation tests, the profile installer and the upstream comparison tool.
 - The list of supported agent clients and the installation instructions ([docs/INSTALLING.md](docs/INSTALLING.md)).
@@ -26,7 +27,7 @@ The skill only tells the client which logical capability to call and how ([capab
 
 | Not here | Owner |
 | --- | --- |
-| Agent definitions, the agent registry and the agent plugin format | `tag-agents` (definitions), `tag-platform` (registry deployment) |
+| The agent fleet's definitions (identity, DIDs, runtime policy), the agent registry and their execution | `tag-agents` (definitions), `tag-platform` (registry deployment) |
 | MCP servers, tools and their authorization | `tag-mcp` (the MCP surface for TAG's back office: facade, Back Office MCP, A2A, APIs), the owning domain (`tag-backoffice`) |
 | Organizations, persons, roles, nexuses, delegated authority, audit records, expectations | `aletia` |
 | Runtime skill discovery, selection, execution state, retries, evidence capture, review routing | `tag-harness` (agents run through TrueForge) |

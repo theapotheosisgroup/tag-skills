@@ -264,6 +264,74 @@
       "contentHash": "sha256:2086723ea92d8a2860d12b0553854e8cb1797bd5f43a34b54bb64fec50fad6b6"
     },
     {
+      "name": "governance-concierge",
+      "description": "Act as TAG's Concierge, the organization's back-office assistant - answer from the records the person may see, report how requests and TAG work stand, find and send documents in a nexus, and turn a need TAG must act on into a confirmed request. Use at the start of any conversation about the organization's back office in TAG, or when asked what is open, what TAG is doing, where a document is, who something was sent to, or to ask TAG for help.",
+      "path": "skills/governance/governance-concierge",
+      "version": "0.1.0",
+      "domain": "governance",
+      "priority": "P1",
+      "audiences": [
+        "tag-operations",
+        "client-finance",
+        "client-legal"
+      ],
+      "invocation": "model",
+      "sideEffects": "authorized-write",
+      "capabilities": [
+        "tag.context.overview",
+        "tag.work.status",
+        "tag.request.ask",
+        "aletia.nexus.read",
+        "aletia.search",
+        "aletia.lens.read",
+        "aletia.people.read",
+        "aletia.sends.read",
+        "aletia.supply.write"
+      ],
+      "dependencies": [
+        "governance-task-management",
+        "governance-search-strategy",
+        "governance-knowledge-synthesis",
+        "governance-source-management"
+      ],
+      "provenance": [],
+      "contentHash": "sha256:996a5ecd893f5d11eef6d7307523256196b4fff61259cbf6257c2a61444914a1"
+    },
+    {
+      "name": "governance-due-diligence",
+      "description": "Run a due-diligence data room in a TAG nexus from either side - for the organization doing the diligence, raise and drive a list of requests (expectations), track what is answered, missing or overdue, and review what comes in; for the side responding, see what is asked of you, find the matching documents in your files or connected drive, and file each against its request. Use when asked to set up or run a data room, a due-diligence request list or checklist, to respond to diligence requests, or to find what is still missing.",
+      "path": "skills/governance/governance-due-diligence",
+      "version": "0.1.0",
+      "domain": "governance",
+      "priority": "P1",
+      "audiences": [
+        "tag-operations",
+        "client-finance",
+        "client-legal"
+      ],
+      "invocation": "model",
+      "sideEffects": "authorized-write",
+      "capabilities": [
+        "aletia.nexus.read",
+        "aletia.lens.read",
+        "aletia.arc.read",
+        "aletia.search",
+        "aletia.people.read",
+        "aletia.sends.read",
+        "aletia.expect.write",
+        "aletia.supply.write",
+        "aletia.mark.write"
+      ],
+      "dependencies": [
+        "governance-task-management",
+        "governance-search-strategy",
+        "governance-knowledge-synthesis",
+        "governance-source-management"
+      ],
+      "provenance": [],
+      "contentHash": "sha256:eaf9b6beefe080e9c5d24369ceb6c097f37538044fa9b38c651ff813b34104b9"
+    },
+    {
       "name": "governance-knowledge-synthesis",
       "description": "Combine search results from several organizational sources into one attributed answer and an evidence bundle that keeps each source's identifier, timestamp, relevance and authority, deduplicates the same fact across sources, states confidence, and keeps conflicting evidence visible instead of resolving it silently. Use after a multi-source search, or when asked to summarize what the organization's documents, email, chat and records say about a decision, status, policy or person, with citations. Answers only from evidence the caller may access.",
       "path": "skills/governance/governance-knowledge-synthesis",
@@ -462,6 +530,8 @@
         "finance-reconciliation",
         "finance-validate-data",
         "finance-variance-analysis",
+        "governance-concierge",
+        "governance-due-diligence",
         "governance-knowledge-synthesis",
         "governance-review-contract",
         "governance-search-strategy",
@@ -488,8 +558,10 @@
     },
     {
       "name": "governance",
-      "description": "The Governance pillar: contract review, NDA triage, vendor checks, the knowledge skills (search strategy, source management, knowledge synthesis) and task management.",
+      "description": "The Governance pillar: contract review, NDA triage, vendor checks, the knowledge skills (search strategy, source management, knowledge synthesis), task management, and the Concierge and due-diligence agent instructions.",
       "skills": [
+        "governance-concierge",
+        "governance-due-diligence",
         "governance-knowledge-synthesis",
         "governance-review-contract",
         "governance-search-strategy",

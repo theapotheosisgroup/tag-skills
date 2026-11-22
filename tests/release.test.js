@@ -1,6 +1,7 @@
-// Skill packages and releases (ADR 0005): manifests conform to the pinned Agent Plugins 1.0.0
-// schema, every published skill ships in exactly one package, the versioning rules hold, and the
-// archives and release index are reproducible.
+// Skill packages and releases (ADR 0005, ADR 0006): manifests and mcp.json conform to the pinned
+// Agent Plugins 1.0.0 schemas, every published skill has exactly one home package, agent packages
+// bundle what they use, the versioning rules hold, and the archives (one per environment) and
+// release index are reproducible.
 
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
@@ -10,6 +11,10 @@ import { join } from "node:path";
 import { describe, test } from "node:test";
 import { sha256 } from "../scripts/lib/hash.js";
 import {
+  MCP_FILE,
+  MCP_SCHEMA_FILE,
+  MCP_SCHEMA_ID,
+  MCP_SCHEMA_SHA256,
   NAMESPACE,
   PLUGIN_SCHEMA_FILE,
   PLUGIN_SCHEMA_ID,
@@ -17,8 +22,10 @@ import {
   TIERS,
   changelogSection,
   checkPackages,
+  loadMcp,
   loadPackageSchemas,
   loadPackages,
+  renderMcp,
 } from "../scripts/lib/packages.js";
 import {
   bumpCovers,
@@ -64,6 +71,17 @@ async function addChangelogSection(root, name, version, body) {
   await writeFile(path, text.replace("## [Unreleased]\n", `## [Unreleased]\n\n## [${version}]\n\n${body}\n`));
 }
 
+/**
+ * Bumps both agent packages, which bundle every tag-knowledge skill and governance-task-management.
+ * @param {string} root @param {string} version @param {string} body
+ */
+async function releaseAgents(root, version, body) {
+  for (const name of ["tag-concierge", "tag-due-diligence"]) {
+    await editManifest(root, name, (m) => (m.version = version));
+    await addChangelogSection(root, name, version, body);
+  }
+}
+
 /** @param {string} root @param {string} skillPath @param {string} version */
 async function setSkillVersion(root, skillPath, version) {
   const path = join(root, skillPath, "tag-skill.json");
@@ -77,7 +95,12 @@ async function plan(/** @type {string} */ root, /** @type {any} */ previous, con
   const { repository, findings: repoFindings } = await checkRepository(root);
   const { packages, findings } = await checkPackages(root, repository);
   assert.deepEqual([...repoFindings, ...findings], [], "the tree must be valid before planning");
-  const result = await planReleases(packages, repository, previous, context);
+  const mcp = await loadMcp(root, await loadPackageSchemas(root));
+  assert.ok(mcp.bytes);
+  const result = await planReleases(packages, repository, previous, context, {
+    bytes: mcp.bytes,
+    servers: mcp.servers,
+  });
   return { ...result, packages, index: mergeIndex(previous, result.releases, packages) };
 }
 
@@ -110,20 +133,86 @@ describe("package manifests", () => {
     assert.deepEqual(await findingsOf(repo), []);
   });
 
-  test("every published skill appears in exactly one package", async () => {
+  test("every published skill has exactly one home package", async () => {
     const repository = await loadRepository(repo);
     const { packages } = await loadPackages(repo);
-    const listed = packages.flatMap((p) => p.skills.map((s) => s.name)).sort();
-    assert.deepEqual(listed, repository.skills.map((s) => s.name).sort());
-    assert.equal(new Set(listed).size, listed.length);
+    const homes = packages.flatMap((p) => p.skills.filter((s) => !s.from).map((s) => s.name)).sort();
+    assert.deepEqual(homes, repository.skills.map((s) => s.name).sort());
+    assert.equal(new Set(homes).size, homes.length);
   });
 
-  test("the packages are the pillars with skills, plus the shared knowledge package", async () => {
+  test("the packages are the pillars with skills, the shared knowledge package and the agents", async () => {
     const { packages } = await loadPackages(repo);
     assert.deepEqual(
-      packages.map((p) => p.name),
-      ["tag-finance", "tag-governance", "tag-knowledge"],
+      packages.map((p) => [p.name, p.agent]),
+      [
+        ["tag-concierge", "governance-concierge"],
+        ["tag-due-diligence", "governance-due-diligence"],
+        ["tag-finance", null],
+        ["tag-governance", null],
+        ["tag-knowledge", null],
+      ],
     );
+  });
+
+  test("an agent package ships its own instructions skill and every skill its skills depend on", async () => {
+    const repository = await loadRepository(repo);
+    const bySkill = new Map(repository.skills.map((s) => [s.name, s]));
+    const { packages } = await loadPackages(repo);
+    for (const pkg of packages.filter((p) => p.agent)) {
+      const shipped = new Set(pkg.skills.map((s) => s.name));
+      assert.ok(
+        pkg.skills.some((s) => s.name === pkg.agent && !s.from),
+        pkg.name,
+      );
+      for (const name of shipped) {
+        for (const dep of bySkill.get(name)?.meta?.dependencies.skills ?? []) {
+          assert.ok(shipped.has(dep), `${pkg.name}: ${name} needs ${dep}`);
+        }
+      }
+    }
+  });
+
+  test("rejects bundling outside an agent package, a wrong home, a lowered tier and a missing dependency", async () => {
+    const root = await copyRepo();
+    try {
+      await editManifest(root, "tag-finance", (m) => {
+        m.extensions[NAMESPACE].skills.push({
+          name: "governance-search-strategy",
+          tier: "foundation",
+          from: "tag-knowledge",
+        });
+      });
+      await editManifest(root, "tag-concierge", (m) => {
+        const skills = m.extensions[NAMESPACE].skills;
+        for (const s of skills) if (s.name === "governance-task-management") s.from = "tag-knowledge";
+        m.extensions[NAMESPACE].skills = skills.filter(
+          (/** @type {any} */ s) => s.name !== "governance-search-strategy",
+        );
+        m.extensions[NAMESPACE].skills.push({
+          name: "governance-review-contract",
+          tier: "structure",
+          from: "tag-governance",
+        });
+      });
+      await editManifest(
+        root,
+        "tag-due-diligence",
+        (m) => (m.extensions[NAMESPACE].agent = "governance-task-management"),
+      );
+      const messages = await findingsOf(root);
+      assert.ok(messages.some((m) => m.includes('"governance-search-strategy": only an agent package bundles')));
+      assert.ok(messages.some((m) => m.includes('"governance-task-management" is bundled from tag-knowledge')));
+      assert.ok(messages.some((m) => m.includes('bundled "governance-review-contract" is structure but turnkey')));
+      assert.ok(
+        messages.some((m) =>
+          m.includes('depends on "governance-search-strategy", which the agent package does not ship'),
+        ),
+      );
+      assert.ok(messages.some((m) => m.includes('"agent" names "governance-task-management"')));
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
   });
 
   test("rejects a skill listed twice, a skill in no package and an unknown skill", async () => {
@@ -213,6 +302,58 @@ describe("package manifests", () => {
     }
   });
 
+  test("the vendored mcp.json schema is the pinned 1.0.0 schema, byte for byte", async () => {
+    const bytes = await readFile(join(repo, MCP_SCHEMA_FILE));
+    assert.equal(sha256(bytes), MCP_SCHEMA_SHA256);
+    assert.equal(JSON.parse(bytes.toString("utf8")).$id, MCP_SCHEMA_ID);
+  });
+
+  test("mcp.json declares the TAG and Aletia MCP servers on the production origin", async () => {
+    const schemas = await loadPackageSchemas(repo);
+    const { bytes, servers, findings } = await loadMcp(repo, schemas);
+    assert.deepEqual(findings, []);
+    assert.deepEqual(servers, { aletia: "https://mcp.tag.company/aletia", tag: "https://mcp.tag.company/tag" });
+    const develop = /** @type {any} */ (
+      JSON.parse(renderMcp(/** @type {Buffer} */ (bytes), "develop").toString("utf8"))
+    );
+    assert.ok(schemas.mcp(structuredClone(develop)));
+    assert.deepEqual(develop.mcpServers, {
+      aletia: { type: "streamable-http", url: "https://mcp.develop.tag.company/aletia" },
+      tag: { type: "streamable-http", url: "https://mcp.develop.tag.company/tag" },
+    });
+    assert.ok(renderMcp(/** @type {Buffer} */ (bytes), "production").equals(/** @type {Buffer} */ (bytes)));
+    assert.throws(() => renderMcp(/** @type {Buffer} */ (bytes), "staging"), /unknown environment/);
+  });
+
+  test("rejects an mcp.json with headers, another origin, a non-HTTP transport or a placeholder", async () => {
+    const root = await copyRepo();
+    try {
+      await writeFile(
+        join(root, MCP_FILE),
+        JSON.stringify({
+          $schema: MCP_SCHEMA_ID,
+          mcpServers: {
+            tag: { type: "streamable-http", url: "https://mcp.tag.company/tag", headers: { Authorization: "x" } },
+            other: { type: "streamable-http", url: "https://example.com/mcp" },
+            local: { type: "stdio", command: "node" },
+            env: { type: "streamable-http", url: "https://mcp.${ENV}.tag.company/tag" },
+            query: { type: "sse", url: "https://mcp.tag.company/tag?token=x" },
+          },
+        }),
+      );
+      const messages = await findingsOf(root);
+      assert.ok(messages.some((m) => m.includes('"tag" must not set headers')));
+      assert.ok(messages.some((m) => m.includes('"other" url must be a path on the production MCP origin')));
+      assert.ok(messages.some((m) => m.includes('"local" must be a "streamable-http" server')));
+      assert.ok(messages.some((m) => m.includes('"env" url must be a path on the production MCP origin')));
+      assert.ok(messages.some((m) => m.includes('"query" url must be a plain https URL')));
+      await rm(join(root, MCP_FILE));
+      assert.ok((await findingsOf(root)).some((m) => m.includes("mcp.json is missing")));
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   test("changelogSection returns one version's section", () => {
     const text = "# C\n\n## [Unreleased]\n\n## [1.2.0] - 2026-11-22\n\n### Added\n\n- x\n\n## [1.1.0]\n\n- y\n";
     assert.equal(changelogSection(text, "1.2.0"), "### Added\n\n- x");
@@ -275,7 +416,7 @@ describe("versioning rules", () => {
     assert.equal(level({}), "fix");
     assert.equal(level({ version: "1.1.0" }), "feature");
     assert.equal(level({ version: "2.0.0" }), "breaking");
-    assert.equal(level({ tier: "structure" }), "breaking");
+    assert.equal(level({ tier: "structure" }), "fix");
     assert.equal(level({ sideEffects: "authorized-write" }), "breaking");
     assert.equal(level({ invocation: "user" }), "breaking");
     assert.equal(level({ requiredCapabilities: ["tag.a", "tag.b"] }), "breaking");
@@ -284,6 +425,15 @@ describe("versioning rules", () => {
     assert.equal(level({ outputs: ["report", "chart"] }), "feature");
     assert.equal(level({}, { "tag-knowledge": "^0.1.0" }), "breaking");
     assert.equal(diffPackage(base, { ...base, skills: [] }).level, "breaking");
+    const servers = { tag: "https://mcp.tag.company/tag" };
+    assert.equal(diffPackage(base, { ...base, mcpServers: servers }).level, "feature");
+    assert.equal(diffPackage({ ...base, mcpServers: servers }, base).level, "breaking");
+    assert.equal(
+      diffPackage({ ...base, mcpServers: servers }, { ...base, mcpServers: { tag: "https://mcp.tag.company/x" } })
+        .level,
+      "breaking",
+    );
+    assert.equal(diffPackage({ ...base, mcpServers: servers }, { ...base, mcpServers: servers }).level, null);
     const unchangedVersion = diffPackage(base, {
       ...base,
       skills: [{ ...skill, contentHash: `sha256:${"b".repeat(64)}` }],
@@ -317,7 +467,7 @@ describe("release index and archives", () => {
     const entry = governance.versions[0];
     assert.equal(governance.channels.stable, entry.version);
     assert.equal(entry.agentPlugins, "1.0.0");
-    assert.deepEqual(entry.requires, { "tag-knowledge": "^0.1.0" });
+    assert.deepEqual(entry.requires, { "tag-knowledge": "^0.1.1" });
     assert.equal(
       entry.archive.url,
       `https://github.com/theapotheosisgroup/tag-skills/releases/download/${entry.tag}/${entry.archive.name}`,
@@ -360,8 +510,8 @@ describe("release index and archives", () => {
       );
 
       // Bumping the package without bumping the changed skill is refused.
-      await editManifest(root, "tag-finance", (m) => (m.version = "0.1.1"));
-      await addChangelogSection(root, "tag-finance", "0.1.1", "### Fixed\n\n- Reconciliation wording.");
+      await editManifest(root, "tag-finance", (m) => (m.version = "0.1.2"));
+      await addChangelogSection(root, "tag-finance", "0.1.2", "### Fixed\n\n- Reconciliation wording.");
       const refused = await plan(root, initial, LATER);
       assert.ok(refused.errors.some((e) => e.includes("finance-reconciliation changed since the previous release")));
 
@@ -370,19 +520,19 @@ describe("release index and archives", () => {
       assert.deepEqual(released.errors, []);
       assert.deepEqual(
         released.releases.map((r) => r.entry.tag),
-        ["tag-finance@0.1.1"],
+        ["tag-finance@0.1.2"],
       );
       const entry = released.releases[0].entry;
-      assert.equal(entry.previous, "0.1.0");
+      assert.equal(entry.previous, "0.1.1");
       assert.equal(entry.breaking, false);
       assert.deepEqual(entry.changes, ["fix: finance-reconciliation 0.1.0 -> 0.1.1"]);
       assert.equal(entry.changelog, "### Fixed\n\n- Reconciliation wording.");
       const finance = released.index.packages.find((/** @type {any} */ p) => p.name === "tag-finance");
       assert.deepEqual(
         finance.versions.map((/** @type {any} */ v) => v.version),
-        ["0.1.1", "0.1.0"],
+        ["0.1.2", "0.1.1"],
       );
-      assert.equal(finance.channels.stable, "0.1.1");
+      assert.equal(finance.channels.stable, "0.1.2");
     } finally {
       await rm(root, { recursive: true, force: true });
     }
@@ -392,24 +542,20 @@ describe("release index and archives", () => {
     const root = await copyRepo();
     try {
       const initial = (await plan(root, emptyIndex())).index;
-      await editManifest(root, "tag-finance", (m) => {
-        for (const s of m.extensions[NAMESPACE].skills) if (s.name === "finance-variance-analysis") s.tier = "turnkey";
-        m.version = "0.1.1";
-      });
-      await addChangelogSection(root, "tag-finance", "0.1.1", "### Changed\n\n- Variance analysis moves to Turnkey.");
+      await setSkillVersion(root, "skills/finance/finance-variance-analysis", "0.2.0");
+      await editManifest(root, "tag-finance", (m) => (m.version = "0.1.2"));
+      await addChangelogSection(root, "tag-finance", "0.1.2", "### Changed\n\n- Variance analysis 0.2.0.");
       const refused = await plan(root, initial, LATER);
       assert.ok(
-        refused.errors.some((e) => e.includes("too small for a breaking change") && e.includes("structure to turnkey")),
+        refused.errors.some((e) => e.includes("too small for a breaking change") && e.includes("0.1.0 -> 0.2.0")),
       );
 
       await editManifest(root, "tag-finance", (m) => (m.version = "0.2.0"));
-      await addChangelogSection(root, "tag-finance", "0.2.0", "### Changed\n\n- Variance analysis moves to Turnkey.");
+      await addChangelogSection(root, "tag-finance", "0.2.0", "### Changed\n\n- Variance analysis 0.2.0.");
       const released = await plan(root, initial, LATER);
       assert.deepEqual(released.errors, []);
       assert.equal(released.releases[0].entry.breaking, true);
-      assert.deepEqual(released.releases[0].entry.changes, [
-        "breaking: finance-variance-analysis moved from structure to turnkey",
-      ]);
+      assert.deepEqual(released.releases[0].entry.changes, ["breaking: finance-variance-analysis 0.1.0 -> 0.2.0"]);
     } finally {
       await rm(root, { recursive: true, force: true });
     }
@@ -421,44 +567,37 @@ describe("release index and archives", () => {
     try {
       const original = await readFile(manifestPath, "utf8");
       const initial = (await plan(root, emptyIndex())).index;
-      const raiseTier = (/** @type {any} */ m) => {
-        for (const s of m.extensions[NAMESPACE].skills) if (s.name === "finance-variance-analysis") s.tier = "turnkey";
-      };
-      await editManifest(root, "tag-finance", (m) => {
-        raiseTier(m);
-        m.version = "0.2.0-rc.1";
-      });
-      await addChangelogSection(
-        root,
-        "tag-finance",
-        "0.2.0-rc.1",
-        "### Changed\n\n- Variance analysis moves to Turnkey.",
-      );
+      const skillMetaPath = join(root, "skills", "finance", "finance-variance-analysis", "tag-skill.json");
+      const originalSkillMeta = await readFile(skillMetaPath, "utf8");
+      await setSkillVersion(root, "skills/finance/finance-variance-analysis", "0.2.0");
+      await editManifest(root, "tag-finance", (m) => (m.version = "0.2.0-rc.1"));
+      await addChangelogSection(root, "tag-finance", "0.2.0-rc.1", "### Changed\n\n- Variance analysis 0.2.0.");
       const rc = await plan(root, initial, LATER);
       assert.deepEqual(rc.errors, []);
-      assert.equal(rc.releases[0].entry.previous, "0.1.0");
+      assert.equal(rc.releases[0].entry.previous, "0.1.1");
 
       await editManifest(root, "tag-finance", (m) => (m.version = "0.2.0"));
-      await addChangelogSection(root, "tag-finance", "0.2.0", "### Changed\n\n- Variance analysis moves to Turnkey.");
+      await addChangelogSection(root, "tag-finance", "0.2.0", "### Changed\n\n- Variance analysis 0.2.0.");
       const stable = await plan(root, rc.index, LATER);
       assert.deepEqual(stable.errors, []);
       const entry = stable.releases[0].entry;
-      assert.equal(entry.previous, "0.1.0");
+      assert.equal(entry.previous, "0.1.1");
       assert.equal(entry.breaking, true);
-      assert.deepEqual(entry.changes, ["breaking: finance-variance-analysis moved from structure to turnkey"]);
+      assert.deepEqual(entry.changes, ["breaking: finance-variance-analysis 0.1.0 -> 0.2.0"]);
 
       // A hotfix on the stable line ships while the next line is in pre-release.
       await writeFile(manifestPath, original);
-      await editManifest(root, "tag-finance", (m) => (m.version = "0.1.1"));
-      await addChangelogSection(root, "tag-finance", "0.1.1", "### Fixed\n\n- Package metadata.");
+      await writeFile(skillMetaPath, originalSkillMeta);
+      await editManifest(root, "tag-finance", (m) => (m.version = "0.1.2"));
+      await addChangelogSection(root, "tag-finance", "0.1.2", "### Fixed\n\n- Package metadata.");
       const hotfix = await plan(root, rc.index, LATER);
       assert.deepEqual(hotfix.errors, []);
       assert.deepEqual(
         hotfix.releases.map((r) => [r.entry.tag, r.entry.previous, r.entry.breaking]),
-        [["tag-finance@0.1.1", "0.1.0", false]],
+        [["tag-finance@0.1.2", "0.1.1", false]],
       );
       const finance = hotfix.index.packages.find((/** @type {any} */ p) => p.name === "tag-finance");
-      assert.equal(finance.channels.stable, "0.1.1");
+      assert.equal(finance.channels.stable, "0.1.2");
     } finally {
       await rm(root, { recursive: true, force: true });
     }
@@ -474,25 +613,32 @@ describe("release index and archives", () => {
         await setSkillVersion(root, `skills/governance/${skill}`, "0.1.1");
       };
       await touch("governance-search-strategy");
-      await editManifest(root, "tag-knowledge", (m) => (m.version = "0.1.1"));
-      await addChangelogSection(root, "tag-knowledge", "0.1.1", "### Fixed\n\n- Search strategy wording.");
+      await editManifest(root, "tag-knowledge", (m) => (m.version = "0.1.2"));
+      await addChangelogSection(root, "tag-knowledge", "0.1.2", "### Fixed\n\n- Search strategy wording.");
+      // The agent packages bundle governance-search-strategy, so they must release with tag-knowledge.
+      const alone = await plan(root, initial, LATER);
+      assert.deepEqual(alone.errors, [
+        "tag-concierge@0.1.0 bundles governance-search-strategy, which tag-knowledge releases changed; release tag-concierge in the same build",
+        "tag-due-diligence@0.1.0 bundles governance-search-strategy, which tag-knowledge releases changed; release tag-due-diligence in the same build",
+      ]);
+      await releaseAgents(root, "0.1.1", "### Fixed\n\n- Search strategy wording.");
       const knowledge = await plan(root, initial, LATER);
       assert.deepEqual(knowledge.errors, []);
       assert.deepEqual(
         knowledge.releases.map((r) => r.entry.tag),
-        ["tag-knowledge@0.1.1"],
+        ["tag-concierge@0.1.1", "tag-due-diligence@0.1.1", "tag-knowledge@0.1.2"],
       );
       assert.deepEqual((await plan(root, knowledge.index, LATER)).pending, []);
 
       await touch("governance-triage-nda");
-      await editManifest(root, "tag-governance", (m) => (m.version = "0.1.1"));
-      await addChangelogSection(root, "tag-governance", "0.1.1", "### Fixed\n\n- NDA triage wording.");
+      await editManifest(root, "tag-governance", (m) => (m.version = "0.1.2"));
+      await addChangelogSection(root, "tag-governance", "0.1.2", "### Fixed\n\n- NDA triage wording.");
       const governance = await plan(root, knowledge.index, LATER);
       assert.deepEqual(governance.errors, []);
       const entry = governance.releases[0].entry;
-      assert.equal(entry.tag, "tag-governance@0.1.1");
+      assert.equal(entry.tag, "tag-governance@0.1.2");
       assert.equal(entry.breaking, false);
-      assert.deepEqual(entry.requires, { "tag-knowledge": "^0.1.0" });
+      assert.deepEqual(entry.requires, { "tag-knowledge": "^0.1.1" });
       assert.deepEqual(entry.changes, ["fix: governance-triage-nda 0.1.0 -> 0.1.1"]);
     } finally {
       await rm(root, { recursive: true, force: true });
@@ -506,15 +652,16 @@ describe("release index and archives", () => {
       const search = join(root, "skills", "governance", "governance-search-strategy", "SKILL.md");
       await writeFile(search, `${await readFile(search, "utf8")}\n`);
       await setSkillVersion(root, "skills/governance/governance-search-strategy", "0.1.1");
-      await editManifest(root, "tag-knowledge", (m) => (m.version = "0.1.1"));
-      await addChangelogSection(root, "tag-knowledge", "0.1.1", "### Added\n\n- governance-search-strategy.");
+      await editManifest(root, "tag-knowledge", (m) => (m.version = "0.1.2"));
+      await addChangelogSection(root, "tag-knowledge", "0.1.2", "### Added\n\n- governance-search-strategy.");
+      await releaseAgents(root, "0.1.1", "### Fixed\n\n- Search strategy wording.");
       const knowledge = await plan(root, initial, LATER);
       assert.deepEqual(knowledge.errors, []);
-      // As if tag-knowledge 0.1.0 did not ship governance-search-strategy yet.
+      // As if tag-knowledge 0.1.1 did not ship governance-search-strategy yet.
       const index = structuredClone(knowledge.index);
       const floor = index.packages
         .find((/** @type {any} */ p) => p.name === "tag-knowledge")
-        .versions.find((/** @type {any} */ v) => v.version === "0.1.0");
+        .versions.find((/** @type {any} */ v) => v.version === "0.1.1");
       floor.skills = floor.skills.filter((/** @type {any} */ s) => s.name !== "governance-search-strategy");
 
       const metaPath = join(root, "skills", "governance", "governance-triage-nda", "tag-skill.json");
@@ -524,18 +671,18 @@ describe("release index and archives", () => {
       await writeFile(metaPath, `${JSON.stringify(meta, null, 2)}\n`);
       const nda = join(root, "skills", "governance", "governance-triage-nda", "SKILL.md");
       await writeFile(nda, `${await readFile(nda, "utf8")}\nRequires the governance-search-strategy skill.\n`);
-      await editManifest(root, "tag-governance", (m) => (m.version = "0.1.1"));
-      await addChangelogSection(root, "tag-governance", "0.1.1", "### Changed\n\n- NDA triage uses search strategy.");
+      await editManifest(root, "tag-governance", (m) => (m.version = "0.1.2"));
+      await addChangelogSection(root, "tag-governance", "0.1.2", "### Changed\n\n- NDA triage uses search strategy.");
 
       const kept = await plan(root, knowledge.index, LATER);
       assert.deepEqual(kept.errors, []);
-      assert.deepEqual(kept.releases[0].entry.requires, { "tag-knowledge": "^0.1.0" });
+      assert.deepEqual(kept.releases[0].entry.requires, { "tag-knowledge": "^0.1.1" });
 
       const refused = await plan(root, index, LATER);
       assert.ok(
         refused.errors.some(
           (e) =>
-            e.includes("too small for a breaking change") && e.includes("requires tag-knowledge ^0.1.1 (was ^0.1.0)"),
+            e.includes("too small for a breaking change") && e.includes("requires tag-knowledge ^0.1.2 (was ^0.1.1)"),
         ),
         refused.errors.join("\n"),
       );
@@ -545,7 +692,7 @@ describe("release index and archives", () => {
       const released = await plan(root, index, LATER);
       assert.deepEqual(released.errors, []);
       const entry = released.releases[0].entry;
-      assert.deepEqual(entry.requires, { "tag-knowledge": "^0.1.1" });
+      assert.deepEqual(entry.requires, { "tag-knowledge": "^0.1.2" });
       assert.equal(entry.breaking, true);
     } finally {
       await rm(root, { recursive: true, force: true });
@@ -561,6 +708,7 @@ describe("release index and archives", () => {
       await setSkillVersion(root, "skills/governance/governance-search-strategy", "0.2.0");
       await editManifest(root, "tag-knowledge", (m) => (m.version = "0.2.0-rc.1"));
       await addChangelogSection(root, "tag-knowledge", "0.2.0-rc.1", "### Changed\n\n- Search strategy rework.");
+      await releaseAgents(root, "0.2.0-rc.1", "### Changed\n\n- Search strategy rework.");
       const rc = await plan(root, initial, LATER);
       assert.deepEqual(rc.errors, []);
       assert.deepEqual((await plan(root, rc.index, LATER)).pending, []);
@@ -568,20 +716,20 @@ describe("release index and archives", () => {
       const nda = join(root, "skills", "governance", "governance-triage-nda", "SKILL.md");
       await writeFile(nda, `${await readFile(nda, "utf8")}\n`);
       await setSkillVersion(root, "skills/governance/governance-triage-nda", "0.1.1");
-      await editManifest(root, "tag-governance", (m) => (m.version = "0.1.1"));
-      await addChangelogSection(root, "tag-governance", "0.1.1", "### Fixed\n\n- NDA triage wording.");
+      await editManifest(root, "tag-governance", (m) => (m.version = "0.1.2"));
+      await addChangelogSection(root, "tag-governance", "0.1.2", "### Fixed\n\n- NDA triage wording.");
       const hotfix = await plan(root, rc.index, LATER);
       assert.deepEqual(hotfix.errors, []);
       const entry = hotfix.releases[0].entry;
-      assert.equal(entry.tag, "tag-governance@0.1.1");
+      assert.equal(entry.tag, "tag-governance@0.1.2");
       assert.equal(entry.breaking, false);
-      assert.deepEqual(entry.requires, { "tag-knowledge": "^0.1.0" });
+      assert.deepEqual(entry.requires, { "tag-knowledge": "^0.1.1" });
 
       // Refused when the stable tag-knowledge lacks a skill the hotfix needs.
       const index = structuredClone(rc.index);
       const floor = index.packages
         .find((/** @type {any} */ p) => p.name === "tag-knowledge")
-        .versions.find((/** @type {any} */ v) => v.version === "0.1.0");
+        .versions.find((/** @type {any} */ v) => v.version === "0.1.1");
       floor.skills = floor.skills.filter((/** @type {any} */ s) => s.name !== "governance-search-strategy");
       const metaPath = join(root, "skills", "governance", "governance-triage-nda", "tag-skill.json");
       const meta = JSON.parse(await readFile(metaPath, "utf8"));
@@ -592,7 +740,7 @@ describe("release index and archives", () => {
       assert.ok(
         refused.errors.some(
           (e) =>
-            e.includes("tag-governance@0.1.1 is stable but needs tag-knowledge@0.2.0-rc.1") &&
+            e.includes("tag-governance@0.1.2 is stable but needs tag-knowledge@0.2.0-rc.1") &&
             e.includes("lacks governance-search-strategy") &&
             e.includes("release tag-knowledge stable first"),
         ),
@@ -629,14 +777,27 @@ describe("release index and archives", () => {
       for (const file of [
         "index.json",
         "plan.json",
-        ...planned.releases.flatMap((/** @type {any} */ r) => [r.archive, r.notes]),
+        ...planned.releases.flatMap((/** @type {any} */ r) => [...r.assets, r.notes]),
       ]) {
         assert.ok((await readFile(join(work, "a", file))).equals(await readFile(join(work, "b", file))), file);
       }
       const verified = run("verify", "--out", join(work, "a"));
       assert.equal(verified.status, 0, verified.stderr);
-      assert.match(verified.stdout, /verified 3 release\(s\) and index\.json/);
-      const listing = spawnSync("tar", ["-tzf", join(work, "a", "tag-finance-0.1.0.tar.gz")], { encoding: "utf8" });
+      assert.match(verified.stdout, /verified 5 release\(s\) and index\.json/);
+      assert.deepEqual(planned.releases.find((/** @type {any} */ r) => r.package === "tag-finance").assets, [
+        "tag-finance-0.1.1.tar.gz",
+        "tag-finance-0.1.1.develop.tar.gz",
+      ]);
+      for (const [file, origin] of [
+        ["tag-finance-0.1.1.tar.gz", "https://mcp.tag.company"],
+        ["tag-finance-0.1.1.develop.tar.gz", "https://mcp.develop.tag.company"],
+      ]) {
+        const extracted = spawnSync("tar", ["-xzOf", join(work, "a", file), "tag-finance/mcp.json"], {
+          encoding: "utf8",
+        });
+        assert.equal(JSON.parse(extracted.stdout).mcpServers.tag.url, `${origin}/tag`, file);
+      }
+      const listing = spawnSync("tar", ["-tzf", join(work, "a", "tag-finance-0.1.1.tar.gz")], { encoding: "utf8" });
       assert.ok(listing.stdout.split("\n").includes("tag-finance/plugin.json"));
       assert.ok(listing.stdout.split("\n").includes("tag-finance/skills/finance-reconciliation/SKILL.md"));
       assert.ok(!listing.stdout.split("\n").some((line) => line.startsWith("tag-finance/skills/finance/")));

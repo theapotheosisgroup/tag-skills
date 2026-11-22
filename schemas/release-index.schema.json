@@ -28,7 +28,7 @@
       }
     },
     "tiers": {
-      "description": "Plan tiers from lowest to highest; each includes the ones before it.",
+      "description": "Plan tiers from lowest to highest; each includes the ones before it. Descriptive only: tiers gate nothing.",
       "type": "array",
       "items": {
         "type": "string"
@@ -141,24 +141,21 @@
           "type": "string"
         },
         "archive": {
+          "description": "The main archive, whose mcp.json names the production MCP servers.",
+          "$ref": "#/$defs/archive"
+        },
+        "environments": {
+          "description": "The same package for each other environment, keyed by environment name (for example develop): identical except that its mcp.json names that environment's MCP servers. Absent on versions published before packages shipped mcp.json.",
           "type": "object",
-          "additionalProperties": false,
-          "required": ["name", "url", "sha256", "size"],
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "url": {
-              "type": "string"
-            },
-            "sha256": {
-              "type": "string",
-              "pattern": "^[0-9a-f]{64}$"
-            },
-            "size": {
-              "type": "integer",
-              "minimum": 1
-            }
+          "additionalProperties": {
+            "$ref": "#/$defs/archive"
+          }
+        },
+        "mcpServers": {
+          "description": "The MCP servers the package's mcp.json declares, by name, with their production URLs; clients authorize each with OAuth through the TAG login. Absent on versions published before packages shipped mcp.json (they declared none).",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
           }
         },
         "requires": {
@@ -233,7 +230,7 @@
           }
         },
         "tiers": {
-          "description": "Tier name to the package's skills available at that tier (cumulative).",
+          "description": "Tier name to the package's skills included in that plan tier (cumulative). Descriptive only: it gates nothing, every skill is available, and access is aletia's check.",
           "type": "object",
           "additionalProperties": {
             "type": "array",
@@ -245,6 +242,27 @@
         "changelog": {
           "description": "The version's CHANGELOG.md section, as Markdown.",
           "type": "string"
+        }
+      }
+    },
+    "archive": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "url", "sha256", "size"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1
         }
       }
     }

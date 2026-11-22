@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "tag-finance",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TAG's Finance pillar skills: financial statements, reconciliation, journal entry preparation, close management, variance analysis, audit evidence, and accounting data exploration, validation and dashboards.",
   "author": { "name": "The Apotheosis Group", "url": "https://github.com/theapotheosisgroup" },
   "homepage": "https://github.com/theapotheosisgroup/tag-skills/tree/develop/packages/tag-finance",

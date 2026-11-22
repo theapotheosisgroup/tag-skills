@@ -10,14 +10,16 @@ import { hashDirectory, listFiles, sha256 } from "./hash.js";
 import { REPOSITORY } from "./catalog.js";
 import {
   AGENT_PLUGINS_VERSION,
+  DEFAULT_ENVIRONMENT,
+  MCP_ENVIRONMENTS,
   PLUGIN_SCHEMA_ID,
   SEMVER,
   TIERS,
   changelogSection,
   packageDependencies,
   skillOwners,
+  renderMcp,
   skillsByTier,
-  tierRank,
 } from "./packages.js";
 import { tarGzip } from "./tar.js";
 
@@ -190,8 +192,10 @@ export async function skillFacts(pkg, repository) {
  * every detected change with its level (the package versioning rules, packages/README.md).
  * `errors` lists changes no version bump can make valid, such as a skill whose content changed
  * while its own version did not.
- * @param {{ skills: SkillFacts[], requires: Record<string, string>, agentPlugins: string }} previous
- * @param {{ skills: SkillFacts[], requires: Record<string, string>, agentPlugins: string }} current
+ * A version published before packages shipped mcp.json has no `mcpServers`: it declared none.
+ * @typedef {{ skills: SkillFacts[], requires: Record<string, string>, agentPlugins: string, mcpServers?: Record<string, string> }} PackageFacts
+ * @param {PackageFacts} previous
+ * @param {PackageFacts} current
  * @returns {{ level: Level | null, changes: { level: Level, message: string }[], errors: string[] }}
  */
 export function diffPackage(previous, current) {
@@ -214,10 +218,8 @@ export function diffPackage(previous, current) {
       add("feature", `added skill ${name} (${now.tier})`);
       continue;
     }
-    if (old.tier !== now.tier) {
-      const raised = tierRank(now.tier) > tierRank(old.tier);
-      add(raised ? "breaking" : "feature", `${name} moved from ${old.tier} to ${now.tier}`);
-    }
+    // Tiers are descriptive plan metadata and gate nothing (ADR 0006), so moving one is a fix.
+    if (old.tier !== now.tier) add("fix", `${name} moved from ${old.tier} to ${now.tier}`);
     const order = compareSemver(now.version, old.version);
     if (order < 0) errors.push(`${name} version went down from ${old.version} to ${now.version}`);
     else if (order === 0 && old.contentHash !== now.contentHash) {
@@ -248,6 +250,16 @@ export function diffPackage(previous, current) {
     if (old === undefined) add("breaking", `now requires package ${name} ${range}`);
     else if (old !== range) add("breaking", `requires ${name} ${range} (was ${old})`);
   }
+  const serversBefore = previous.mcpServers ?? {};
+  const serversAfter = current.mcpServers ?? {};
+  for (const [name, url] of Object.entries(serversBefore)) {
+    if (!(name in serversAfter)) add("breaking", `removed MCP server ${name}`);
+    else if (serversAfter[name] !== url)
+      add("breaking", `MCP server ${name} moved from ${url} to ${serversAfter[name]}`);
+  }
+  for (const [name, url] of Object.entries(serversAfter)) {
+    if (!(name in serversBefore)) add("feature", `added MCP server ${name} (${url})`);
+  }
   if (previous.agentPlugins !== current.agentPlugins) {
     add("breaking", `targets Agent Plugins ${current.agentPlugins} (was ${previous.agentPlugins})`);
   }
@@ -255,13 +267,15 @@ export function diffPackage(previous, current) {
 }
 
 /**
- * The archive of one package: the plugin directory `<name>/` with plugin.json, CHANGELOG.md and
- * skills/<skill>/..., every file byte-for-byte from the repository.
+ * The archive of one package: the plugin directory `<name>/` with plugin.json, CHANGELOG.md,
+ * mcp.json (rendered for one environment) and skills/<skill>/..., every other file byte-for-byte
+ * from the repository.
  * @param {Package} pkg
  * @param {Repository} repository
  * @param {number} mtime  Seconds since the epoch.
+ * @param {Buffer} mcp  The package's mcp.json for the archive's environment.
  */
-export async function buildArchive(pkg, repository, mtime) {
+export async function buildArchive(pkg, repository, mtime, mcp) {
   const bySkill = new Map(repository.skills.map((s) => [s.name, s]));
   /** @type {import("./tar.js").TarEntry[]} */
   const entries = [];
@@ -278,6 +292,7 @@ export async function buildArchive(pkg, repository, mtime) {
   };
   addFile(`${pkg.name}/plugin.json`, await readFile(join(pkg.dir, "plugin.json")), false);
   addFile(`${pkg.name}/CHANGELOG.md`, await readFile(join(pkg.dir, "CHANGELOG.md")), false);
+  addFile(`${pkg.name}/mcp.json`, mcp, false);
   dirs.add(`${pkg.name}/skills/`);
   for (const { name } of pkg.skills) {
     const skill = bySkill.get(name);
@@ -317,6 +332,11 @@ export function emptyIndex() {
 export const releaseTag = (name, version) => `${name}@${version}`;
 /** @param {string} name @param {string} version */
 export const archiveName = (name, version) => `${name}-${version}.tar.gz`;
+/** The archive of a non-default environment: the same package with that environment's mcp.json.
+ * @param {string} name @param {string} version @param {string} environment */
+export const environmentArchiveName = (name, version, environment) => `${name}-${version}.${environment}.tar.gz`;
+/** @param {string} tag @param {string} name */
+const assetUrl = (tag, name) => `https://github.com/${REPOSITORY}/releases/download/${tag}/${name}`;
 
 /**
  * Works out which packages to release and builds their archives and index entries.
@@ -324,13 +344,15 @@ export const archiveName = (name, version) => `${name}-${version}.tar.gz`;
  * A package is released when its manifest version is not yet in the previous index. Its changes
  * against the previous published version must be covered by the version bump. A package whose
  * version is already published but whose content changed has pending changes: they ship once the
- * version is bumped.
+ * version is bumped. A package that bundles a skill its home package releases changed must release in
+ * the same build.
  * @param {Package[]} packages  Checked packages (checkPackages reported no findings).
  * @param {Repository} repository
  * @param {any} previousIndex
  * @param {Context} context
+ * @param {{ bytes: Buffer, servers: Record<string, string> }} mcp  The checked packages/mcp.json (loadMcp).
  */
-export async function planReleases(packages, repository, previousIndex, context) {
+export async function planReleases(packages, repository, previousIndex, context, mcp) {
   const owners = skillOwners(packages);
   const bySkill = new Map(repository.skills.map((s) => [s.name, s]));
   const published = new Map((previousIndex.packages ?? []).map((/** @type {any} */ p) => [p.name, p]));
@@ -346,7 +368,7 @@ export async function planReleases(packages, repository, previousIndex, context)
   const errors = [];
   /** @type {{ package: string, version: string, message: string }[]} */
   const pending = [];
-  /** @type {{ pkg: Package, entry: any, archive: Buffer, notes: string }[]} */
+  /** @type {{ pkg: Package, entry: any, archive: Buffer, environments: { name: string, archive: Buffer }[], notes: string }[]} */
   const releases = [];
 
   for (const pkg of packages) {
@@ -398,11 +420,22 @@ export async function planReleases(packages, repository, previousIndex, context)
         const shipped = new Set((floor?.skills ?? []).map((/** @type {any} */ s) => s.name));
         requires[dep] = floor && needed.every((name) => shipped.has(name)) ? kept : `^${version}`;
       }
-      return { skills, requires, agentPlugins: AGENT_PLUGINS_VERSION };
+      return { skills, requires, agentPlugins: AGENT_PLUGINS_VERSION, mcpServers: mcp.servers };
     };
 
     const existing = history.find((/** @type {any} */ v) => v.version === pkg.version);
     if (existing) {
+      const shippedHashes = new Map(existing.skills.map((/** @type {any} */ s) => [s.name, s.contentHash]));
+      for (const bundled of pkg.skills) {
+        if (!bundled.from || !releasing.has(bundled.from)) continue;
+        const now = skills.find((s) => s.name === bundled.name);
+        if (now && shippedHashes.get(bundled.name) !== now.contentHash) {
+          errors.push(
+            `${pkg.name}@${pkg.version} bundles ${bundled.name}, which ${bundled.from} releases changed; ` +
+              `release ${pkg.name} in the same build`,
+          );
+        }
+      }
       const diff = diffPackage(existing, currentAgainst(existing));
       if (diff.changes.length > 0 || diff.errors.length > 0) {
         pending.push({
@@ -444,9 +477,20 @@ export async function planReleases(packages, repository, previousIndex, context)
       if (changes.length === 0) changes = ["fix: package metadata or changelog only"];
     }
 
-    const archive = await buildArchive(pkg, repository, mtime);
+    const archive = await buildArchive(pkg, repository, mtime, renderMcp(mcp.bytes, DEFAULT_ENVIRONMENT));
     const tag = releaseTag(pkg.name, pkg.version);
     const name = archiveName(pkg.name, pkg.version);
+    /** @type {{ name: string, archive: Buffer }[]} */
+    const environmentArchives = [];
+    /** @type {Record<string, { name: string, url: string, sha256: string, size: number }>} */
+    const environments = {};
+    for (const environment of Object.keys(MCP_ENVIRONMENTS).sort()) {
+      if (environment === DEFAULT_ENVIRONMENT) continue;
+      const data = await buildArchive(pkg, repository, mtime, renderMcp(mcp.bytes, environment));
+      const file = environmentArchiveName(pkg.name, pkg.version, environment);
+      environmentArchives.push({ name: file, archive: data });
+      environments[environment] = { name: file, url: assetUrl(tag, file), sha256: sha256(data), size: data.length };
+    }
     const changelog = changelogSection(pkg.changelog ?? "", pkg.version) ?? "";
     const entry = {
       version: pkg.version,
@@ -460,16 +504,18 @@ export async function planReleases(packages, repository, previousIndex, context)
       agentPlugins: AGENT_PLUGINS_VERSION,
       archive: {
         name,
-        url: `https://github.com/${REPOSITORY}/releases/download/${tag}/${name}`,
+        url: assetUrl(tag, name),
         sha256: sha256(archive),
         size: archive.length,
       },
+      environments,
+      mcpServers: current.mcpServers,
       requires: current.requires,
       skills,
       tiers: skillsByTier(pkg.skills),
       changelog,
     };
-    releases.push({ pkg, entry, archive, notes: releaseNotes(pkg, entry) });
+    releases.push({ pkg, entry, archive, environments: environmentArchives, notes: releaseNotes(pkg, entry) });
   }
   return { releases, pending, errors };
 }
@@ -487,7 +533,15 @@ export function releaseNotes(pkg, entry) {
     "## Package",
     "",
     `- Format: [Agent Plugins ${entry.agentPlugins}](https://agent-plugins.org/specification) (\`${PLUGIN_SCHEMA_ID}\`)`,
-    `- Archive: \`${entry.archive.name}\`, SHA-256 \`${entry.archive.sha256}\``,
+    `- Archive (${DEFAULT_ENVIRONMENT}): \`${entry.archive.name}\`, SHA-256 \`${entry.archive.sha256}\``,
+    ...Object.entries(entry.environments).map(
+      ([environment, a]) => `- Archive (${environment}): \`${a.name}\`, SHA-256 \`${a.sha256}\``,
+    ),
+    `- MCP servers (${DEFAULT_ENVIRONMENT} URLs; each environment's archive names its own; OAuth with the TAG login): ${
+      Object.entries(entry.mcpServers)
+        .map(([n, u]) => `${n} ${u}`)
+        .join(", ") || "none"
+    }`,
     `- Previous version: ${entry.previous ?? "none (first release)"}${entry.breaking ? " (breaking)" : ""}`,
     `- Requires: ${
       Object.entries(entry.requires)
