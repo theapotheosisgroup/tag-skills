@@ -1,0 +1,25 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "tag-finance",
+  "version": "0.1.0",
+  "description": "TAG's Finance pillar skills: financial statements, reconciliation, journal entry preparation, close management, variance analysis, audit evidence, and accounting data exploration, validation and dashboards.",
+  "author": { "name": "The Apotheosis Group", "url": "https://github.com/theapotheosisgroup" },
+  "homepage": "https://github.com/theapotheosisgroup/tag-skills/tree/develop/packages/tag-finance",
+  "repository": "https://github.com/theapotheosisgroup/tag-skills",
+  "keywords": ["tag", "back-office", "finance", "accounting", "agent-skills"],
+  "extensions": {
+    "com.theapotheosisgroup.tag-skills": {
+      "skills": [
+        { "name": "finance-financial-statements", "tier": "foundation" },
+        { "name": "finance-journal-entry-prep", "tier": "foundation" },
+        { "name": "finance-reconciliation", "tier": "foundation" },
+        { "name": "finance-close-management", "tier": "structure" },
+        { "name": "finance-variance-analysis", "tier": "structure" },
+        { "name": "finance-audit-evidence", "tier": "turnkey" },
+        { "name": "finance-build-dashboard", "tier": "turnkey" },
+        { "name": "finance-explore-data", "tier": "turnkey" },
+        { "name": "finance-validate-data", "tier": "turnkey" }
+      ]
+    }
+  }
+}

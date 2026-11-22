@@ -1,0 +1,252 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/theapotheosisgroup/tag-skills/schemas/release-index.schema.json",
+  "title": "Skill package release index (index.json)",
+  "description": "Every published version of every TAG skill package, written by scripts/release.js and published on the skills-index GitHub release. Updaters poll it; it grants no access.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["indexVersion", "repository", "agentPlugins", "tiers", "packages"],
+  "properties": {
+    "indexVersion": {
+      "const": 1
+    },
+    "repository": {
+      "type": "string"
+    },
+    "agentPlugins": {
+      "description": "The Agent Plugins version every package in this index targets, and its pinned manifest schema.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "schema"],
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "tiers": {
+      "description": "Plan tiers from lowest to highest; each includes the ones before it.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "packages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/package"
+      }
+    }
+  },
+  "$defs": {
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z.-]+)?$"
+    },
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "description", "channels", "versions"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "channels": {
+          "description": "stable: the highest version without a pre-release suffix (absent until one exists).",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "stable": {
+              "$ref": "#/$defs/semver"
+            }
+          }
+        },
+        "versions": {
+          "description": "Newest first.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/version"
+          }
+        }
+      }
+    },
+    "version": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "tag",
+        "commit",
+        "publishedAt",
+        "prerelease",
+        "previous",
+        "breaking",
+        "changes",
+        "agentPlugins",
+        "archive",
+        "requires",
+        "skills",
+        "tiers",
+        "changelog"
+      ],
+      "properties": {
+        "version": {
+          "$ref": "#/$defs/semver"
+        },
+        "tag": {
+          "type": "string"
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "publishedAt": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+        },
+        "prerelease": {
+          "type": "boolean"
+        },
+        "previous": {
+          "description": "The published version this one supersedes (the highest lower version), or null for a package's first release.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/semver"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "breaking": {
+          "description": "True when the version number signals a breaking change under the package versioning rules: a major bump, or a minor bump while the major version is 0.",
+          "type": "boolean"
+        },
+        "changes": {
+          "description": "Changes detected against the previous version, each prefixed with its level (breaking, feature or fix). The CHANGELOG section explains them.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "agentPlugins": {
+          "description": "Minimum Agent Plugins version a client must support to load this package.",
+          "type": "string"
+        },
+        "archive": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "url", "sha256", "size"],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "size": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "requires": {
+          "description": "Other packages this version needs, because one of its skills depends on a skill they ship: package name to a semver range.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "version",
+              "tier",
+              "contentHash",
+              "sideEffects",
+              "invocation",
+              "requiredCapabilities",
+              "requiredInputs",
+              "outputs",
+              "dependencies"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "version": {
+                "$ref": "#/$defs/semver"
+              },
+              "tier": {
+                "type": "string"
+              },
+              "contentHash": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              "sideEffects": {
+                "type": "string"
+              },
+              "invocation": {
+                "type": "string"
+              },
+              "requiredCapabilities": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "requiredInputs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "outputs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "dependencies": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "tiers": {
+          "description": "Tier name to the package's skills available at that tier (cumulative).",
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "changelog": {
+          "description": "The version's CHANGELOG.md section, as Markdown.",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

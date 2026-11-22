@@ -25,6 +25,10 @@ npx skills@1.9.0 add theapotheosisgroup/tag-skills@v0.1.0 --skill finance-financ
 - **Telemetry.** The CLI sends anonymous telemetry unless `DISABLE_TELEMETRY=1` or `DO_NOT_TRACK=1` is set. CI and the profile installer set both.
 - Review a skill before you install it: skills run with the agent's permissions in your client.
 
+## Packages
+
+Each GitHub release `<package>@<version>` carries `<package>-<version>.tar.gz`, an [Agent Plugins 1.0.0](https://agent-plugins.org/specification) plugin directory (`plugin.json`, `CHANGELOG.md`, `skills/<skill>/`), and its SHA-256 is in the [release index](https://github.com/theapotheosisgroup/tag-skills/releases/download/skills-index/index.json). Clients that load Agent Plugins can use the extracted directory as is; the TAG harness installs and updates packages per organization ([package updates](integration/harness-consumption.md#package-updates)). Which skills each package and tier holds: [packages/README.md](../packages/README.md).
+
 ## Profiles and dependencies
 
 The CLI installs exactly the skills you name. It does not read `tag-skill.json`, so it does not add a skill's TAG dependencies. Either name them yourself (each SKILL.md lists its prerequisites) or use the profile installer from a checkout of this repository:

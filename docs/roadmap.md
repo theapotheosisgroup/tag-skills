@@ -33,6 +33,5 @@ The catalog is limited to back-office G&A work ([ADR 0004](adr/0004-pillar-categ
 
 - Bind the proposed capabilities ([integration dependencies](integration/README.md#dependencies-on-other-repositories)) and replace mocked contract checks with integration tests in the owning repositories.
 - finance-financial-statements: consolidation and elimination entries, the direct cash-flow method, and translation of foreign operations are reported as unsupported today; each needs fixtures before it is added.
-- Agent-specific plugin manifests (optional packaging beyond the Vercel installer).
 - A first release tag (`v0.1.0`) after merge, and a private-repository installation test in CI once a credential decision is made.
 - Additional document-generation skills only after a per-skill licence review; renderers come from declared dependencies or `tag.documents.render`.

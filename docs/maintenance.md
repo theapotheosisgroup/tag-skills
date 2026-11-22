@@ -33,7 +33,11 @@ The CLI is pinned in `package.json` and `package-lock.json` (currently `1.9.0`, 
 
 ## Releases
 
-Skills are versioned individually in `tag-skill.json`; the repository is released with `vMAJOR.MINOR.PATCH` tags on `main` and a [CHANGELOG.md](../CHANGELOG.md) entry in the Keep a Changelog format, per the organization's [RELEASES](https://github.com/theapotheosisgroup/.github/blob/main/standards/RELEASES.md) standard. Changesets are not used: the organization's convention is Keep a Changelog, and there is no npm package to version.
+Skills reach organizations as versioned packages ([ADR 0005](adr/0005-agent-plugins-packages-and-releases.md)): bump the package's `plugin.json` version, move its `Unreleased` changelog entries into the new version's section, and merge to `develop`; [`release.yml`](../.github/workflows/release.yml) publishes `<package>@<version>` and replaces `index.json` on the `skills-index` release. The versioning rules and steps are in [packages/README.md](../packages/README.md). Never edit or delete a published package release or its asset: updaters trust the recorded checksum. To withdraw a bad version, release a fixed higher version.
+
+**Repairing a half-finished publish.** If a run created a `<package>@<version>` tag or release but failed before `skills-index/index.json` was updated, the next run stops with "tag ... exists but ... is not in the release index". Check the release's archive against a local `npm run release:build` at the tagged commit (`--commit <sha>`; the archive is reproducible on the `.nvmrc` Node.js version). If it matches, add the entry to `index.json` from that build and upload it with `gh release upload skills-index index.json --clobber`; otherwise delete the incomplete release and tag and re-run the workflow.
+
+Skills are also versioned individually in `tag-skill.json`; the repository is released with `vMAJOR.MINOR.PATCH` tags on `main` and a [CHANGELOG.md](../CHANGELOG.md) entry in the Keep a Changelog format, per the organization's [RELEASES](https://github.com/theapotheosisgroup/.github/blob/main/standards/RELEASES.md) standard. Changesets are not used: the organization's convention is Keep a Changelog, and there is no npm package to version.
 
 ## Generated files
 

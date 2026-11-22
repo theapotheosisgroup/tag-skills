@@ -24,10 +24,10 @@ CI runs the same commands, plus Python 3.10 script tests, Markdown lint, offline
 ## Adding or changing a skill
 
 1. **SKILL.md.** Frontmatter: `name`, a `description` (at most 1024 characters) that says what the skill does **and when to use it** (and, where useful, when not to), optional `license` and `compatibility`. Fields outside the Agent Skills specification are rejected. The body explains the context the skill needs and where it comes from, its capability bindings, an ordered procedure with completion conditions, the output and evidence references, and how it handles missing inputs, unresolved differences, unavailable tools and required review. Keep it focused; long material goes in `references/`.
-2. **tag-skill.json.** Fill in every field of [the schema](schemas/tag-skill.schema.json). Capabilities must exist in [docs/integration/capabilities.json](docs/integration/capabilities.json) and be named in backticks in SKILL.md; mark proposed ones as proposed. Skill dependencies must be named in SKILL.md so a single-skill install explains its prerequisites. Bump `version` (SemVer) when you change a published skill.
+2. **tag-skill.json.** Fill in every field of [the schema](schemas/tag-skill.schema.json). Capabilities must exist in [docs/integration/capabilities.json](docs/integration/capabilities.json) and be named in backticks in SKILL.md; mark proposed ones as proposed. Skill dependencies must be named in SKILL.md so a single-skill install explains its prerequisites. Bump `version` (SemVer) when you change a published skill, as breaking when the [package versioning rules](packages/README.md#versioning) say so.
 3. **No credentials, no direct writes.** Never include a URL with a token, a key or a sign-in note. Never describe or script a way to write a business record, post, approve, lock a period, sign or send, other than through an authorized capability after review.
 4. **Scripts** are portable, use only declared dependencies (standard-library Python 3.10+ is the default), are executable (`git update-index --chmod=+x`), and have tests under `tests/skills/<name>/`. Numerical scripts use exact decimal arithmetic, never plug a difference, and have fixtures with independently established expected results.
-5. **Profiles.** If the skill belongs in a profile, add it to `profiles/<name>.json`.
+5. **Profiles and packages.** If the skill belongs in a profile, add it to `profiles/<name>.json`. Every skill ships in exactly one package: add a new skill to a `packages/<name>/plugin.json` with its tier, and record the change under `## [Unreleased]` in that package's `CHANGELOG.md`. To release, bump the package version ([releasing](packages/README.md#releasing)).
 6. Run `npm run catalog:generate` and commit `catalog.json`.
 7. Update the [README](README.md#catalog) catalog and status in the same pull request. The tests check that every skill and profile appears there.
 
@@ -44,7 +44,7 @@ Updating a fork from upstream is described in the [maintenance guide](docs/maint
 
 ## Review requirements
 
-- A code owner reviews every change to `skills/`, `profiles/`, `schemas/`, `scripts/`, `upstreams.lock.json` and the licence files.
+- A code owner reviews every change to `skills/`, `packages/`, `profiles/`, `schemas/`, `scripts/`, `upstreams.lock.json` and the licence files.
 - A reviewer checks: the skill calls only named capabilities and carries nothing secret; writes stay behind authorized capabilities and review; the description triggers on the right requests and not on unrelated ones (add a case to [tests/selection/cases.json](tests/selection/cases.json)); provenance and notices are complete; narrative quality against the [evaluation rubric](docs/evaluation-rubric.md).
 - A schema pass alone is not proof that a skill works: numerical and packaging behaviour needs tests with objective pass criteria.
 

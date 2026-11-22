@@ -31,3 +31,14 @@ How the TAG harness should consume this repository. The harness work itself belo
 - Provide the run context ([context-model.md](context-model.md)) and the capability bindings the skill declares; refuse calls the grant does not cover, with the shapes in [capability-contract.md](capability-contract.md).
 - Scripts need the interpreters in `dependencies.runtime` (for example `python3 >= 3.10`), and nothing else from this repository.
 - Capture outputs and evidence against the correlation id; route review when `review.required` applies.
+
+## Package updates
+
+Skills are also released as versioned Agent Plugins 1.0.0 packages (`tag-finance`, `tag-governance`, `tag-knowledge`), each published as a GitHub release `<package>@<version>` ([ADR 0005](../adr/0005-agent-plugins-packages-and-releases.md), [packages](../../packages/README.md)). This is the contract a harness updater can build against; the updater is tag-harness work.
+
+1. **Poll** <https://github.com/theapotheosisgroup/tag-skills/releases/download/skills-index/index.json> ([schema](../../schemas/release-index.schema.json)). Release assets are as visible as the repository; if it is private, download with a read-only credential held by the deployment, never by a skill.
+2. **Resolve** each organization's package to its pinned version or to `channels.stable`. Install every package in the version's `requires` at a version that satisfies its range (`tag-governance` requires `tag-knowledge`).
+3. **Review before rollout.** `breaking`, `changes` and `changelog` say what an update does. Treat a breaking update, an escalated `sideEffects` or a newly required capability as needing approval, and roll out to TAG's own organization first.
+4. **Install** by downloading `archive.url`, checking `archive.sha256` and `size`, and extracting it: the result is a plugin directory `<package>/` with `plugin.json` and `skills/<skill>/`. Load only the skills in `tiers[<organization's tier>]`, and verify each skill's `contentHash` with the same algorithm as `catalog.json` ([scripts/lib/hash.js](../../scripts/lib/hash.js)).
+5. **Show** the installed version, whether a newer version exists on the organization's channel, and the changelog sections in between.
+6. **Roll back** by installing the previous version from the index; published versions never change.

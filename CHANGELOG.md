@@ -6,6 +6,8 @@ All notable changes to this repository are documented here. The format follows [
 
 ### Added
 
+- Versioned skill packages in the [Agent Plugins 1.0.0](https://agent-plugins.org/specification) format ([ADR 0005](docs/adr/0005-agent-plugins-packages-and-releases.md)): `tag-finance`, `tag-governance` and `tag-knowledge` at `0.1.0`, each with a `plugin.json` recording every skill's plan tier (Foundation, Structure, Turnkey) and its own changelog under `packages/`; package versioning rules; `scripts/release.js` (check, reproducible build, verify), the vendored 1.0.0 manifest schema, the release index schema, and `.github/workflows/release.yml`, which dry-runs on pull requests and publishes `<package>@<version>` GitHub releases and the `skills-index` release index from `develop`.
+
 - The 16-skill back-office G&A catalog forked from anthropics/knowledge-work-plugins (`0e0fcacd…`), in `skills/<pillar>/<pillar>-<name>/` (9 `finance-`, 7 `governance-`), each with `tag-skill.json`, `LICENSE` and `NOTICE.md`.
 - finance-financial-statements as the first complete workflow: `scripts/build_statements.py` (exact decimals, ASPE or IFRS, English or French, no plugs) with six synthetic fixtures and committed example outputs.
 - finance-journal-entry-prep `scripts/check_entries.py`, which validates proposed entries and emits a not-posted posting request.

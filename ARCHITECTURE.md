@@ -5,6 +5,8 @@
 ```mermaid
 flowchart LR
   repo["tag-skills<br/>skills/&lt;pillar&gt;/&lt;pillar&gt;-&lt;name&gt;/"] -- "npx skills add<br/>(or a runtime bundle)" --> client["Agent client or TAG harness<br/>(Claude Code, Codex, TrueForge)"]
+  repo -- "release workflow:<br/>package@version archives + index.json" --> releases["GitHub releases<br/>(Agent Plugins 1.0.0 packages)"]
+  releases -- "harness updater polls the index" --> client
   client -- "capability call with the run's own<br/>authorized connection and context" --> mcp["TAG MCP surface (tag-mcp),<br/>Aletia MCP"]
   mcp -- "authority decided by aletia;<br/>data via tag-connectors" --> domain["Owning domain<br/>(tag-backoffice, aletia)"]
 ```
@@ -15,6 +17,7 @@ The skill only tells the client which logical capability to call and how ([capab
 
 - Published back-office G&A skills under `skills/<pillar>/<pillar>-<name>/` (pillars: finance, people, governance), in the Agent Skills format, with TAG metadata (`tag-skill.json`) and upstream licence and notice files.
 - Reporting templates and portable helper scripts inside skills (for example the statement builder in finance-financial-statements), with their evaluations.
+- Skill packages (`packages/<name>/plugin.json` in the Agent Plugins 1.0.0 format, with tiers and a changelog), the package versioning rules, the release workflow and the release index format ([ADR 0005](docs/adr/0005-agent-plugins-packages-and-releases.md)).
 - Profiles, the generated catalog, the upstream import record (`upstreams.lock.json`) and the logical capability registry (`docs/integration/capabilities.json`), as contracts.
 - The validator, the Skills CLI discovery and installation tests, the profile installer and the upstream comparison tool.
 - The list of supported agent clients and the installation instructions ([docs/INSTALLING.md](docs/INSTALLING.md)).
@@ -27,6 +30,7 @@ The skill only tells the client which logical capability to call and how ([capab
 | MCP servers, tools and their authorization | `tag-mcp` (the MCP surface for TAG's back office: facade, Back Office MCP, A2A, APIs), the owning domain (`tag-backoffice`) |
 | Organizations, persons, roles, nexuses, delegated authority, audit records, expectations | `aletia` |
 | Runtime skill discovery, selection, execution state, retries, evidence capture, review routing | `tag-harness` (agents run through TrueForge) |
+| Checking for and installing package updates per organization (pins, channels, rollout, update display) | `tag-harness` |
 | Deployment, edge, the Hydra authorization server | `tag-platform` |
 | Domain logic, including the back-office handlers in `agents/pillars/skills.py` | `tag-backoffice` (the name collision with "skills" is only a name) |
 | Prompts hashed by attestation digests (`prompts/*.md`) | `tag-backoffice` |
