@@ -10,7 +10,6 @@ All notable changes to the `tag-concierge` package. The format follows [Keep a C
 
 - One default agent for asking for work and doing it: the TAG Harness folded its Organization assistant into the Concierge, and this package now carries the same single instruction set. governance-concierge 0.1.1 asks for work (what is waiting on the person, what was sent to them, asking TAG or another organization to get something done) and does the organization's own back-office work as drafts, with the matching skill of `tag-finance` or `tag-governance` when the client has it loaded, organization to organization. In the TAG Harness the person's skill profile decides which skills are on by default; access stays aletia's check.
 
-
 ## [0.1.0]
 
 ### Added
