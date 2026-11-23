@@ -84,7 +84,7 @@ Skills ship to organizations and to TAG's own agents as versioned packages in th
 | `tag-finance` | The 9 `finance-` skills | |
 | `tag-governance` | governance-task-management, governance-triage-nda, governance-vendor-check, governance-review-contract | `tag-knowledge` |
 | `tag-knowledge` | governance-search-strategy, governance-source-management, governance-knowledge-synthesis (used by every pillar) | |
-| `tag-concierge` (agent) | governance-concierge, with the task and knowledge skills it uses | |
+| `tag-concierge` (agent) | governance-concierge (the one default agent, for asking for work and doing it), with the task and knowledge skills it uses | |
 | `tag-due-diligence` (agent) | governance-due-diligence, with the task and knowledge skills it uses | |
 
 Every package ships the same `mcp.json`, declaring the two MCP servers people use: the **TAG MCP** (`tag`, back-office tools) and the **Aletia MCP** (`aletia`, nexuses, people, requests, documents, sends), remote Streamable HTTP servers the client authorizes with OAuth through the TAG login. Agent Plugins 1.0 allows no variable in a server URL, so each release has one archive per environment: `<package>-<version>.tar.gz` for production and `<package>-<version>.develop.tar.gz` for develop. An **agent package** is an agent built from skills: its instructions skill, every skill it uses (bundled from their home packages, so it loads on its own) and the `mcp.json` ([ADR 0006](docs/adr/0006-mcp-servers-and-agent-packages.md)). How to load one in ChatGPT, Claude or the TAG harness: [loading a TAG agent](docs/INSTALLING.md#loading-a-tag-agent-chatgpt-claude-or-the-harness).

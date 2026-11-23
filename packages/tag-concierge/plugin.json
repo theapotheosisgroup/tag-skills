@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "tag-concierge",
-  "version": "0.1.0",
-  "description": "TAG's Concierge agent, the organization's back-office assistant: its instructions skill, the task and knowledge skills it uses, and the TAG and Aletia MCP servers (OAuth through the TAG login). Loads on its own.",
+  "version": "0.1.1",
+  "description": "TAG's Concierge, the one default agent every organization has, for asking for work and doing it (with the tag-finance and tag-governance skills when they are loaded): its instructions skill, the task and knowledge skills it uses, and the TAG and Aletia MCP servers (OAuth through the TAG login). Loads on its own.",
   "author": { "name": "The Apotheosis Group", "url": "https://github.com/theapotheosisgroup" },
   "homepage": "https://github.com/theapotheosisgroup/tag-skills/tree/develop/packages/tag-concierge",
   "repository": "https://github.com/theapotheosisgroup/tag-skills",
