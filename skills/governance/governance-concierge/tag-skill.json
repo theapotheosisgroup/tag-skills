@@ -1,6 +1,6 @@
 {
   "name": "governance-concierge",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "domain": "governance",
   "priority": "P1",
   "audiences": ["tag-operations", "client-finance", "client-legal"],
@@ -11,13 +11,41 @@
       "required": true,
       "use": "Nexuses, the person's role, TAG invited, expectation summary."
     },
-    { "name": "tag.work.status", "required": false, "use": "State and outcome of TAG work." },
-    { "name": "tag.request.ask", "required": false, "use": "File a confirmed request for TAG's side." },
-    { "name": "aletia.nexus.read", "required": true, "use": "Parties, people, role and lenses of a nexus." },
-    { "name": "aletia.search", "required": false, "use": "Find arcs, documents and marks." },
-    { "name": "aletia.lens.read", "required": false, "use": "Expectations with their documents, by status or gaps." },
-    { "name": "aletia.people.read", "required": false, "use": "Recipients the person can send to." },
-    { "name": "aletia.sends.read", "required": false, "use": "Documents sent and requests asked by name." },
+    {
+      "name": "tag.work.status",
+      "required": false,
+      "use": "State and outcome of TAG work."
+    },
+    {
+      "name": "tag.request.ask",
+      "required": false,
+      "use": "File a confirmed request for TAG's side."
+    },
+    {
+      "name": "aletia.nexus.read",
+      "required": true,
+      "use": "Parties, people, role and lenses of a nexus."
+    },
+    {
+      "name": "aletia.search",
+      "required": false,
+      "use": "Find arcs, documents and marks."
+    },
+    {
+      "name": "aletia.lens.read",
+      "required": false,
+      "use": "Expectations with their documents, by status or gaps."
+    },
+    {
+      "name": "aletia.people.read",
+      "required": false,
+      "use": "Recipients the person can send to."
+    },
+    {
+      "name": "aletia.sends.read",
+      "required": false,
+      "use": "Documents sent and requests asked by name."
+    },
     {
       "name": "aletia.supply.write",
       "required": false,
@@ -30,7 +58,11 @@
       "required": true,
       "source": "the client's OAuth sign-in through the TAG login; tag.context.overview"
     },
-    { "name": "the person's question or request", "required": true, "source": "the conversation" },
+    {
+      "name": "the person's question or request",
+      "required": true,
+      "source": "the conversation"
+    },
     {
       "name": "documents to file or send",
       "required": false,
@@ -47,6 +79,11 @@
       "name": "confirmed write",
       "format": "text",
       "description": "The confirmed request or send and the identifier returned."
+    },
+    {
+      "name": "draft",
+      "format": "markdown",
+      "description": "Back-office work done for the organization (a close step, a reconciliation, a journal entry, a statement, a contract review), marked as a draft for the person to check."
     }
   ],
   "dependencies": {

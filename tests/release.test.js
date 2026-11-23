@@ -71,14 +71,25 @@ async function addChangelogSection(root, name, version, body) {
   await writeFile(path, text.replace("## [Unreleased]\n", `## [Unreleased]\n\n## [${version}]\n\n${body}\n`));
 }
 
+const AGENTS = ["tag-concierge", "tag-due-diligence"];
+
+/** An agent package's version in the tree, and its next patch release. @param {string} root @param {string} name */
+async function agentVersions(root, name) {
+  const { version } = JSON.parse(await readFile(join(root, "packages", name, "plugin.json"), "utf8"));
+  const [major, minor, patch] = version.split(".").map(Number);
+  return { current: version, next: `${major}.${minor}.${patch + 1}` };
+}
+
 /**
- * Bumps both agent packages, which bundle every tag-knowledge skill and governance-task-management.
+ * Bumps both agent packages, which bundle every tag-knowledge skill and governance-task-management:
+ * to `version`, or each to its own next patch release when `version` is "patch".
  * @param {string} root @param {string} version @param {string} body
  */
 async function releaseAgents(root, version, body) {
-  for (const name of ["tag-concierge", "tag-due-diligence"]) {
-    await editManifest(root, name, (m) => (m.version = version));
-    await addChangelogSection(root, name, version, body);
+  for (const name of AGENTS) {
+    const to = version === "patch" ? (await agentVersions(root, name)).next : version;
+    await editManifest(root, name, (m) => (m.version = to));
+    await addChangelogSection(root, name, to, body);
   }
 }
 
@@ -617,16 +628,20 @@ describe("release index and archives", () => {
       await addChangelogSection(root, "tag-knowledge", "0.1.2", "### Fixed\n\n- Search strategy wording.");
       // The agent packages bundle governance-search-strategy, so they must release with tag-knowledge.
       const alone = await plan(root, initial, LATER);
-      assert.deepEqual(alone.errors, [
-        "tag-concierge@0.1.0 bundles governance-search-strategy, which tag-knowledge releases changed; release tag-concierge in the same build",
-        "tag-due-diligence@0.1.0 bundles governance-search-strategy, which tag-knowledge releases changed; release tag-due-diligence in the same build",
-      ]);
-      await releaseAgents(root, "0.1.1", "### Fixed\n\n- Search strategy wording.");
+      const versions = await Promise.all(AGENTS.map((name) => agentVersions(root, name)));
+      assert.deepEqual(
+        alone.errors,
+        AGENTS.map(
+          (name, i) =>
+            `${name}@${versions[i].current} bundles governance-search-strategy, which tag-knowledge releases changed; release ${name} in the same build`,
+        ),
+      );
+      await releaseAgents(root, "patch", "### Fixed\n\n- Search strategy wording.");
       const knowledge = await plan(root, initial, LATER);
       assert.deepEqual(knowledge.errors, []);
       assert.deepEqual(
         knowledge.releases.map((r) => r.entry.tag),
-        ["tag-concierge@0.1.1", "tag-due-diligence@0.1.1", "tag-knowledge@0.1.2"],
+        [...AGENTS.map((name, i) => `${name}@${versions[i].next}`), "tag-knowledge@0.1.2"],
       );
       assert.deepEqual((await plan(root, knowledge.index, LATER)).pending, []);
 
@@ -654,7 +669,7 @@ describe("release index and archives", () => {
       await setSkillVersion(root, "skills/governance/governance-search-strategy", "0.1.1");
       await editManifest(root, "tag-knowledge", (m) => (m.version = "0.1.2"));
       await addChangelogSection(root, "tag-knowledge", "0.1.2", "### Added\n\n- governance-search-strategy.");
-      await releaseAgents(root, "0.1.1", "### Fixed\n\n- Search strategy wording.");
+      await releaseAgents(root, "patch", "### Fixed\n\n- Search strategy wording.");
       const knowledge = await plan(root, initial, LATER);
       assert.deepEqual(knowledge.errors, []);
       // As if tag-knowledge 0.1.1 did not ship governance-search-strategy yet.
