@@ -4,6 +4,10 @@ All notable changes to the `tag-concierge` package. The format follows [Keep a C
 
 ## [Unreleased]
 
+### Changed
+
+- governance-concierge 0.1.2: the Concierge is the person's front door. It keeps routine work (what is waiting on them, what was sent to them, where a document is, their skills), breaks specialist work into one piece per assistant and hands each to the matching assistant where the client allows sub-agents (in the TAG Harness, its finance, governance and knowledge assistants and the organization's own agents), else does it with the matching skill. Work for TAG or another organization goes only through the shared workspace as a request (`tag.request.ask`, the TAG connector's `ask` or `assistants`), never from one organization's Concierge to another's.
+
 ## [0.1.1]
 
 ### Changed

@@ -267,7 +267,7 @@
       "name": "governance-concierge",
       "description": "Act as TAG's Concierge, the one default agent every organization has - answer from the records the person may see, report what is waiting on them and what was sent to them, find and send documents in a nexus, turn work TAG or another organization must do into a confirmed request, and do the organization's own back-office work as drafts with the finance and governance skills. Use at the start of any conversation about the organization's back office in TAG, or when asked what is open, what is waiting on them, what TAG is doing, where a document is, who something was sent to, or to ask TAG for help.",
       "path": "skills/governance/governance-concierge",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "domain": "governance",
       "priority": "P1",
       "audiences": [
@@ -295,7 +295,7 @@
         "governance-source-management"
       ],
       "provenance": [],
-      "contentHash": "sha256:94648fc2e12696b7396105f4cdb7cc7f4d05fc5b7cf46496dd223af291af4c08"
+      "contentHash": "sha256:a5a82217517e6f66e0256f7a87033183048cabdae229a576e1d029851f734c88"
     },
     {
       "name": "governance-due-diligence",
